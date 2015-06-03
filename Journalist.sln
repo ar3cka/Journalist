@@ -5,6 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{305C646A-067C-4D97-AE84-F26AF63B8345}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		build.bat = build.bat
 		build.fsx = build.fsx
 		paket.dependencies = paket.dependencies

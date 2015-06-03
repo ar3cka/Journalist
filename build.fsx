@@ -23,13 +23,13 @@ Target "BuilTest" (fun _ ->
 
 Target "RunUnitTests" (fun _ ->
     !! (testDir + "/*.UnitTests.dll")
-    |> xUnit2 (fun p -> 
+    |> xUnit2 (fun p ->
         { p with ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
 )
 
 "Clean"
     ==> "BuildApp"
     ==> "BuilTest"
-    ==> "RunUnitTests"    
+    ==> "RunUnitTests"
 
 RunTargetOrDefault "RunUnitTests"
