@@ -1,0 +1,6 @@
+source https://nuget.org/api/v2
+
+nuget FAKE
+nuget WindowsAzure.Storage
+nuget xunit
+nuget xunit.runner.console
