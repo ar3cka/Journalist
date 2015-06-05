@@ -41,7 +41,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             // act
             await AppendEventsAsync(position: EventStreamPosition.Start);
 
-            Assert.ThrowsAsync<EventStreamConcurrencyException>(
+            await Assert.ThrowsAsync<EventStreamConcurrencyException>(
                 async () => await AppendEventsAsync(position: EventStreamPosition.Start));
         }
 
@@ -54,7 +54,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             // act
             await AppendEventsAsync(position: position);
 
-            Assert.ThrowsAsync<EventStreamConcurrencyException>(async () => await AppendEventsAsync(position: position));
+           await Assert.ThrowsAsync<EventStreamConcurrencyException>(async () => await AppendEventsAsync(position: position));
         }
 
         [Fact]
