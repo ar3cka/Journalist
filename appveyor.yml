@@ -1,5 +1,9 @@
 init:
   - git config --global core.autocrlf input
+  
+branches:
+  only:
+  - master
 
 before_build:
   - start /d "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator" /wait WAStorageEmulator.exe start
