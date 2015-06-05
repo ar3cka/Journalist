@@ -27,9 +27,16 @@ Target "RunUnitTests" (fun _ ->
         { p with ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
 )
 
+Target "RunIntegrationTests" (fun _ ->
+    !! (testDir + "/*.IntegrationTests.dll")
+    |> xUnit2 (fun p ->
+        { p with ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
+)
+
 "Clean"
     ==> "BuildApp"
     ==> "BuilTest"
     ==> "RunUnitTests"
+    ==> "RunIntegrationTests"
 
-RunTargetOrDefault "RunUnitTests"
+RunTargetOrDefault "RunIntegrationTests"
