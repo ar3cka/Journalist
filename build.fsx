@@ -1,6 +1,7 @@
 #r @"packages/FAKE/tools/FakeLib.dll"
 
 open Fake
+open Fake.AssemblyInfoFile
 open Fake.Testing.XUnit2
 
 let buildDir = "out/build"
@@ -11,6 +12,18 @@ let testProjects = !! "test/**/*.fsproj" ++ "test/**/*.csproj"
 
 Target "Clean" (fun _ ->
     CleanDirs [ buildDir; testDir ]
+)
+
+Target "GenerateAssemblyInfo" (fun _ ->
+
+    let commonAttributes = [
+        Attribute.Product "Journalist";
+        Attribute.Version "0.0.1";
+        Attribute.InformationalVersion "0.0.1";
+        Attribute.FileVersion "0.0.1" ]
+
+    !! "src/**/AssemblyInfo.cs"
+    |> Seq.iter (fun path -> CreateCSharpAssemblyInfo path commonAttributes)
 )
 
 Target "BuildApp" (fun _ ->
@@ -34,6 +47,7 @@ Target "RunIntegrationTests" (fun _ ->
 )
 
 "Clean"
+    ==> "GenerateAssemblyInfo"
     ==> "BuildApp"
     ==> "BuildTest"
     ==> "RunUnitTests"
