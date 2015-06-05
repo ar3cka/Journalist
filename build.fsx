@@ -28,9 +28,15 @@ Target "RunUnitTests" (fun _ ->
 )
 
 Target "RunIntegrationTests" (fun _ ->
+
+    AzureHelper.StartStorageEmulator |> ignore
+
     !! (testDir + "/*.IntegrationTests.dll")
     |> xUnit2 (fun p ->
         { p with ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
+
+    AzureHelper.ResetDevStorage |> ignore
+    AzureHelper.StopStorageEmulator |> ignore
 )
 
 "Clean"

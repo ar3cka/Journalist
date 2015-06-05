@@ -137,12 +137,10 @@ namespace Journalist.Options
 
         public static Option<T> Some<T>(T value)
         {
-            var isRefType = typeof (T).IsClass || typeof (T).IsInterface;
-
-            Require.True(
-                isRefType && value != null,
-                "value",
-                "Can not create Option.Some for 'null' value of referenced type.");
+            if (typeof(T).IsClass || typeof(T).IsInterface)
+            {
+                Require.True(value != null, "value", "Can not create Option.Some for 'null' value of referenced type.");
+            }
 
             return new Option<T>(value);
         }

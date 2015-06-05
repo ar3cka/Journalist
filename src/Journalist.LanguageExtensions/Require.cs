@@ -8,7 +8,7 @@ namespace Journalist
         [DebuggerNonUserCode]
         public static void True(bool value, string param, string message)
         {
-            if (value)
+            if (value == false)
             {
                 throw new ArgumentException(message, param);
             }
@@ -17,7 +17,7 @@ namespace Journalist
         [DebuggerNonUserCode]
         public static void False(bool value, string param, string message)
         {
-            if (value == false)
+            if (value)
             {
                 throw new ArgumentException(message, param);
             }

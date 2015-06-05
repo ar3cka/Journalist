@@ -44,7 +44,8 @@ namespace Journalist.EventStore.Journal
                 if (exception.OperationBatchNumber == 0 && IsConcurrencyException(exception))
                 {
                     throw new EventStreamConcurrencyException(
-                        "Event stream '{0}' was concurrently updated.".FormatString(streamName), exception);
+                        "Event stream '{0}' was concurrently updated.".FormatString(streamName),
+                        exception);
                 }
 
                 throw;
@@ -172,7 +173,7 @@ namespace Journalist.EventStore.Journal
             }
 
             var query = m_table.PrepareEntityFilterRangeQuery(
-                "(PartitionKeq eq '{0}') and (RowKey ge '{0}' and RowKey le '{1}')".FormatString(
+                "(PartitionKey eq '{0}') and (RowKey ge '{1}' and RowKey le '{2}')".FormatString(
                     stream,
                     fromVersion.ToString(),
                     nextSliceVersion.ToString()), JournaledEventPropertyNames.All);
@@ -182,7 +183,7 @@ namespace Journalist.EventStore.Journal
             var result = new SortedList<StreamVersion, JournaledEvent>(sliceSize);
             foreach (var properties in queryResult)
             {
-                result.Add(StreamVersion.Parse((string) properties["RowKey"]), JournaledEvent.Create(properties));
+                result.Add(StreamVersion.Parse((string)properties[KnownProperties.RowKey]), JournaledEvent.Create(properties));
             }
 
             return result;

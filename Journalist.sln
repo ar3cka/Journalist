@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventStore", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventStore.UnitTests", "test\Journalist.EventStore.UnitTests\Journalist.EventStore.UnitTests.csproj", "{550D7589-7757-4D09-A176-43FB37CC37ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventStore.IntegrationTests", "test\Journalist.EventStore.IntegrationTests\Journalist.EventStore.IntegrationTests.csproj", "{D80C9A2D-FCD2-4F42-9BE3-5DD89AC4A13B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +68,10 @@ Global
 		{550D7589-7757-4D09-A176-43FB37CC37ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{550D7589-7757-4D09-A176-43FB37CC37ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{550D7589-7757-4D09-A176-43FB37CC37ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D80C9A2D-FCD2-4F42-9BE3-5DD89AC4A13B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D80C9A2D-FCD2-4F42-9BE3-5DD89AC4A13B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D80C9A2D-FCD2-4F42-9BE3-5DD89AC4A13B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D80C9A2D-FCD2-4F42-9BE3-5DD89AC4A13B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
