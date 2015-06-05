@@ -2,8 +2,7 @@ init:
   - git config --global core.autocrlf input
 
 before_build:
-  - cd "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator\"
-  - WAStorageEmulator.exe start
+  - start /d "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator" WAStorageEmulator.exe status
 
 build_script:
   - cmd: build.bat
