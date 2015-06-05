@@ -53,7 +53,13 @@ namespace Journalist
         [DebuggerNonUserCode]
         public static void NotEmpty(string value, string param)
         {
-            True(string.IsNullOrEmpty(value) == false, param, "Value must be not empty.");
+            False(string.IsNullOrEmpty(value), param, "Value must be not empty.");
+        }
+
+        [DebuggerNonUserCode]
+        public static void NotEmpty(Guid value, string param)
+        {
+            False(value == Guid.Empty, param, "Value must be not empty.");
         }
     }
 }

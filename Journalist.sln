@@ -24,6 +24,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.WindowsAzure.Sto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.WindowsAzure.Storage.UnitTests", "test\Journalist.WindowsAzure.Storage.UnitTests\Journalist.WindowsAzure.Storage.UnitTests.csproj", "{FBB59A1D-4802-4788-A531-C3AF470F314D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventStore", "src\Journalist.EventStore\Journalist.EventStore.csproj", "{152F2338-8806-40E7-AB96-F9B06F705A7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventStore.UnitTests", "test\Journalist.EventStore.UnitTests\Journalist.EventStore.UnitTests.csproj", "{550D7589-7757-4D09-A176-43FB37CC37ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +58,14 @@ Global
 		{FBB59A1D-4802-4788-A531-C3AF470F314D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBB59A1D-4802-4788-A531-C3AF470F314D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBB59A1D-4802-4788-A531-C3AF470F314D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{152F2338-8806-40E7-AB96-F9B06F705A7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{152F2338-8806-40E7-AB96-F9B06F705A7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{152F2338-8806-40E7-AB96-F9B06F705A7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{152F2338-8806-40E7-AB96-F9B06F705A7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{550D7589-7757-4D09-A176-43FB37CC37ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{550D7589-7757-4D09-A176-43FB37CC37ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{550D7589-7757-4D09-A176-43FB37CC37ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{550D7589-7757-4D09-A176-43FB37CC37ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
