@@ -17,7 +17,7 @@ Target "BuildApp" (fun _ ->
     MSBuildRelease buildDir "Build" applicationProjects |> ignore
 )
 
-Target "BuilTest" (fun _ ->
+Target "BuildTest" (fun _ ->
     MSBuildRelease testDir "Build" testProjects |> ignore
 )
 
@@ -35,7 +35,7 @@ Target "RunIntegrationTests" (fun _ ->
 
 "Clean"
     ==> "BuildApp"
-    ==> "BuilTest"
+    ==> "BuildTest"
     ==> "RunUnitTests"
     ==> "RunIntegrationTests"
 

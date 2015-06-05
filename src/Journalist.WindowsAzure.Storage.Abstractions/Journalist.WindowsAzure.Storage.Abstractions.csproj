@@ -47,6 +47,7 @@
     <Compile Include="Tables\ICloudTable.cs" />
     <Compile Include="Tables\ICloudTableEntityQuery.cs" />
     <Compile Include="Tables\ICloudTableEntityRangeQuery.cs" />
+    <Compile Include="Tables\ICloudTableEntitySegmentedRangeQuery.cs" />
     <Compile Include="Tables\KnownProperties.cs" />
     <Compile Include="Tables\OperationResult.cs" />
   </ItemGroup>

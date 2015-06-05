@@ -6,14 +6,17 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
-    public abstract class CloudTableQuery
+    public abstract class CloudTableSegmentedQuery
     {
         private readonly int? m_take;
         private readonly string[] m_properties;
         private readonly Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> m_fetchEntities;
         private readonly ITableEntityConverter m_tableEntityConverter;
 
-        protected CloudTableQuery(
+        private TableContinuationToken m_continuationToken;
+        private bool m_executionStarted;
+
+        protected CloudTableSegmentedQuery(
             int? take,
             string[] properties,
             Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> fetchEntities,
@@ -28,6 +31,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_properties = properties;
             m_fetchEntities = fetchEntities;
             m_tableEntityConverter = tableEntityConverter;
+            m_continuationToken = null;
         }
 
         protected async Task<IList<IDictionary<string, object>>> FetchEntities(string filter)
@@ -49,16 +53,18 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 result = new List<IDictionary<string, object>>();
             }
 
-            TableContinuationToken continuationToken = null;
-            do
-            {
-                var queryResult = await m_fetchEntities(query, continuationToken);
-                result.AddRange(queryResult.Results.Select(m_tableEntityConverter.CreatePropertiesFromDynamicTableEntity));
-                continuationToken = queryResult.ContinuationToken;
-            }
-            while (continuationToken != null);
+            var queryResult = await m_fetchEntities(query, m_continuationToken);
+            result.AddRange(queryResult.Results.Select(m_tableEntityConverter.CreatePropertiesFromDynamicTableEntity));
+
+            m_continuationToken = queryResult.ContinuationToken;
+            m_executionStarted = true;
 
             return result;
+        }
+
+        protected bool ReadNextSegment
+        {
+            get { return m_executionStarted && m_continuationToken != null; }
         }
     }
 }

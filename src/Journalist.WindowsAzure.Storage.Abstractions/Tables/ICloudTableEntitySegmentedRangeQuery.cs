@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
-    public interface ICloudTableEntityRangeQuery
+    public interface ICloudTableEntitySegmentedRangeQuery
     {
+        bool HasMore { get; }
+
         Task<IList<IDictionary<string, object>>> ExecuteAsync();
     }
 }

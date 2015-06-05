@@ -5,8 +5,11 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
-    public class CloudTablePointQuery : CloudTableQuery, ICloudTableEntityQuery
+    public class CloudTablePointQuery : CloudTableSegmentedQuery, ICloudTableEntityQuery
     {
+        private readonly string m_partitionKey;
+        private readonly string m_rowKey;
+
         public CloudTablePointQuery(
             string partitionKey,
             string rowKey,
@@ -19,17 +22,17 @@ namespace Journalist.WindowsAzure.Storage.Tables
             Require.NotEmpty(partitionKey, "partitionKey");
             Require.NotEmpty(rowKey, "rowKey");
 
-            _partitionKey = partitionKey;
-            _rowKey = rowKey;
+            m_partitionKey = partitionKey;
+            m_rowKey = rowKey;
         }
 
         public async Task<IDictionary<string, object>> ExecuteAsync()
         {
             var entities = await FetchEntities(
                 TableQuery.CombineFilters(
-                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, _partitionKey),
+                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, m_partitionKey),
                     TableOperators.And,
-                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, _rowKey)));
+                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, m_rowKey)));
 
             if (entities.Count == 0)
             {
@@ -43,8 +46,5 @@ namespace Journalist.WindowsAzure.Storage.Tables
 
             return entities[0];
         }
-
-        private readonly string _partitionKey;
-        private readonly string _rowKey;
     }
 }

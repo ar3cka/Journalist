@@ -5,11 +5,11 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
-    public sealed class CloudTableFilterRangeQuery : CloudTableSegmentedQuery, ICloudTableEntityRangeQuery
+    internal class CloudTableFilterSegmentedRangeQuery : CloudTableSegmentedQuery, ICloudTableEntitySegmentedRangeQuery
     {
         private readonly string m_filter;
 
-        public CloudTableFilterRangeQuery(
+        public CloudTableFilterSegmentedRangeQuery(
             string filter,
             int? take,
             string[] properties,
@@ -23,17 +23,14 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_filter = filter;
         }
 
+        public bool HasMore
+        {
+            get { return ReadNextSegment; }
+        }
+
         public async Task<IList<IDictionary<string, object>>> ExecuteAsync()
         {
-            var result = new List<IDictionary<string, object>>();
-
-            do
-            {
-                result.AddRange(await FetchEntities(m_filter));
-            }
-            while (ReadNextSegment);
-
-            return result;
+            return await FetchEntities(m_filter);
         }
     }
 }

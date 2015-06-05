@@ -44,9 +44,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StorageFactory.cs" />
     <Compile Include="Tables\CloudTableAdapter.cs" />
+    <Compile Include="Tables\CloudTableFilterSegmentedRangeQuery.cs" />
     <Compile Include="Tables\CloudTableFilterRangeQuery.cs" />
     <Compile Include="Tables\CloudTablePointQuery.cs" />
-    <Compile Include="Tables\CloudTableQuery.cs" />
+    <Compile Include="Tables\CloudTableSegmentedQuery.cs" />
     <Compile Include="Tables\ITableEntityConverter.cs" />
     <Compile Include="Tables\TableBatchOperationAdapter.cs" />
     <Compile Include="Tables\TableEntityConverters\TableEntityConverter.cs" />

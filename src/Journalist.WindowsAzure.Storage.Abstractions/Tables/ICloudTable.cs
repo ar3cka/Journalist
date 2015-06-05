@@ -7,5 +7,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
         ICloudTableEntityQuery PrepareEntityPointQuery(string partitionKey, string rowKey, string[] properties);
 
         ICloudTableEntityRangeQuery PrepareEntityFilterRangeQuery(string filter, string[] properties);
+
+        ICloudTableEntitySegmentedRangeQuery PrepareEntityFilterSegmentedRangeQuery(string filter, string[] properties);
     }
 }

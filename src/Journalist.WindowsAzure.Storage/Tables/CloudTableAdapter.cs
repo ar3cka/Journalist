@@ -39,6 +39,19 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 tableEntityConverter: m_tableEntityConverter);
         }
 
+        public ICloudTableEntitySegmentedRangeQuery PrepareEntityFilterSegmentedRangeQuery(string filter, string[] properties)
+        {
+            Require.NotNull(filter, "filter");
+            Require.NotNull(properties, "properties");
+
+            return new CloudTableFilterSegmentedRangeQuery(
+                filter: filter,
+                take: null,
+                properties: properties,
+                fetchEntities: ExecuteQueryAsync,
+                tableEntityConverter: m_tableEntityConverter);
+        }
+
         public ICloudTableEntityQuery PrepareEntityPointQuery(string partitionKey, string rowKey, string[] properties)
         {
             Require.NotNull(partitionKey, "partitionKey");
