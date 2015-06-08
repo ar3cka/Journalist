@@ -53,5 +53,6 @@ Target "CreatePackages" (fun _ ->
     ==> "BuildApp"
     ==> "RunUnitTests"
     ==> "RunIntegrationTests"
+    ==> "CreatePackages"
 
-RunTargetOrDefault "RunIntegrationTests"
+RunTargetOrDefault "CreatePackages"
