@@ -16,6 +16,7 @@ bld/
 out/
 [Bb]in/
 [Oo]bj/
+.paket/
 
 # Roslyn cache directories
 *.ide/
