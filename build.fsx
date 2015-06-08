@@ -45,7 +45,7 @@ Target "RunIntegrationTests" (fun _ ->
 
 Target "CreatePackages" (fun _ ->
     Paket.Pack (fun p ->
-        { p with OutputPath = nugetDir })
+        { p with OutputPath = nugetDir; })
 )
 
 "Clean"
