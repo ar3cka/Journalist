@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="Journal\EventJournal.cs" />
     <Compile Include="Journal\EventJournalTableRowPropertyNames.cs" />
     <Compile Include="Journal\EventStreamAppendOperationFailedException.cs" />

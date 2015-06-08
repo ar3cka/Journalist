@@ -6,6 +6,7 @@ open Fake.Testing.XUnit2
 
 let buildDir = "out/build"
 let testDir = "out/test"
+let nugetDir = "out/nuget"
 
 let applicationProjects = !! "src/**/*.fsproj" ++ "src/**/*.csproj"
 let testProjects = !! "test/**/*.fsproj" ++ "test/**/*.csproj"
@@ -16,14 +17,11 @@ Target "Clean" (fun _ ->
 
 Target "GenerateAssemblyInfo" (fun _ ->
 
-    let commonAttributes = [
-        Attribute.Product "Journalist";
-        Attribute.Version "0.0.1";
-        Attribute.InformationalVersion "0.0.1";
-        Attribute.FileVersion "0.0.1" ]
-
-    !! "src/**/AssemblyInfo.cs"
-    |> Seq.iter (fun path -> CreateCSharpAssemblyInfo path commonAttributes)
+    CreateCSharpAssemblyInfo "src/SolutionInfo.cs" [
+            Attribute.Product "Journalist";
+            Attribute.Version "0.0.1";
+            Attribute.InformationalVersion "0.0.1";
+            Attribute.FileVersion "0.0.1" ]
 )
 
 Target "BuildApp" (fun _ ->
