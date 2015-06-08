@@ -4,15 +4,17 @@ open Fake
 open Fake.AssemblyInfoFile
 open Fake.Testing.XUnit2
 
-let buildDir = "out/build"
-let testDir = "out/test"
 let nugetDir = "out/nuget"
 
 let applicationProjects = !! "src/**/*.fsproj" ++ "src/**/*.csproj"
 let testProjects = !! "test/**/*.fsproj" ++ "test/**/*.csproj"
 
+MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Minimal }
+
 Target "Clean" (fun _ ->
-    CleanDirs [ buildDir; testDir ]
+    CleanDirs <| !! "src/**/bin/Release"
+    CleanDirs <| !! "test/**/bin/Release"
+    CleanDirs [ nugetDir ]
 )
 
 Target "GenerateAssemblyInfo" (fun _ ->
@@ -21,33 +23,34 @@ Target "GenerateAssemblyInfo" (fun _ ->
             Attribute.Product "Journalist";
             Attribute.Version "0.0.1";
             Attribute.InformationalVersion "0.0.1";
-            Attribute.FileVersion "0.0.1" ]
+            Attribute.FileVersion "0.0.1";
+            Attribute.Company "Anton Mednonogov (mednonogov.anton@gmail.com)" ]
 )
 
 Target "BuildApp" (fun _ ->
-    MSBuildRelease buildDir "Build" applicationProjects |> ignore
-)
-
-Target "BuildTest" (fun _ ->
-    MSBuildRelease testDir "Build" testProjects |> ignore
+    MSBuildRelease null "Build" [ "./Journalist.sln" ] |> ignore
 )
 
 Target "RunUnitTests" (fun _ ->
-    !! (testDir + "/*.UnitTests.dll")
+    !! ("./test/**/bin/Release/*.UnitTests.dll")
     |> xUnit2 (fun p ->
         { p with ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
 )
 
 Target "RunIntegrationTests" (fun _ ->
-    !! (testDir + "/*.IntegrationTests.dll")
+    !! ("./test/**/bin/Release/*.IntegrationTests.dll")
     |> xUnit2 (fun p ->
         { p with ToolPath = "packages/xunit.runner.console/tools/xunit.console.exe" })
+)
+
+Target "CreatePackages" (fun _ ->
+    Paket.Pack (fun p ->
+        { p with OutputPath = nugetDir })
 )
 
 "Clean"
     ==> "GenerateAssemblyInfo"
     ==> "BuildApp"
-    ==> "BuildTest"
     ==> "RunUnitTests"
     ==> "RunIntegrationTests"
 
