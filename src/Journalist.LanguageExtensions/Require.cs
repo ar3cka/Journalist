@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Journalist
 {
     public static class Require
     {
         [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void True(bool value, string param, string message)
         {
             if (value == false)
@@ -15,6 +17,7 @@ namespace Journalist
         }
 
         [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void False(bool value, string param, string message)
         {
             if (value)
@@ -24,6 +27,7 @@ namespace Journalist
         }
 
         [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ZeroOrGreater(long value, string param)
         {
             if (value < 0)
@@ -33,6 +37,7 @@ namespace Journalist
         }
 
         [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Positive(long value, string param)
         {
             if (value <= 0)
@@ -42,6 +47,7 @@ namespace Journalist
         }
 
         [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void NotNull(object value, string param)
         {
             if (value == null)
@@ -51,12 +57,14 @@ namespace Journalist
         }
 
         [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void NotEmpty(string value, string param)
         {
             False(string.IsNullOrEmpty(value), param, "Value must be not empty.");
         }
 
         [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void NotEmpty(Guid value, string param)
         {
             False(value == Guid.Empty, param, "Value must be not empty.");
