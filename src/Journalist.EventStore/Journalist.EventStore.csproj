@@ -69,9 +69,14 @@
       <Project>{02de3364-1504-4936-934b-52da4b8a2092}</Project>
       <Name>Journalist.WindowsAzure.Storage.Abstractions</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Journalist.WindowsAzure.Storage\Journalist.WindowsAzure.Storage.csproj">
+      <Project>{27467a27-6427-43fb-9fe8-0edebe115483}</Project>
+      <Name>Journalist.WindowsAzure.Storage</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
+    <None Include="paket.template" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
