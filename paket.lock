@@ -16,7 +16,7 @@ NUGET
     Microsoft.Data.Services.Client (5.6.2) - framework: >= net40
       Microsoft.Data.OData (5.6.2)
     Microsoft.WindowsAzure.ConfigurationManager (3.1.0) - framework: >= net40
-    Moq (4.2.1502.0911)
+    Moq (4.0.10827.0)
     Newtonsoft.Json (6.0.8) - framework: wpv8.0, >= net40
     Serilog (1.5.6)
     System.Spatial (5.6.2)

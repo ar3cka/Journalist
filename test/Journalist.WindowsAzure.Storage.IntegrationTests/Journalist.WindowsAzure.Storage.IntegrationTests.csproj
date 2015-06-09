@@ -198,7 +198,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v3.5'">
       <ItemGroup>
         <Reference Include="Moq">
-          <HintPath>..\..\packages\Moq\lib\net35\Moq.dll</HintPath>
+          <HintPath>..\..\packages\Moq\lib\NET35\Moq.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -206,8 +206,13 @@
     </When>
     <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v5.0')">
       <ItemGroup>
+        <Reference Include="Castle.Core">
+          <HintPath>..\..\packages\Moq\lib\Silverlight4\Castle.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
         <Reference Include="Moq.Silverlight">
-          <HintPath>..\..\packages\Moq\lib\sl4\Moq.Silverlight.dll</HintPath>
+          <HintPath>..\..\packages\Moq\lib\Silverlight4\Moq.Silverlight.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -216,7 +221,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
       <ItemGroup>
         <Reference Include="Moq">
-          <HintPath>..\..\packages\Moq\lib\net40\Moq.dll</HintPath>
+          <HintPath>..\..\packages\Moq\lib\NET40\Moq.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
