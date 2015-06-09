@@ -24,7 +24,7 @@ Target "GenerateAssemblyInfo" (fun _ ->
             Attribute.Version "0.0.1";
             Attribute.InformationalVersion "0.0.1";
             Attribute.FileVersion "0.0.1";
-            Attribute.Company "Anton Mednonogov (mednonogov.anton@gmail.com)" ]
+            Attribute.Company "Anton Mednonogov" ]
 )
 
 Target "BuildApp" (fun _ ->
