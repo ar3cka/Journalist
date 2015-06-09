@@ -59,6 +59,12 @@
     <Compile Include="Journal\StreamCursor\InitialCursorState.cs" />
     <Compile Include="Journal\StreamVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Streams\EventStream.cs" />
+    <Compile Include="Streams\EventStreamReader.cs" />
+    <Compile Include="Streams\EventStreamWriter.cs" />
+    <Compile Include="Streams\IEventStream.cs" />
+    <Compile Include="Streams\IEventStreamReader.cs" />
+    <Compile Include="Streams\IEventStreamWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">

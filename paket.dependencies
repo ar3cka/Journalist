@@ -6,4 +6,5 @@ nuget WindowsAzure.Storage
 nuget xunit
 nuget xunit.runner.console
 nuget AutoFixture.AutoMoq
+nuget AutoFixture.Xunit2
 nuget Serilog

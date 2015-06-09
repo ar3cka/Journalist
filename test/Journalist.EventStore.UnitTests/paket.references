@@ -1,1 +1,4 @@
-﻿xunit
+﻿Xunit
+AutoFixture.AutoMoq
+AutoFixture.Xunit2
+Moq
