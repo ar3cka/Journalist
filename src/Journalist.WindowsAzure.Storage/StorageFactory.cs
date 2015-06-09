@@ -5,9 +5,9 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage
 {
-    public static class StorageFactory
+    public class StorageFactory : IStorageFactory
     {
-        public static ICloudTable CreateTable(string connectionString, string tableName)
+        public ICloudTable CreateTable(string connectionString, string tableName)
         {
             Require.NotEmpty(connectionString, "connectionString");
             Require.NotEmpty(tableName, "tableName");
