@@ -9,6 +9,8 @@ let nugetDir = "out/nuget"
 let applicationProjects = !! "src/**/*.fsproj" ++ "src/**/*.csproj"
 let testProjects = !! "test/**/*.fsproj" ++ "test/**/*.csproj"
 
+let release = ReadFile "RELEASE_NOTES.md" |> ReleaseNotesHelper.parseReleaseNotes
+
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Minimal }
 
 Target "Clean" (fun _ ->
@@ -21,9 +23,9 @@ Target "GenerateAssemblyInfo" (fun _ ->
 
     CreateCSharpAssemblyInfo "src/SolutionInfo.cs" [
             Attribute.Product "Journalist";
-            Attribute.Version "0.0.1";
-            Attribute.InformationalVersion "0.0.1";
-            Attribute.FileVersion "0.0.1";
+            Attribute.Version release.AssemblyVersion;
+            Attribute.InformationalVersion release.AssemblyVersion;
+            Attribute.FileVersion release.AssemblyVersion;
             Attribute.Company "Anton Mednonogov" ]
 )
 
@@ -45,7 +47,10 @@ Target "RunIntegrationTests" (fun _ ->
 
 Target "CreatePackages" (fun _ ->
     Paket.Pack (fun p ->
-        { p with OutputPath = nugetDir; })
+        { p with
+            OutputPath = nugetDir
+            Version = release.NugetVersion
+            ReleaseNotes = release.Notes |> toLines })
 )
 
 "Clean"
