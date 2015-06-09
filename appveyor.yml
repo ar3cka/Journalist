@@ -17,7 +17,7 @@ build_script:
 
 test: off
 
-version: 0.0.1.{build}
+version: 0.0.2.{build}
 
 artifacts:
   - path: out
