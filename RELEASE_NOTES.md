@@ -1,3 +1,6 @@
+### 0.1.0 (Released 2015-06-09)
+* Add azure storage block blob basic api.
+
 ### 0.0.2 (Released 2015-06-09)
 * Made StorageFactory not static.
 
