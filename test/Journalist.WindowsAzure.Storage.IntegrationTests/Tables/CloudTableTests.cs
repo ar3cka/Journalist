@@ -10,10 +10,15 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
 {
     public class CloudTableTests
     {
+        public CloudTableTests()
+        {
+            Factory = new StorageFactory();
+        }
+
         [Fact]
         public async Task SegmentedRangeQueryTest()
         {
-            var table = StorageFactory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
             var partition = Guid.NewGuid().ToString();
 
             await InsertValues(table, partition);
@@ -45,5 +50,7 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
                 await operation.ExecuteAsync();
             }
         }
+
+        public StorageFactory Factory { get; set; }
     }
 }

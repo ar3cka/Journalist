@@ -157,7 +157,8 @@ namespace Journalist.EventStore.IntegrationTests.Journal
 
         private static EventJournal PrepareEventJournal()
         {
-            var journal = new EventJournal(StorageFactory.CreateTable("UseDevelopmentStorage=true", "TestEventJournal"));
+            var factory = new StorageFactory();
+            var journal = new EventJournal(factory.CreateTable("UseDevelopmentStorage=true", "TestEventJournal"));
 
             return journal;
         }
