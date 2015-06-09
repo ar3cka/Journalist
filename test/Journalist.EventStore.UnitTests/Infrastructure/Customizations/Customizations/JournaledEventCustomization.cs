@@ -1,0 +1,16 @@
+using Journalist.EventStore.Journal;
+using Ploeh.AutoFixture;
+
+namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations.Customizations
+{
+    public class JournaledEventCustomization : ICustomization
+    {
+        public void Customize(IFixture fixture)
+        {
+            fixture.Customize<JournaledEvent>(composer => composer
+                .FromFactory(() => JournaledEvent.Create(
+                    new object(),
+                    (_, type, writer) => writer.WriteLine(fixture.Create("EventPayload")))));
+        }
+    }
+}

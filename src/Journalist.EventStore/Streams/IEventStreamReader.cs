@@ -2,5 +2,6 @@
 {
     public interface IEventStreamReader
     {
+        string StreamName { get; }
     }
 }

@@ -65,6 +65,7 @@
     <Compile Include="Streams\IEventStream.cs" />
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
+    <Compile Include="Streams\IEventSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">

@@ -35,6 +35,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime" />
+    <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,14 +43,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\EmptyEventStreamCursorAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\NotEmptyEventStreamCursorAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Streams\EventStreamReaderTests.cs" />
     <Compile Include="Streams\EventStreamTests.cs" />
-    <Compile Include="Utils\AutoMoqDataAttribute.cs" />
+    <Compile Include="Infrastructure\Customizations\Customizations\JournaledEventCustomization.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Journalist.EventStore\Journalist.EventStore.csproj">
       <Project>{152f2338-8806-40e7-ab96-f9b06f705a7f}</Project>
       <Name>Journalist.EventStore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
+      <Project>{74fff4d4-eb88-44d5-b19b-f96f54faae38}</Project>
+      <Name>Journalist.LanguageExtensions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

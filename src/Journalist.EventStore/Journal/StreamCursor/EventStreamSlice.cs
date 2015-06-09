@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Journalist.EventStore.Journal.StreamCursor
 {
-    public class EventStreamSlice : IEnumerable<JournaledEvent>
+    public class EventStreamSlice : IReadOnlyCollection<JournaledEvent>
     {
         public static readonly EventStreamSlice Empty = new EventStreamSlice();
 
@@ -60,6 +60,11 @@ namespace Journalist.EventStore.Journal.StreamCursor
         public bool EndOfStream
         {
             get { return m_endOfStream; }
+        }
+
+        public int Count
+        {
+            get { return m_events.Count; }
         }
     }
 }

@@ -46,9 +46,9 @@ namespace Journalist.EventStore.Journal
             Require.NotNull(properties, "properties");
 
             var result = new JournaledEvent();
-            result.EventId = (Guid) properties[JournaledEventPropertyNames.EventId];
-            result.EventTypeName = (string) properties[JournaledEventPropertyNames.EventType];
-            result.EventPayload = (Stream) properties[JournaledEventPropertyNames.EventPayload];
+            result.EventId = (Guid)properties[JournaledEventPropertyNames.EventId];
+            result.EventTypeName = (string)properties[JournaledEventPropertyNames.EventType];
+            result.EventPayload = (Stream)properties[JournaledEventPropertyNames.EventPayload];
 
             return result;
         }

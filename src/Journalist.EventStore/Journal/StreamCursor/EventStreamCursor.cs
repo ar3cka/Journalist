@@ -21,9 +21,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
         {
             Require.NotNull(fetch, "fetch");
 
-            Position = position;
-
-            if (EventStreamPosition.IsAtStart(Position))
+            if (EventStreamPosition.IsAtStart(position))
             {
                 m_state = new EndOfStreamCursorState();
                 m_slice = EventStreamSlice.Empty;
@@ -57,7 +55,5 @@ namespace Journalist.EventStore.Journal.StreamCursor
         {
             get { return CursorState.IsEndOfStream(m_state); }
         }
-
-        public EventStreamPosition Position { get; private set; }
     }
 }
