@@ -32,11 +32,6 @@ namespace Journalist.Extensions
             return string.Join(separator, source.Select(toString));
         }
 
-        public static bool IsNotNullOrEmpty(this string source)
-        {
-            return !string.IsNullOrEmpty(source);
-        }
-
         public static string JoinStringsWithCommas<T>(this IEnumerable<T> source, Func<T, string> toString)
         {
             Require.NotNull(source, "source");
@@ -50,6 +45,16 @@ namespace Journalist.Extensions
             Require.NotNull(source, "source");
 
             return source.JoinStringsWith(", ");
+        }
+
+        public static bool IsNotNullOrEmpty(this string source)
+        {
+            return !string.IsNullOrEmpty(source);
+        }
+
+        public static bool IsNullOrEmpty(this string source)
+        {
+            return string.IsNullOrEmpty(source);
         }
     }
 }
