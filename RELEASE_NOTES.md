@@ -1,3 +1,7 @@
+### 0.2.0
+* [LanguageExtensions] Require.NotEmpty method for collection was added.
+* [EventStore] EventStream implementation.
+
 ### 0.1.0 (Released 2015-06-09)
 * Add azure storage block blob basic api.
 
