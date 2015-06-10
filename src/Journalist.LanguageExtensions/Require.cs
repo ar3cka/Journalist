@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Journalist
@@ -68,6 +70,13 @@ namespace Journalist
         public static void NotEmpty(Guid value, string param)
         {
             False(value == Guid.Empty, param, "Value must be not empty.");
+        }
+
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void NotEmpty<T>(IEnumerable<T> value, string param)
+        {
+            True(value.Any(), param, "Collection must be not empty.");
         }
     }
 }

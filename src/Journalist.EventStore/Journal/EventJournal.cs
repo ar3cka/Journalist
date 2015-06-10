@@ -20,11 +20,13 @@ namespace Journalist.EventStore.Journal
             m_table = table;
         }
 
-        public async Task<EventStreamPosition> AppendEventsAsync(string streamName, EventStreamPosition position,
+        public async Task<EventStreamPosition> AppendEventsAsync(
+            string streamName,
+            EventStreamPosition position,
             IReadOnlyCollection<JournaledEvent> events)
         {
             Require.NotEmpty(streamName, "streamName");
-            Require.NotNull(events, "events");
+            Require.NotEmpty(events, "events");
 
             var batch = m_table.PrepareBatchOperation();
 

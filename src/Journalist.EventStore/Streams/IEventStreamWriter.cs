@@ -7,6 +7,6 @@ namespace Journalist.EventStore.Streams
     {
         int StreamPosition { get; }
 
-        Task AppendEvents(IEnumerable<object> events);
+        Task AppendEvents(IReadOnlyCollection<object> events);
     }
 }

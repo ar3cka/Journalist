@@ -50,6 +50,7 @@
     <Compile Include="Streams\EventStreamReaderTests.cs" />
     <Compile Include="Streams\EventStreamTests.cs" />
     <Compile Include="Infrastructure\Customizations\Customizations\JournaledEventCustomization.cs" />
+    <Compile Include="Streams\EventStreamWriterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Journalist.EventStore\Journalist.EventStore.csproj">

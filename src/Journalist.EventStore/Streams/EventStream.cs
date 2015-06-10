@@ -31,11 +31,17 @@ namespace Journalist.EventStore.Streams
             return reader;
         }
 
-        public Task<IEventStreamWriter> OpenWriterAsync(string streamName)
+        public async Task<IEventStreamWriter> OpenWriterAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 
-            throw new System.NotImplementedException();
+            var endOfStream = await m_journal.ReadEndOfStreamPositionAsync(streamName);
+
+            return new EventStreamWriter(
+                streamName,
+                endOfStream,
+                m_journal,
+                m_serializer);;
         }
     }
 }
