@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Journal;
+using Journalist.EventStore.Streams.Serializers;
 
 namespace Journalist.EventStore.Streams
 {

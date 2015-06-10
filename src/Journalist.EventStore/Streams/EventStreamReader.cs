@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Journal.StreamCursor;
+using Journalist.EventStore.Streams.Serializers;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Streams

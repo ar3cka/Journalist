@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 
-namespace Journalist.EventStore.Streams
+namespace Journalist.EventStore.Streams.Serializers
 {
     public interface IEventSerializer
     {
