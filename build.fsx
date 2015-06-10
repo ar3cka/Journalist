@@ -53,11 +53,26 @@ Target "CreatePackages" (fun _ ->
             ReleaseNotes = release.Notes |> toLines })
 )
 
+Target "Default" DoNothing
 "Clean"
     ==> "GenerateAssemblyInfo"
     ==> "BuildApp"
     ==> "RunUnitTests"
     ==> "RunIntegrationTests"
     ==> "CreatePackages"
+    ==> "Default"
 
-RunTargetOrDefault "CreatePackages"
+Target "Test" DoNothing
+"Clean"
+    ==> "BuildApp"
+    ==> "RunUnitTests"
+    ==> "RunIntegrationTests"
+    ==> "Test"
+
+Target "UnitTest" DoNothing
+"Clean"
+    ==> "BuildApp"
+    ==> "RunUnitTests"
+    ==> "UnitTest"
+
+RunTargetOrDefault "Default"
