@@ -10,7 +10,6 @@ branches:
 skip_tags: true
 
 before_build:
-  - git remote set-url origin https://github.com/ar3cka/Journalist.git
   - start /d "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator" /wait WAStorageEmulator.exe start
   
 cache:
