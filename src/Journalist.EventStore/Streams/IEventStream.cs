@@ -6,6 +6,8 @@ namespace Journalist.EventStore.Streams
     {
         Task<IEventStreamReader> OpenReaderAsync(string streamName);
 
+        Task<IEventStreamReader> OpenReaderAsync(string streamName, int streamVersion);
+
         Task<IEventStreamWriter> OpenWriterAsync(string streamName);
     }
 }

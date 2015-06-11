@@ -40,7 +40,27 @@ namespace Journalist
 
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ZeroOrGreater(int value, string param)
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException(param, value, "Value must be zero or greater.");
+            }
+        }
+
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Positive(long value, string param)
+        {
+            if (value <= 0)
+            {
+                throw new ArgumentOutOfRangeException(param, value, "Value must be greater than zero.");
+            }
+        }
+
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Positive(int value, string param)
         {
             if (value <= 0)
             {

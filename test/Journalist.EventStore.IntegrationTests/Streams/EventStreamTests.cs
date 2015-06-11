@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Streams.Configuration;
@@ -52,6 +51,19 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             {
                 Assert.Equal(dummyEvents[i], reader.Events[i]);
             }
+        }
+
+        [Theory, AutoData]
+        public async Task OpenedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(DummyEvent[] dummyEvents)
+        {
+            var writer = await Stream.OpenWriterAsync(StreamName);
+            await writer.AppendEvents(dummyEvents);
+
+            var reader = await Stream.OpenReaderAsync(StreamName, writer.StreamPosition);
+            await reader.ReadEventsAsync();
+
+            Assert.Equal(1, reader.Events.Count);
+            Assert.Equal(dummyEvents[writer.StreamPosition - 1], reader.Events[0]);
         }
 
         public string StreamName
