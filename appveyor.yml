@@ -1,5 +1,7 @@
 init:
   - git config --global core.autocrlf input
+  - git config --global user.name %APPVEYOR_REPO_COMMIT_AUTHOR%
+  - git config --global user.email %APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL%
 
 branches:
   only:
