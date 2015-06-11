@@ -1,4 +1,4 @@
-### 0.2.0
+### 0.2.0 (2015-06-11)
 * [LanguageExtensions] Require.NotEmpty method for collection was added.
 * [LanguageExtensions] IsNullOrEmpty string extension method was added.
 * [EventStore] EventStream implementation.

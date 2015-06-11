@@ -2,6 +2,7 @@
 
 open Fake
 open Fake.AssemblyInfoFile
+open Fake.Git
 open Fake.Testing.XUnit2
 
 let nugetDir = "out/nuget"
@@ -53,6 +54,21 @@ Target "CreatePackages" (fun _ ->
             ReleaseNotes = release.Notes |> toLines })
 )
 
+Target "PublishPackages" (fun _ ->
+    Paket.Push (fun p ->
+        { p with
+            WorkingDir = nugetDir })
+)
+
+Target "Release" (fun _ ->
+    StageAll ""
+    Commit "" (sprintf "Bump version to %s" release.NugetVersion)
+    Branches.push ""
+
+    Branches.tag "" release.NugetVersion
+    Branches.pushTag "" "origin" release.NugetVersion
+)
+
 Target "Default" DoNothing
 "Clean"
     ==> "GenerateAssemblyInfo"
@@ -60,6 +76,7 @@ Target "Default" DoNothing
     ==> "RunUnitTests"
     ==> "RunIntegrationTests"
     ==> "CreatePackages"
+    ==> "PublishPackages"
     ==> "Default"
 
 Target "Test" DoNothing
