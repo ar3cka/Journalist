@@ -1,6 +1,5 @@
 init:
   - git config --global core.autocrlf input
-  - git remote set-url origin https://github.com/ar3cka/Journalist.git
   - git config --global user.name %APPVEYOR_REPO_COMMIT_AUTHOR%
   - git config --global user.email %APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL%
 
@@ -11,6 +10,7 @@ branches:
 skip_tags: true
 
 before_build:
+  - git remote set-url origin https://github.com/ar3cka/Journalist.git
   - start /d "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator" /wait WAStorageEmulator.exe start
   
 cache:
