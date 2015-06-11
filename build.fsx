@@ -77,6 +77,7 @@ Target "Default" DoNothing
     ==> "RunIntegrationTests"
     ==> "CreatePackages"
     ==> "PublishPackages"
+    ==> "Release"
     ==> "Default"
 
 Target "Test" DoNothing
