@@ -1,5 +1,6 @@
 init:
   - git config --global core.autocrlf input
+  - git remote set-url origin https://github.com/ar3cka/Journalist.git
   - git config --global user.name %APPVEYOR_REPO_COMMIT_AUTHOR%
   - git config --global user.email %APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL%
 
