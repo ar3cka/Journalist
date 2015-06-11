@@ -69,15 +69,6 @@ Target "Release" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
-Target "Default" DoNothing
-"Clean"
-    ==> "GenerateAssemblyInfo"
-    ==> "BuildApp"
-    ==> "RunUnitTests"
-    ==> "RunIntegrationTests"
-    ==> "CreatePackages"
-    ==> "Default"
-
 Target "Test" DoNothing
 "Clean"
     ==> "BuildApp"
@@ -90,5 +81,16 @@ Target "UnitTest" DoNothing
     ==> "BuildApp"
     ==> "RunUnitTests"
     ==> "UnitTest"
+
+Target "Default" DoNothing
+"Clean"
+    ==> "GenerateAssemblyInfo"
+    ==> "BuildApp"
+    ==> "RunUnitTests"
+    ==> "RunIntegrationTests"
+    ==> "Default"
+    ==> "CreatePackages"
+    ==> "PublishPackages"
+    ==> "Release"
 
 RunTargetOrDefault "Default"
