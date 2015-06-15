@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Journalist.EventSourced.Entities;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -16,7 +17,7 @@ namespace Journalist.EventSourced.UnitTests.Entities
         [Fact]
         public void Mutate_IncrementsStateVersionWithNumberEvents()
         {
-            var originalStateVersion = State.StateVersion;
+            var originalStateVersion = State.MutatedStateVersion;
             var events = Fixture.CreateMany<object>();
 
             foreach (var e in events)
@@ -24,8 +25,8 @@ namespace Journalist.EventSourced.UnitTests.Entities
                 State.Mutate(e);
             }
 
-
-            Assert.Equal(originalStateVersion + events.Count(), State.StateVersion);
+            Assert.Equal(originalStateVersion, State.OriginalStateVersion);
+            Assert.Equal(originalStateVersion + events.Count(), State.MutatedStateVersion);
         }
 
         [Fact]
@@ -42,6 +43,34 @@ namespace Journalist.EventSourced.UnitTests.Entities
             {
                 Assert.Contains(e, State.Changes);
             }
+        }
+
+        [Fact]
+        public void StateWasPersisted_ResetsChanges()
+        {
+            State.Mutate(Fixture.Create<object>());
+
+            State.StateWasPersisted(1);
+
+            Assert.Empty(State.Changes);
+        }
+
+        [Fact]
+        public void StateWasPersisted_SavesMutatedVersion()
+        {
+            State.Mutate(Fixture.Create<object>());
+
+            State.StateWasPersisted(1);
+
+            Assert.Equal(State.MutatedStateVersion, State.OriginalStateVersion);
+        }
+
+        [Fact]
+        public void StateWasPersisted_WhenSavedVersionIsDifferentThanPersisted_Throws()
+        {
+            State.Mutate(Fixture.Create<object>());
+
+            Assert.Throws<ArgumentException>(() => State.StateWasPersisted(Fixture.Create<int>()));
         }
 
         public IFixture Fixture { get; set; }
