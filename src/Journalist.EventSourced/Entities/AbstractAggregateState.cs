@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using System.Net.Cache;
 
 namespace Journalist.EventSourced.Entities
 {
@@ -22,6 +22,11 @@ namespace Journalist.EventSourced.Entities
         public void Restore(IEnumerable<object> events)
         {
             Require.NotNull(events, "events");
+
+            foreach (var e in events)
+            {
+                Mutate(e);
+            }
         }
 
         public void StateWasPersisted(int persistedVersion)
@@ -31,6 +36,23 @@ namespace Journalist.EventSourced.Entities
                 persistedVersion == m_mutatedStateVersion, 
                 "persistedVersion", 
                 "Persisted version is not equals to mutated.");
+
+            m_changes.Clear();
+            m_originalStateVersion = m_mutatedStateVersion;
+        }
+
+        public void StateWasRestored(int restoredVersion)
+        {
+            Require.Positive(restoredVersion, "restoredVersion");
+            Require.True(
+                restoredVersion == m_mutatedStateVersion,
+                "restoredVersion",
+                "Restored version is not equals to mutated.");
+
+            if (m_changes.Count == 0)
+            {
+                throw new InvalidOperationException("There is no changes for restore from.");
+            }
 
             m_changes.Clear();
             m_originalStateVersion = m_mutatedStateVersion;

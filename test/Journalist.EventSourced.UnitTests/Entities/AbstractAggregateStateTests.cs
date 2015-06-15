@@ -12,34 +12,32 @@ namespace Journalist.EventSourced.UnitTests.Entities
         {
             Fixture = new Fixture();
             State = Fixture.Create<TestableState>();
+            Changes = Fixture.CreateMany<object>().ToArray();
         }
 
         [Fact]
         public void Mutate_IncrementsStateVersionWithNumberEvents()
         {
             var originalStateVersion = State.MutatedStateVersion;
-            var events = Fixture.CreateMany<object>();
 
-            foreach (var e in events)
+            foreach (var e in Changes)
             {
                 State.Mutate(e);
             }
 
             Assert.Equal(originalStateVersion, State.OriginalStateVersion);
-            Assert.Equal(originalStateVersion + events.Count(), State.MutatedStateVersion);
+            Assert.Equal(originalStateVersion + Changes.Count(), State.MutatedStateVersion);
         }
 
         [Fact]
         public void Mutate_AppendsAllEventsToStateChanges()
         {
-            var events = Fixture.CreateMany<object>();
-
-            foreach (var e in events)
+            foreach (var e in Changes)
             {
                 State.Mutate(e);
             }
 
-            foreach (var e in events)
+            foreach (var e in Changes)
             {
                 Assert.Contains(e, State.Changes);
             }
@@ -48,7 +46,7 @@ namespace Journalist.EventSourced.UnitTests.Entities
         [Fact]
         public void StateWasPersisted_ResetsChanges()
         {
-            State.Mutate(Fixture.Create<object>());
+            State.Mutate(Changes);
 
             State.StateWasPersisted(1);
 
@@ -58,7 +56,7 @@ namespace Journalist.EventSourced.UnitTests.Entities
         [Fact]
         public void StateWasPersisted_SavesMutatedVersion()
         {
-            State.Mutate(Fixture.Create<object>());
+            State.Mutate(Changes);
 
             State.StateWasPersisted(1);
 
@@ -68,14 +66,54 @@ namespace Journalist.EventSourced.UnitTests.Entities
         [Fact]
         public void StateWasPersisted_WhenSavedVersionIsDifferentThanPersisted_Throws()
         {
-            State.Mutate(Fixture.Create<object>());
+            State.Mutate(Changes);
 
             Assert.Throws<ArgumentException>(() => State.StateWasPersisted(Fixture.Create<int>()));
+        }
+
+        [Fact]
+        public void StateWasRestored_WhenNoChangesAppliedToState_Throws()
+        {
+            State.Mutate(Fixture.Create<object>());
+            State.StateWasPersisted(State.MutatedStateVersion);
+
+            Assert.Throws<InvalidOperationException>(() => State.StateWasRestored(State.MutatedStateVersion));
+        }
+
+        [Fact]
+        public void StateWasRestored_WhenRestoredVersionIsDifferent_Throws()
+        {
+            State.Restore(Changes);
+
+            Assert.Throws<ArgumentException>(() => State.StateWasRestored(Fixture.Create<int>()));
+        }
+
+        [Fact]
+        public void StateWasRestored_SavesMutatedVersion()
+        {
+            State.Restore(Changes);
+
+            State.StateWasRestored(State.OriginalStateVersion + Changes.Count());
+
+            Assert.Equal(State.MutatedStateVersion, State.OriginalStateVersion);
+        }
+
+        [Fact]
+        public void Restore_UpdatesMutatedVersion()
+        {
+            var originalVersion = State.OriginalStateVersion;
+
+            State.Restore(Changes);
+
+            Assert.Equal(originalVersion, State.OriginalStateVersion);
+            Assert.Equal(State.OriginalStateVersion + Changes.Count(), State.MutatedStateVersion);
         }
 
         public IFixture Fixture { get; set; }
 
         public IAggregatePersistenceState State { get; set; }
+
+        public object[] Changes { get; set; }
 
         public class TestableState : AbstractAggregateState
         {

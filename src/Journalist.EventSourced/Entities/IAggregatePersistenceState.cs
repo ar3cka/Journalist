@@ -10,6 +10,8 @@ namespace Journalist.EventSourced.Entities
 
         void StateWasPersisted(int persistedVersion);
 
+        void StateWasRestored(int restoredVersion);
+
         IReadOnlyList<object> Changes { get; }
 
         int MutatedStateVersion { get; }
