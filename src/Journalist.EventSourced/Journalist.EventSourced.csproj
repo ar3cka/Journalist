@@ -39,13 +39,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\AbstractAggregateState.cs" />
     <Compile Include="Entities\IAggregateRoot.cs" />
-    <Compile Include="Entities\IAggregateState.cs" />
+    <Compile Include="Entities\IAggregatePersistenceState.cs" />
     <Compile Include="Entities\IIdentity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ValueObjects\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
+      <Project>{74fff4d4-eb88-44d5-b19b-f96f54faae38}</Project>
+      <Name>Journalist.LanguageExtensions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
