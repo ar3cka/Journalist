@@ -72,6 +72,7 @@
     <Compile Include="Streams\Serializers\EventSerializationException.cs" />
     <Compile Include="Streams\Serializers\IEventSerializer.cs" />
     <Compile Include="Streams\Serializers\Json\JsonEventSerializer.cs" />
+    <Compile Include="Streams\Serializers\Json\OptionConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">

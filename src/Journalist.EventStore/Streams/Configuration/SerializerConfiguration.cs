@@ -10,9 +10,10 @@ namespace Journalist.EventStore.Streams.Configuration
         {
             Require.NotNull(config, "config");
 
-            return config.UseSerializer(
-                new JsonEventSerializer(
-                    new JsonSerializer()));
+            var serializer = new JsonSerializer();
+            serializer.Converters.Add(new OptionConverter());
+
+            return config.UseSerializer(new JsonEventSerializer(serializer));
         }
     }
 }
