@@ -109,6 +109,56 @@ namespace Journalist.EventSourced.UnitTests.Entities
             Assert.Equal(State.OriginalStateVersion + Changes.Count(), State.MutatedStateVersion);
         }
 
+        [Fact]
+        public void Restore_WhenStateIsBeingMutated_Throws()
+        {
+            State.Mutate(Fixture.Create<object>());
+
+            Assert.Throws<InvalidOperationException>(() => State.Restore(Changes));
+        }
+
+        [Fact]
+        public void Mutate_WhenStateIsBeingRestored_Throws()
+        {
+            State.Restore(Changes);
+
+            Assert.Throws<InvalidOperationException>(() => State.Mutate(Fixture.Create<object>()));
+        }
+
+        [Fact]
+        public void Restore_WhenMutationWasCompleted_NotThrows()
+        {
+            State.Mutate(Fixture.Create<object>());
+            State.StateWasPersisted(State.MutatedStateVersion);
+
+            State.Restore(Changes);
+        }
+
+        [Fact]
+        public void Mutate_WhenRestorationWasCompleted_NotThrows()
+        {
+            State.Restore(Changes);
+            State.StateWasRestored(State.MutatedStateVersion);
+
+            State.Mutate(Fixture.Create<object>());
+        }
+
+        [Fact]
+        public void StateWasRestored_WhenStateIsBeingMutated_Throws()
+        {
+            State.Mutate(Fixture.Create<object>());
+
+            Assert.Throws<InvalidOperationException>(() => State.StateWasRestored(State.MutatedStateVersion));
+        }
+
+        [Fact]
+        public void StateWasPersisted_WhenStateIsBeingRestored_Throws()
+        {
+            State.Restore(Changes);
+
+            Assert.Throws<InvalidOperationException>(() => State.StateWasPersisted(State.MutatedStateVersion));
+        }
+
         public IFixture Fixture { get; set; }
 
         public IAggregatePersistenceState State { get; set; }
