@@ -40,14 +40,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\AbstractAggregateState.cs" />
+    <Compile Include="Entities\AbstractIdentity.cs" />
     <Compile Include="Entities\IAggregateRoot.cs" />
     <Compile Include="Entities\IAggregatePersistenceState.cs" />
     <Compile Include="Entities\IIdentity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValueObjects\ValueObject.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ValueObjects\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
       <Project>{74fff4d4-eb88-44d5-b19b-f96f54faae38}</Project>
