@@ -1,28 +1,26 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
+using Journalist.WindowsAzure.Storage.Internals;
 using Journalist.WindowsAzure.Storage.Tables.TableEntityConverters;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
-    public class CloudTableAdapter : ICloudTable
+    public class CloudTableAdapter : CloudEntityAdapter<CloudTable>, ICloudTable
     {
-        private readonly Lazy<CloudTable> m_table;
         private readonly ITableEntityConverter m_tableEntityConverter;
 
-        internal CloudTableAdapter(Func<CloudTable> tableFactory)
+        internal CloudTableAdapter(Func<CloudTable> tableFactory) : base(tableFactory)
         {
             Require.NotNull(tableFactory, "tableFactory");
 
-            m_table = new Lazy<CloudTable>(tableFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             m_tableEntityConverter = new TableEntityConverter();
         }
 
         public IBatchOperation PrepareBatchOperation()
         {
             return new TableBatchOperationAdapter(
-                batch => Table.ExecuteBatchAsync(batch),
+                batch => CloudEntity.ExecuteBatchAsync(batch),
                 m_tableEntityConverter);
         }
 
@@ -69,12 +67,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
         private Task<TableQuerySegment<DynamicTableEntity>> ExecuteQueryAsync(TableQuery<DynamicTableEntity> query,
             TableContinuationToken continuationToken)
         {
-            return Table.ExecuteQuerySegmentedAsync(query, continuationToken);
-        }
-
-        private CloudTable Table
-        {
-            get { return m_table.Value; }
+            return CloudEntity.ExecuteQuerySegmentedAsync(query, continuationToken);
         }
     }
 }

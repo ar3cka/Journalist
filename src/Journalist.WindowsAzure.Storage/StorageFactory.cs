@@ -1,8 +1,10 @@
 using System;
 using Journalist.WindowsAzure.Storage.Blobs;
+using Journalist.WindowsAzure.Storage.Queues;
 using Journalist.WindowsAzure.Storage.Tables;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage
@@ -15,6 +17,14 @@ namespace Journalist.WindowsAzure.Storage
             Require.NotEmpty(tableName, "tableName");
 
             return new CloudTableAdapter(CreateTableFactory(connectionString, tableName));
+        }
+
+        public ICloudQueue CreateQueue(string connectionString, string queueName)
+        {
+            Require.NotEmpty(connectionString, "connectionString");
+            Require.NotEmpty(queueName, "queueName");
+
+            return new CloudQueueAdapter(CreateQueueFactory(connectionString, queueName));
         }
 
         public ICloudBlobContainer CreateBlobContainer(string connectionString, string containerName)
@@ -36,6 +46,20 @@ namespace Journalist.WindowsAzure.Storage
                 table.CreateIfNotExists();
 
                 return table;
+            };
+        }
+
+        private static Func<CloudQueue> CreateQueueFactory(string connectionString, string queueName)
+        {
+            return () =>
+            {
+                var account = CloudStorageAccount.Parse(connectionString);
+
+                var queueClient = account.CreateCloudQueueClient();
+                var queue = queueClient.GetQueueReference(queueName);
+                queue.CreateIfNotExists();
+
+                return queue;
             };
         }
 
