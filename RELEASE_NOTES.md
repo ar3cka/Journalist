@@ -1,5 +1,8 @@
+### 0.4.0 (2015-06-18)
+* [WAZ.Storage] CloudQueue API.
+
 ### 0.3.1 (2015-06-15)
-* [EventStore] Options type serialization support was added in Journalist.EventStore.Streams.Serializers.Json.JsonEventSerializer.
+* [EventStoe] Options type serialization support was added in Journalist.EventStore.Streams.Serializers.Json.JsonEventSerializer.
 
 ### 0.3.0 (2015-06-11)
 * [LanguageExtensions] Require.Positive and Require.ZeroOrGreater method for int type.

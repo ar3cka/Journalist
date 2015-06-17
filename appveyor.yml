@@ -4,12 +4,12 @@ init:
 branches:
   only:
   - master
-  
+
 skip_tags: true
 
 before_build:
   - start /d "C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator" /wait WAStorageEmulator.exe start
-  
+
 cache:
    - C:\Users\appveyor\AppData\Local\NuGet\Cache
    - C:\projects\journalist\packages
@@ -19,7 +19,7 @@ build_script:
 
 test: off
 
-version: 0.3.0.{build}
+version: 0.4.0.{build}
 
 artifacts:
   - path: out
