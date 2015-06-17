@@ -10,5 +10,7 @@ namespace Journalist.WindowsAzure.Storage.Queues
         Task<ICloudQueueMessage> GetMessageAsync();
 
         Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync();
+
+        Task DeleteMessageAsync(string messageId, string popReceipt);
     }
 }

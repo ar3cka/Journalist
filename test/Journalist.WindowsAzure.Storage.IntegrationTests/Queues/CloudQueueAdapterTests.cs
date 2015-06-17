@@ -16,7 +16,7 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Queues
         }
 
         [Fact]
-        public async Task AddMessageAsync_CanBeObtained()
+        public async Task AddedMessage_CanBeObtained()
         {
             // arrange
             var sendedContent = Encoding.UTF8.GetBytes("Hello!");
@@ -30,7 +30,7 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Queues
         }
 
         [Fact]
-        public async Task AddMessagesAsync_CanBeObtained()
+        public async Task AddedMessages_CanBeObtainedInBatch()
         {
             // arrange
             foreach (var number in Enumerable.Range(1, 10))
@@ -44,6 +44,21 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Queues
 
             // assert
             Assert.Equal(10, receivedMessages.Count);
+        }
+
+        [Fact]
+        public async Task DeletedMessages_CanNotBeObtained()
+        {
+            // arrange
+            await Queue.AddMessageAsync(Encoding.UTF8.GetBytes("Hello!"));
+            var message = await Queue.GetMessageAsync();
+
+            // act
+            await Queue.DeleteMessageAsync(message.MessageId, message.PopReceipt);
+            var receivedMessages = await Queue.GetMessageAsync();
+
+            // assert
+            Assert.Null(receivedMessages);
         }
 
         public StorageFactory Factory { get; set; }

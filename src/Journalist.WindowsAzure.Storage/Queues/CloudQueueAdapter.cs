@@ -34,6 +34,14 @@ namespace Journalist.WindowsAzure.Storage.Queues
                 message.AsBytes);
         }
 
+        public Task DeleteMessageAsync(string messageId, string popReceipt)
+        {
+            Require.NotEmpty(messageId, "messageId");
+            Require.NotEmpty(popReceipt, "popReceipt");
+
+            return CloudEntity.DeleteMessageAsync(messageId, popReceipt);
+        }
+
         public async Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync()
         {
             var messages = await CloudEntity.GetMessagesAsync(CloudQueueMessage.MaxNumberOfMessagesToPeek);
