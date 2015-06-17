@@ -49,6 +49,8 @@
     <Compile Include="Blobs\LeaseAlreadyAcquiredException.cs" />
     <Compile Include="IStorageFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queues\ICloudQueue.cs" />
+    <Compile Include="Queues\ICloudQueueMessage.cs" />
     <Compile Include="Tables\BatchOperationException.cs" />
     <Compile Include="Tables\IBatchOperation.cs" />
     <Compile Include="Tables\ICloudTable.cs" />
