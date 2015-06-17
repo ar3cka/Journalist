@@ -34,14 +34,6 @@ namespace Journalist.WindowsAzure.Storage.Queues
                 message.AsBytes);
         }
 
-        public Task DeleteMessageAsync(string messageId, string popReceipt)
-        {
-            Require.NotEmpty(messageId, "messageId");
-            Require.NotEmpty(popReceipt, "popReceipt");
-
-            return CloudEntity.DeleteMessageAsync(messageId, popReceipt);
-        }
-
         public async Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync()
         {
             var messages = await CloudEntity.GetMessagesAsync(CloudQueueMessage.MaxNumberOfMessagesToPeek);
@@ -56,6 +48,57 @@ namespace Journalist.WindowsAzure.Storage.Queues
                         message.AsBytes)));
 
             return result;
+        }
+
+        public Task UpdateMessageAsync(string messageId, string popReceipt, byte[] content, TimeSpan visibilityTimeout)
+        {
+            Require.NotEmpty(messageId, "messageId");
+            Require.NotEmpty(popReceipt, "popReceipt");
+            Require.NotNull(content, "content");
+
+            var message = new CloudQueueMessage(messageId, popReceipt);
+            message.SetMessageContent(content);
+
+            return CloudEntity.UpdateMessageAsync(
+                message,
+                visibilityTimeout,
+                MessageUpdateFields.Content | MessageUpdateFields.Visibility);
+        }
+
+        public Task UpdateMessageAsync(string messageId, string popReceipt, byte[] content)
+        {
+            Require.NotEmpty(messageId, "messageId");
+            Require.NotEmpty(popReceipt, "popReceipt");
+            Require.NotNull(content, "content");
+
+            var message = new CloudQueueMessage(messageId, popReceipt);
+            message.SetMessageContent(content);
+
+            return CloudEntity.UpdateMessageAsync(
+                message,
+                TimeSpan.Zero,
+                MessageUpdateFields.Content | MessageUpdateFields.Visibility);
+        }
+
+        public Task UpdateMessageAsync(string messageId, string popReceipt, TimeSpan visibilityTimeout)
+        {
+            Require.NotEmpty(messageId, "messageId");
+            Require.NotEmpty(popReceipt, "popReceipt");
+
+            var message = new CloudQueueMessage(messageId, popReceipt);
+
+            return CloudEntity.UpdateMessageAsync(
+                message,
+                visibilityTimeout,
+                MessageUpdateFields.Visibility);
+        }
+
+        public Task DeleteMessageAsync(string messageId, string popReceipt)
+        {
+            Require.NotEmpty(messageId, "messageId");
+            Require.NotEmpty(popReceipt, "popReceipt");
+
+            return CloudEntity.DeleteMessageAsync(messageId, popReceipt);
         }
     }
 }
