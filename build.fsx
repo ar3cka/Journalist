@@ -5,6 +5,7 @@ open Fake.AssemblyInfoFile
 open Fake.Git
 open Fake.Testing.XUnit2
 
+let binariesDir = "out/bin"
 let nugetDir = "out/nuget"
 
 let applicationProjects = !! "src/**/*.fsproj" ++ "src/**/*.csproj"
@@ -17,7 +18,7 @@ MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Mini
 Target "Clean" (fun _ ->
     CleanDirs <| !! "src/**/bin/Release"
     CleanDirs <| !! "test/**/bin/Release"
-    CleanDirs [ nugetDir ]
+    CleanDirs [ binariesDir; nugetDir ]
 )
 
 Target "GenerateAssemblyInfo" (fun _ ->
@@ -32,6 +33,12 @@ Target "GenerateAssemblyInfo" (fun _ ->
 
 Target "BuildApp" (fun _ ->
     MSBuildRelease null "Build" [ "./Journalist.sln" ] |> ignore
+)
+
+Target "CopyBuildResults" (fun _ ->
+    Copy binariesDir !! ("./src/**/bin/Release/*.dll")
+    Copy binariesDir !! ("./src/**/bin/Release/*.xml")
+    Copy binariesDir !! ("./src/**/bin/Release/*.pdb")
 )
 
 Target "RunUnitTests" (fun _ ->
@@ -88,6 +95,7 @@ Target "Default" DoNothing
     ==> "BuildApp"
     ==> "RunUnitTests"
     ==> "RunIntegrationTests"
+    ==> "CopyBuildResults"
     ==> "Default"
     ==> "CreatePackages"
     ==> "PublishPackages"
