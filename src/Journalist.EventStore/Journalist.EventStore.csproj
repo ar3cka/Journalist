@@ -43,6 +43,12 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\EventStoreConnectionBuilder.cs" />
+    <Compile Include="Configuration\EventStoreConnectionConfiguration.cs" />
+    <Compile Include="Configuration\IEventStoreConnectionConfiguration.cs" />
+    <Compile Include="Configuration\SerializerConfiguration.cs" />
+    <Compile Include="EventStoreConnection.cs" />
+    <Compile Include="IEventStoreConnection.cs" />
     <Compile Include="Journal\EventJournal.cs" />
     <Compile Include="Journal\EventJournalTableRowPropertyNames.cs" />
     <Compile Include="Journal\EventStreamAppendOperationFailedException.cs" />
@@ -59,14 +65,8 @@
     <Compile Include="Journal\StreamCursor\InitialCursorState.cs" />
     <Compile Include="Journal\StreamVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Streams\Configuration\EventStreamBuilder.cs" />
-    <Compile Include="Streams\Configuration\EventStreamConfiguration.cs" />
-    <Compile Include="Streams\Configuration\IEventStreamConfiguration.cs" />
-    <Compile Include="Streams\Configuration\SerializerConfiguration.cs" />
-    <Compile Include="Streams\EventStream.cs" />
     <Compile Include="Streams\EventStreamReader.cs" />
     <Compile Include="Streams\EventStreamWriter.cs" />
-    <Compile Include="Streams\IEventStream.cs" />
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
     <Compile Include="Streams\Serializers\EventSerializationException.cs" />

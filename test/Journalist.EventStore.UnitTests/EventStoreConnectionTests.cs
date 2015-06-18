@@ -1,19 +1,18 @@
 ﻿using System.Threading.Tasks;
-using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
-namespace Journalist.EventStore.UnitTests.Streams
+namespace Journalist.EventStore.UnitTests
 {
-    public class EventStreamTests
+    public class EventStoreConnectionTests
     {
         [Theory, AutoMoqData]
         public async Task OpenReaderAsync_ReturnsReaderForSpecifiedEventStream(
-            [Frozen] EventStream eventStream,
+            [Frozen] EventStoreConnection eventStoreConnection,
             string streamName)
         {
-            var reader = await eventStream.OpenReaderAsync(streamName);
+            var reader = await eventStoreConnection.OpenReaderAsync(streamName);
 
             Assert.Equal(streamName, reader.StreamName);
         }

@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
+using Journalist.EventStore.Streams;
 
-namespace Journalist.EventStore.Streams
+namespace Journalist.EventStore
 {
-    public interface IEventStream
+    public interface IEventStoreConnection
     {
         Task<IEventStreamReader> OpenReaderAsync(string streamName);
 

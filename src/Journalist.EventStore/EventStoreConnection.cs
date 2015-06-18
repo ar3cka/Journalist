@@ -1,15 +1,16 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Journal;
+using Journalist.EventStore.Streams;
 using Journalist.EventStore.Streams.Serializers;
 
-namespace Journalist.EventStore.Streams
+namespace Journalist.EventStore
 {
-    public class EventStream : IEventStream
+    public class EventStoreConnection : IEventStoreConnection
     {
         private readonly IEventJournal m_journal;
         private readonly IEventSerializer m_serializer;
 
-        public EventStream(IEventJournal journal, IEventSerializer serializer)
+        public EventStoreConnection(IEventJournal journal, IEventSerializer serializer)
         {
             Require.NotNull(journal, "journal");
             Require.NotNull(serializer, "serializer");

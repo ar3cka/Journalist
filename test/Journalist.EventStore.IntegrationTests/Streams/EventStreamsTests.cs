@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Journalist.EventStore.Streams;
-using Journalist.EventStore.Streams.Configuration;
+using Journalist.EventStore.Configuration;
 using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
 namespace Journalist.EventStore.IntegrationTests.Streams
 {
-    public class EventStreamTests
+    public class EventStreamsTests
     {
-        public EventStreamTests()
+        public EventStreamsTests()
         {
-            Stream = EventStreamBuilder
+            Connection = EventStoreConnectionBuilder
                 .Create(config => config
                     .UseStorage("UseDevelopmentStorage=true", "TestEventJournal")
                     .UseJsonSerializer())
@@ -23,7 +22,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Fact]
         public async Task OpenWriterAsync_WhenStreamIsNotExists_ReturnsStreamAtStartPosition()
         {
-            var writer = await Stream.OpenWriterAsync(StreamName);
+            var writer = await Connection.OpenWriterAsync(StreamName);
 
             Assert.Equal(0, writer.StreamPosition);
         }
@@ -31,7 +30,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoData]
         public async Task OpenedWriterAsync_AppendsEventsAndMovesPositionForward(DummyEvent[] dummyEvents)
         {
-            var writer = await Stream.OpenWriterAsync(StreamName);
+            var writer = await Connection.OpenWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);
 
             Assert.Equal(dummyEvents.Length, writer.StreamPosition);
@@ -40,10 +39,10 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoData]
         public async Task OpenedReader_CanReadAppendedEvents(DummyEvent[] dummyEvents)
         {
-            var writer = await Stream.OpenWriterAsync(StreamName);
+            var writer = await Connection.OpenWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);
 
-            var reader = await Stream.OpenReaderAsync(StreamName);
+            var reader = await Connection.OpenReaderAsync(StreamName);
             await reader.ReadEventsAsync();
 
             Assert.Equal(dummyEvents.Length, reader.Events.Count);
@@ -56,10 +55,10 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoData]
         public async Task OpenedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(DummyEvent[] dummyEvents)
         {
-            var writer = await Stream.OpenWriterAsync(StreamName);
+            var writer = await Connection.OpenWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);
 
-            var reader = await Stream.OpenReaderAsync(StreamName, writer.StreamPosition);
+            var reader = await Connection.OpenReaderAsync(StreamName, writer.StreamPosition);
             await reader.ReadEventsAsync();
 
             Assert.Equal(1, reader.Events.Count);
@@ -72,6 +71,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             private set;
         }
 
-        public IEventStream Stream { get; set; }
+        public IEventStoreConnection Connection { get; set; }
     }
 }

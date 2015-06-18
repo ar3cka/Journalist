@@ -2,32 +2,32 @@ using System;
 using Journalist.EventStore.Journal;
 using Journalist.WindowsAzure.Storage;
 
-namespace Journalist.EventStore.Streams.Configuration
+namespace Journalist.EventStore.Configuration
 {
-    public class EventStreamBuilder
+    public class EventStoreConnectionBuilder
     {
-        private readonly Action<IEventStreamConfiguration> m_configure;
+        private readonly Action<IEventStoreConnectionConfiguration> m_configure;
 
-        private EventStreamConfiguration m_configuration;
+        private EventStoreConnectionConfiguration m_configuration;
         private StorageFactory m_factory;
 
-        private EventStreamBuilder(Action<IEventStreamConfiguration> configure)
+        private EventStoreConnectionBuilder(Action<IEventStoreConnectionConfiguration> configure)
         {
             Require.NotNull(configure, "configure");
 
             m_configure = configure;
         }
 
-        public static EventStreamBuilder Create(Action<IEventStreamConfiguration> configure)
+        public static EventStoreConnectionBuilder Create(Action<IEventStoreConnectionConfiguration> configure)
         {
-            return new EventStreamBuilder(configure);
+            return new EventStoreConnectionBuilder(configure);
         }
 
-        public IEventStream Build()
+        public IEventStoreConnection Build()
         {
             if (m_configuration == null)
             {
-                m_configuration = new EventStreamConfiguration();
+                m_configuration = new EventStoreConnectionConfiguration();
                 m_configure(m_configuration);
 
                 m_configuration.AssertConfigurationCompleted();
@@ -38,7 +38,7 @@ namespace Journalist.EventStore.Streams.Configuration
                 m_configuration.StorageConnectionString,
                 m_configuration.JournalTableName);
 
-            return new EventStream(
+            return new EventStoreConnection(
                 new EventJournal(journalTable),
                 m_configuration.EventSerializer);
         }

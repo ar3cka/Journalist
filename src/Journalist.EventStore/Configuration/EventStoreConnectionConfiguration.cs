@@ -2,9 +2,9 @@ using System;
 using Journalist.EventStore.Streams.Serializers;
 using Journalist.Extensions;
 
-namespace Journalist.EventStore.Streams.Configuration
+namespace Journalist.EventStore.Configuration
 {
-    public class EventStreamConfiguration : IEventStreamConfiguration
+    public class EventStoreConnectionConfiguration : IEventStoreConnectionConfiguration
     {
         public void AssertConfigurationCompleted()
         {
@@ -24,7 +24,7 @@ namespace Journalist.EventStore.Streams.Configuration
             }
         }
 
-        public IEventStreamConfiguration UseStorage(string storageConnectionString, string journalTableName)
+        public IEventStoreConnectionConfiguration UseStorage(string storageConnectionString, string journalTableName)
         {
             Require.NotEmpty(storageConnectionString, "storageConnectionString");
             Require.NotEmpty(journalTableName, "journalTableName");
@@ -35,7 +35,7 @@ namespace Journalist.EventStore.Streams.Configuration
             return this;
         }
 
-        public IEventStreamConfiguration UseSerializer(IEventSerializer serializer)
+        public IEventStoreConnectionConfiguration UseSerializer(IEventSerializer serializer)
         {
             Require.NotNull(serializer, "serializer");
 

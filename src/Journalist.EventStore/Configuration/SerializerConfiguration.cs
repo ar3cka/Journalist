@@ -1,12 +1,11 @@
 using Journalist.EventStore.Streams.Serializers.Json;
 using Newtonsoft.Json;
 
-namespace Journalist.EventStore.Streams.Configuration
+namespace Journalist.EventStore.Configuration
 {
     public static class SerializerConfiguration
     {
-        public static IEventStreamConfiguration UseJsonSerializer(
-            this IEventStreamConfiguration config)
+        public static IEventStoreConnectionConfiguration UseJsonSerializer(this IEventStoreConnectionConfiguration config)
         {
             Require.NotNull(config, "config");
 

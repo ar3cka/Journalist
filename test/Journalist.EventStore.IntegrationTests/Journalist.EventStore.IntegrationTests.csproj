@@ -46,7 +46,7 @@
     <Compile Include="Journal\EventJournalTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\DummyEvent.cs" />
-    <Compile Include="Streams\EventStreamTests.cs" />
+    <Compile Include="Streams\EventStreamsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
