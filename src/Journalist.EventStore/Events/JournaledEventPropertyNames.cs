@@ -1,4 +1,4 @@
-﻿namespace Journalist.EventStore.Journal
+﻿namespace Journalist.EventStore.Events
 {
     internal static class JournaledEventPropertyNames
     {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Streams
 {
@@ -7,6 +8,6 @@ namespace Journalist.EventStore.Streams
     {
         int StreamPosition { get; }
 
-        Task AppendEvents(IReadOnlyCollection<object> events);
+        Task AppendEvents(IReadOnlyCollection<JournaledEvent> events);
     }
 }

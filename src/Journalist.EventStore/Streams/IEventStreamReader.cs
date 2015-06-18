@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Streams
 {
@@ -7,7 +8,7 @@ namespace Journalist.EventStore.Streams
     {
         Task ReadEventsAsync();
 
-        IReadOnlyList<object> Events { get; }
+        IReadOnlyList<JournaledEvent> Events { get; }
 
         bool HasMoreEvents { get; }
 

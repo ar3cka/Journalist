@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Journal.StreamCursor;
 using Journalist.EventStore.UnitTests.Infrastructure.Customizations.Customizations;

@@ -1,5 +1,6 @@
-### 0.5.0
+### 0.5.0 (2015-06-18)
 * [EventStore][Breaking] Rename EventStream to EventStoreConnection.
+* [EventStore][Breaking] Serialization functions were removed.
 
 ### 0.4.0 (2015-06-18)
 * [WAZ.Storage] CloudQueue API.

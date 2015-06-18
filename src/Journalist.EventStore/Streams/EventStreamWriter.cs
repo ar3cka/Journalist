@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
-using Journalist.EventStore.Streams.Serializers;
 
 namespace Journalist.EventStore.Streams
 {
@@ -10,27 +10,23 @@ namespace Journalist.EventStore.Streams
     {
         private readonly string m_streamName;
         private readonly IEventJournal m_journal;
-        private readonly IEventSerializer m_serializer;
 
         private EventStreamPosition m_endOfStream;
 
         public EventStreamWriter(
             string streamName,
             EventStreamPosition endOfStream,
-            IEventJournal journal,
-            IEventSerializer serializer)
+            IEventJournal journal)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(journal, "journal");
-            Require.NotNull(serializer, "serializer");
 
             m_streamName = streamName;
             m_endOfStream = endOfStream;
             m_journal = journal;
-            m_serializer = serializer;
         }
 
-        public async Task AppendEvents(IReadOnlyCollection<object> events)
+        public async Task AppendEvents(IReadOnlyCollection<JournaledEvent> events)
         {
             Require.NotNull(events, "events");
 
@@ -39,17 +35,7 @@ namespace Journalist.EventStore.Streams
                 return;
             }
 
-            var journaledEvents = new List<JournaledEvent>(events.Count);
-            foreach (var eventObject in events)
-            {
-                journaledEvents.Add(
-                    JournaledEvent.Create(
-                        Guid.NewGuid(),
-                        eventObject,
-                        (obj, type, writer) => m_serializer.Serialize(obj, type, writer)));
-            }
-
-            m_endOfStream = await m_journal.AppendEventsAsync(m_streamName, m_endOfStream, journaledEvents);
+            m_endOfStream = await m_journal.AppendEventsAsync(m_streamName, m_endOfStream, events);
         }
 
         public int StreamPosition

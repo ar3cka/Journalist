@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.Tasks;
 
 namespace Journalist.EventStore.Journal.StreamCursor

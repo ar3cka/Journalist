@@ -1,7 +1,7 @@
 using Journalist.EventStore.Events;
 using Ploeh.AutoFixture;
 
-namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations.Customizations
+namespace Journalist.EventStore.IntegrationTests.Infrastructure.Customizations.Customizations
 {
     public class JournaledEventCustomization : ICustomization
     {

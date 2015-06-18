@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
@@ -17,7 +18,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             [Frozen] EventStreamPosition position,
             [Frozen] Mock<IEventJournal> journalMock,
             EventStreamWriter writer,
-            object[] events)
+            JournaledEvent[] events)
         {
             await writer.AppendEvents(events);
 
@@ -28,8 +29,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public void StreamPosition_ReturnsStreamVersionValue([Frozen] EventStreamPosition position,
-            EventStreamWriter writer)
+        public void StreamPosition_ReturnsStreamVersionValue([Frozen] EventStreamPosition position, EventStreamWriter writer)
         {
             Assert.Equal((int) position.Version, writer.StreamPosition);
         }
@@ -39,7 +39,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             [Frozen] Mock<IEventJournal> journalMock,
             EventStreamPosition position,
             EventStreamWriter writer,
-            object[] events)
+            JournaledEvent[] events)
         {
             journalMock
                 .Setup(self => self.AppendEventsAsync(

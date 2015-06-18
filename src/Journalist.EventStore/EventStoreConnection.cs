@@ -1,22 +1,18 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
-using Journalist.EventStore.Streams.Serializers;
 
 namespace Journalist.EventStore
 {
     public class EventStoreConnection : IEventStoreConnection
     {
         private readonly IEventJournal m_journal;
-        private readonly IEventSerializer m_serializer;
 
-        public EventStoreConnection(IEventJournal journal, IEventSerializer serializer)
+        public EventStoreConnection(IEventJournal journal)
         {
             Require.NotNull(journal, "journal");
-            Require.NotNull(serializer, "serializer");
 
             m_journal = journal;
-            m_serializer = serializer;
         }
 
         public async Task<IEventStreamReader> OpenReaderAsync(string streamName)
@@ -25,8 +21,7 @@ namespace Journalist.EventStore
 
             var reader = new EventStreamReader(
                 streamName,
-                await m_journal.OpenEventStreamAsync(streamName),
-                m_serializer);
+                await m_journal.OpenEventStreamAsync(streamName));
 
             return reader;
         }
@@ -38,8 +33,7 @@ namespace Journalist.EventStore
 
             var reader = new EventStreamReader(
                 streamName,
-                await m_journal.OpenEventStreamAsync(streamName, StreamVersion.Create(streamVersion)),
-                m_serializer);
+                await m_journal.OpenEventStreamAsync(streamName, StreamVersion.Create(streamVersion)));
 
             return reader;
         }
@@ -53,8 +47,7 @@ namespace Journalist.EventStore
             return new EventStreamWriter(
                 streamName,
                 endOfStream,
-                m_journal,
-                m_serializer);;
+                m_journal);
         }
     }
 }

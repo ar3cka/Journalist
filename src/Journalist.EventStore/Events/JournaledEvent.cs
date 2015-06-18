@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Journalist.EventStore.Journal
+namespace Journalist.EventStore.Events
 {
     public sealed class JournaledEvent : IEquatable<JournaledEvent>
     {
@@ -45,10 +45,12 @@ namespace Journalist.EventStore.Journal
         {
             Require.NotNull(properties, "properties");
 
-            var result = new JournaledEvent();
-            result.EventId = (Guid)properties[JournaledEventPropertyNames.EventId];
-            result.EventTypeName = (string)properties[JournaledEventPropertyNames.EventType];
-            result.EventPayload = (Stream)properties[JournaledEventPropertyNames.EventPayload];
+            var result = new JournaledEvent
+            {
+                EventId = (Guid)properties[JournaledEventPropertyNames.EventId],
+                EventTypeName = (string)properties[JournaledEventPropertyNames.EventType],
+                EventPayload = (Stream)properties[JournaledEventPropertyNames.EventPayload]
+            };
 
             return result;
         }

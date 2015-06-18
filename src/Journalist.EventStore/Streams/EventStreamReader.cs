@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Journalist.Collections;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal.StreamCursor;
-using Journalist.EventStore.Streams.Serializers;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Streams
@@ -13,22 +12,16 @@ namespace Journalist.EventStore.Streams
     {
         private readonly string m_streamName;
         private readonly EventStreamCursor m_streamCursor;
-        private readonly IEventSerializer m_serializer;
 
-        private List<object> m_readedEvents;
+        private List<JournaledEvent> m_readedEvents;
 
-        public EventStreamReader(
-            string streamName,
-            EventStreamCursor streamCursor,
-            IEventSerializer serializer)
+        public EventStreamReader(string streamName, EventStreamCursor streamCursor)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(streamCursor, "streamCursor");
-            Require.NotNull(serializer, "serializer");
 
             m_streamName = streamName;
             m_streamCursor = streamCursor;
-            m_serializer = serializer;
         }
 
         public async Task ReadEventsAsync()
@@ -40,19 +33,14 @@ namespace Journalist.EventStore.Streams
 
             await m_streamCursor.FetchSlice();
 
-            m_readedEvents = new List<object>(m_streamCursor.Slice.Count);
+            m_readedEvents = new List<JournaledEvent>(m_streamCursor.Slice.Count);
             foreach (var journaledEvent in m_streamCursor.Slice)
             {
-                using (var payloadReader = new StreamReader(journaledEvent.EventPayload))
-                {
-                    m_readedEvents.Add(m_serializer.Deserialize(
-                        payloadReader,
-                        journaledEvent.EventType));
-                }
+                m_readedEvents.Add(journaledEvent);
             }
         }
 
-        public IReadOnlyList<object> Events
+        public IReadOnlyList<JournaledEvent> Events
         {
             get
             {
@@ -61,7 +49,7 @@ namespace Journalist.EventStore.Streams
                     return m_readedEvents;
                 }
 
-                return EmptyArray.Get<object>();
+                return EmptyArray.Get<JournaledEvent>();
             }
         }
 

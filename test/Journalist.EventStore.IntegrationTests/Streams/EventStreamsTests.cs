@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Configuration;
-using Ploeh.AutoFixture.Xunit2;
+using Journalist.EventStore.Events;
+using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
 using Xunit;
 
 namespace Journalist.EventStore.IntegrationTests.Streams
@@ -12,8 +13,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         {
             Connection = EventStoreConnectionBuilder
                 .Create(config => config
-                    .UseStorage("UseDevelopmentStorage=true", "TestEventJournal")
-                    .UseJsonSerializer())
+                    .UseStorage("UseDevelopmentStorage=true", "TestEventJournal"))
                 .Build();
 
             StreamName = "stream-" + Guid.NewGuid().ToString("N");
@@ -27,8 +27,8 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             Assert.Equal(0, writer.StreamPosition);
         }
 
-        [Theory, AutoData]
-        public async Task OpenedWriterAsync_AppendsEventsAndMovesPositionForward(DummyEvent[] dummyEvents)
+        [Theory, AutoMoqData]
+        public async Task OpenedWriterAsync_AppendsEventsAndMovesPositionForward(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.OpenWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);
@@ -36,8 +36,8 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             Assert.Equal(dummyEvents.Length, writer.StreamPosition);
         }
 
-        [Theory, AutoData]
-        public async Task OpenedReader_CanReadAppendedEvents(DummyEvent[] dummyEvents)
+        [Theory, AutoMoqData]
+        public async Task OpenedReader_CanReadAppendedEvents(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.OpenWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);
@@ -52,8 +52,8 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             }
         }
 
-        [Theory, AutoData]
-        public async Task OpenedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(DummyEvent[] dummyEvents)
+        [Theory, AutoMoqData]
+        public async Task OpenedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.OpenWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);

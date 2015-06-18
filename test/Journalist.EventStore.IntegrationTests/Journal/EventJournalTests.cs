@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.WindowsAzure.Storage;
 using Ploeh.AutoFixture;

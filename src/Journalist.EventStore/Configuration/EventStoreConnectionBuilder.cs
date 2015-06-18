@@ -38,9 +38,7 @@ namespace Journalist.EventStore.Configuration
                 m_configuration.StorageConnectionString,
                 m_configuration.JournalTableName);
 
-            return new EventStoreConnection(
-                new EventJournal(journalTable),
-                m_configuration.EventSerializer);
+            return new EventStoreConnection(new EventJournal(journalTable));
         }
     }
 }

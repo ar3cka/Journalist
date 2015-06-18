@@ -46,8 +46,9 @@
     <Compile Include="Configuration\EventStoreConnectionBuilder.cs" />
     <Compile Include="Configuration\EventStoreConnectionConfiguration.cs" />
     <Compile Include="Configuration\IEventStoreConnectionConfiguration.cs" />
-    <Compile Include="Configuration\SerializerConfiguration.cs" />
     <Compile Include="EventStoreConnection.cs" />
+    <Compile Include="Events\JournaledEvent.cs" />
+    <Compile Include="Events\JournaledEventPropertyNames.cs" />
     <Compile Include="IEventStoreConnection.cs" />
     <Compile Include="Journal\EventJournal.cs" />
     <Compile Include="Journal\EventJournalTableRowPropertyNames.cs" />
@@ -55,8 +56,6 @@
     <Compile Include="Journal\EventStreamConcurrencyException.cs" />
     <Compile Include="Journal\EventStreamPosition.cs" />
     <Compile Include="Journal\IEventJournal.cs" />
-    <Compile Include="Journal\JournaledEvent.cs" />
-    <Compile Include="Journal\JournaledEventPropertyNames.cs" />
     <Compile Include="Journal\StreamCursor\CursorState.cs" />
     <Compile Include="Journal\StreamCursor\EndOfStreamCursorState.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursor.cs" />
@@ -69,10 +68,6 @@
     <Compile Include="Streams\EventStreamWriter.cs" />
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
-    <Compile Include="Streams\Serializers\EventSerializationException.cs" />
-    <Compile Include="Streams\Serializers\IEventSerializer.cs" />
-    <Compile Include="Streams\Serializers\Json\JsonEventSerializer.cs" />
-    <Compile Include="Streams\Serializers\Json\OptionConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
