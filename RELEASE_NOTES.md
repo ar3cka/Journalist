@@ -1,9 +1,7 @@
-### 0.5.1 (2015-06-18)
-* [EventStore] Json.Net dependency was removed.
-
-### 0.5.0 (2015-06-18)
+### 0.5.0
 * [EventStore][Breaking] Rename EventStream to EventStoreConnection.
 * [EventStore][Breaking] Serialization functions were removed.
+* [EventStore] Json.Net dependency was removed.
 
 ### 0.4.0 (2015-06-18)
 * [WAZ.Storage] CloudQueue API.
