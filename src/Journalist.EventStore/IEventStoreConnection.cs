@@ -5,10 +5,10 @@ namespace Journalist.EventStore
 {
     public interface IEventStoreConnection
     {
-        Task<IEventStreamReader> OpenReaderAsync(string streamName);
+        Task<IEventStreamReader> CreateStreamReaderAsync(string streamName);
 
-        Task<IEventStreamReader> OpenReaderAsync(string streamName, int streamVersion);
+        Task<IEventStreamReader> CreateStreamReaderAsync(string streamName, int streamVersion);
 
-        Task<IEventStreamWriter> OpenWriterAsync(string streamName);
+        Task<IEventStreamWriter> CreateStreamWriterAsync(string streamName);
     }
 }

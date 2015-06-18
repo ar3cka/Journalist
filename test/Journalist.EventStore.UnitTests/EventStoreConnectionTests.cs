@@ -12,7 +12,7 @@ namespace Journalist.EventStore.UnitTests
             [Frozen] EventStoreConnection eventStoreConnection,
             string streamName)
         {
-            var reader = await eventStoreConnection.OpenReaderAsync(streamName);
+            var reader = await eventStoreConnection.CreateStreamReaderAsync(streamName);
 
             Assert.Equal(streamName, reader.StreamName);
         }

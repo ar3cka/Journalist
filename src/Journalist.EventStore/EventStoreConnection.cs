@@ -15,7 +15,7 @@ namespace Journalist.EventStore
             m_journal = journal;
         }
 
-        public async Task<IEventStreamReader> OpenReaderAsync(string streamName)
+        public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 
@@ -26,7 +26,7 @@ namespace Journalist.EventStore
             return reader;
         }
 
-        public async Task<IEventStreamReader> OpenReaderAsync(string streamName, int streamVersion)
+        public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName, int streamVersion)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(streamVersion, "streamVersion");
@@ -38,7 +38,7 @@ namespace Journalist.EventStore
             return reader;
         }
 
-        public async Task<IEventStreamWriter> OpenWriterAsync(string streamName)
+        public async Task<IEventStreamWriter> CreateStreamWriterAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 

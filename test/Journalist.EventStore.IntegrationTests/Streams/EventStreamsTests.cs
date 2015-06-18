@@ -22,7 +22,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Fact]
         public async Task OpenWriterAsync_WhenStreamIsNotExists_ReturnsStreamAtStartPosition()
         {
-            var writer = await Connection.OpenWriterAsync(StreamName);
+            var writer = await Connection.CreateStreamWriterAsync(StreamName);
 
             Assert.Equal(0, writer.StreamPosition);
         }
@@ -30,7 +30,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task OpenedWriterAsync_AppendsEventsAndMovesPositionForward(JournaledEvent[] dummyEvents)
         {
-            var writer = await Connection.OpenWriterAsync(StreamName);
+            var writer = await Connection.CreateStreamWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);
 
             Assert.Equal(dummyEvents.Length, writer.StreamPosition);
@@ -39,10 +39,10 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task OpenedReader_CanReadAppendedEvents(JournaledEvent[] dummyEvents)
         {
-            var writer = await Connection.OpenWriterAsync(StreamName);
+            var writer = await Connection.CreateStreamWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);
 
-            var reader = await Connection.OpenReaderAsync(StreamName);
+            var reader = await Connection.CreateStreamReaderAsync(StreamName);
             await reader.ReadEventsAsync();
 
             Assert.Equal(dummyEvents.Length, reader.Events.Count);
@@ -55,10 +55,10 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task OpenedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(JournaledEvent[] dummyEvents)
         {
-            var writer = await Connection.OpenWriterAsync(StreamName);
+            var writer = await Connection.CreateStreamWriterAsync(StreamName);
             await writer.AppendEvents(dummyEvents);
 
-            var reader = await Connection.OpenReaderAsync(StreamName, writer.StreamPosition);
+            var reader = await Connection.CreateStreamReaderAsync(StreamName, writer.StreamPosition);
             await reader.ReadEventsAsync();
 
             Assert.Equal(1, reader.Events.Count);
