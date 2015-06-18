@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
+using Journalist.Tasks;
 
 namespace Journalist.EventStore
 {
@@ -48,6 +49,16 @@ namespace Journalist.EventStore
                 streamName,
                 endOfStream,
                 m_journal);
+        }
+
+        public async Task<IEventStreamProducer> CreateStreamProducer(string streamName)
+        {
+            return new EventStreamProducer(await CreateStreamWriterAsync(streamName));
+        }
+
+        public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName)
+        {
+            return new EventStreamConsumer();
         }
     }
 }

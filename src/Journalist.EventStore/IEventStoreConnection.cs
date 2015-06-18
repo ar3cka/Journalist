@@ -10,5 +10,9 @@ namespace Journalist.EventStore
         Task<IEventStreamReader> CreateStreamReaderAsync(string streamName, int streamVersion);
 
         Task<IEventStreamWriter> CreateStreamWriterAsync(string streamName);
+
+        Task<IEventStreamProducer> CreateStreamProducer(string streamName);
+
+        Task<IEventStreamConsumer> CreateStreamConsumer(string streamName);
     }
 }
