@@ -1,11 +1,22 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=Constants/@EntryIndexedValue">&lt;Policy Inspect=&quot;True&quot; Prefix=&quot;&quot; Suffix=&quot;&quot; Style=&quot;AA_BB&quot; /&gt;</s:String>
-    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=PrivateConstants/@EntryIndexedValue">&lt;Policy Inspect=&quot;True&quot; Prefix=&quot;&quot; Suffix=&quot;&quot; Style=&quot;AA_BB&quot; /&gt;</s:String>
-    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=PrivateInstanceFields/@EntryIndexedValue">&lt;Policy Inspect=&quot;True&quot; Prefix=&quot;m_&quot; Suffix=&quot;&quot; Style=&quot;aaBb&quot; /&gt;</s:String>
-    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=PrivateStaticFields/@EntryIndexedValue">&lt;Policy Inspect=&quot;True&quot; Prefix=&quot;s_&quot; Suffix=&quot;&quot; Style=&quot;aaBb&quot; /&gt;</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/PLACE_WHILE_ON_NEW_LINE/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/SPACE_AFTER_TYPECAST_PARENTHESES/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/SPACE_AROUND_MULTIPLICATIVE_OP/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/SPACE_BEFORE_SIZEOF_PARENTHESES/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/SPACE_BEFORE_TYPEOF_PARENTHESES/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/SPACE_WITHIN_SINGLE_LINE_ARRAY_INITIALIZER_BRACES/@EntryValue">True</s:Boolean>
+    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=Constants/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="" Suffix="" Style="AA_BB" /&gt;</s:String>
+    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=PrivateConstants/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="" Suffix="" Style="AA_BB" /&gt;</s:String>
+    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=PrivateInstanceFields/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="m_" Suffix="" Style="aaBb" /&gt;</s:String>
+    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=PrivateStaticFields/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="s_" Suffix="" Style="aaBb" /&gt;</s:String>
     <s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=254C2633AB3DD44384E6972509E7FFEC/@KeyIndexDefined">True</s:Boolean>
     <s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=254C2633AB3DD44384E6972509E7FFEC/AbsolutePath/@EntryValue"></s:String>
-    <s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=254C2633AB3DD44384E6972509E7FFEC/RelativePath/@EntryValue">Journalist.sln.DotSettings</s:String>
+    <s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=254C2633AB3DD44384E6972509E7FFEC/RelativePath/@EntryValue"></s:String>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=998D261B09B5B142BF2DD45B07A6F7C0/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=998D261B09B5B142BF2DD45B07A6F7C0/AbsolutePath/@EntryValue">C:\Users\ar3cka\projects\Journalist\Journalist.sln.DotSettings</s:String>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=998D261B09B5B142BF2DD45B07A6F7C0/RelativePath/@EntryValue"></s:String>
     <s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File254C2633AB3DD44384E6972509E7FFEC/@KeyIndexDefined">True</s:Boolean>
     <s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File254C2633AB3DD44384E6972509E7FFEC/RelativePriority/@EntryValue">1</s:Double>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File998D261B09B5B142BF2DD45B07A6F7C0/@KeyIndexDefined">True</s:Boolean>
+	<s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File998D261B09B5B142BF2DD45B07A6F7C0/RelativePriority/@EntryValue">2</s:Double>
 </wpf:ResourceDictionary>
