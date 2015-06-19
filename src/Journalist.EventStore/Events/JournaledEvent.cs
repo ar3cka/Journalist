@@ -6,8 +6,15 @@ namespace Journalist.EventStore.Events
 {
     public sealed class JournaledEvent : IEquatable<JournaledEvent>
     {
-        private JournaledEvent()
+        private readonly Stream m_eventPayload;
+        private readonly string m_eventTypeName;
+        private readonly Guid m_eventId;
+
+        private JournaledEvent(Guid eventId, string eventTypeName, Stream eventPayload)
         {
+            m_eventId = eventId;
+            m_eventTypeName = eventTypeName;
+            m_eventPayload = eventPayload;
         }
 
         public static JournaledEvent Create(
@@ -27,15 +34,10 @@ namespace Journalist.EventStore.Events
                 serialize(eventObject, eventType, writer);
                 writer.Flush();
 
-                payload = new MemoryStream(stream.GetBuffer(), 0, (int) stream.Length, false);
+                payload = new MemoryStream(stream.GetBuffer(), 0, (int)stream.Length, false);
             }
 
-            return new JournaledEvent
-            {
-                EventId = eventId,
-                EventTypeName = eventType.AssemblyQualifiedName,
-                EventPayload = payload,
-            };
+            return new JournaledEvent(eventId, eventType.AssemblyQualifiedName, payload);
         }
 
         public static JournaledEvent Create(object eventObject, Action<object, Type, StreamWriter> serialize)
@@ -47,22 +49,18 @@ namespace Journalist.EventStore.Events
         {
             Require.NotNull(properties, "properties");
 
-            var result = new JournaledEvent
-            {
-                EventId = (Guid)properties[JournaledEventPropertyNames.EventId],
-                EventTypeName = (string)properties[JournaledEventPropertyNames.EventType],
-                EventPayload = (Stream)properties[JournaledEventPropertyNames.EventPayload]
-            };
-
-            return result;
+            return new JournaledEvent(
+                (Guid)properties[JournaledEventPropertyNames.EventId],
+                (string)properties[JournaledEventPropertyNames.EventType],
+                (Stream)properties[JournaledEventPropertyNames.EventPayload]);
         }
 
         public Dictionary<string, object> ToDictionary()
         {
             var result = new Dictionary<string, object>();
-            result[JournaledEventPropertyNames.EventId] = EventId;
-            result[JournaledEventPropertyNames.EventType] = EventTypeName;
-            result[JournaledEventPropertyNames.EventPayload] = EventPayload;
+            result[JournaledEventPropertyNames.EventId] = m_eventId;
+            result[JournaledEventPropertyNames.EventType] = m_eventTypeName;
+            result[JournaledEventPropertyNames.EventPayload] = m_eventPayload;
 
             return result;
         }
@@ -79,7 +77,7 @@ namespace Journalist.EventStore.Events
                 return true;
             }
 
-            return EventId.Equals(other.EventId);
+            return m_eventId.Equals(other.m_eventId);
         }
 
         public override bool Equals(object obj)
@@ -94,12 +92,12 @@ namespace Journalist.EventStore.Events
                 return true;
             }
 
-            return obj is JournaledEvent && Equals((JournaledEvent) obj);
+            return obj is JournaledEvent && Equals((JournaledEvent)obj);
         }
 
         public override int GetHashCode()
         {
-            return EventId.GetHashCode();
+            return m_eventId.GetHashCode();
         }
 
         public Type EventType
@@ -107,10 +105,19 @@ namespace Journalist.EventStore.Events
             get { return Type.GetType(EventTypeName, true); }
         }
 
-        public Guid EventId { get; private set; }
+        public Guid EventId
+        {
+            get { return m_eventId; }
+        }
 
-        public string EventTypeName { get; private set; }
+        public string EventTypeName
+        {
+            get { return m_eventTypeName; }
+        }
 
-        public Stream EventPayload { get; private set; }
+        public Stream EventPayload
+        {
+            get { return m_eventPayload; }
+        }
     }
 }

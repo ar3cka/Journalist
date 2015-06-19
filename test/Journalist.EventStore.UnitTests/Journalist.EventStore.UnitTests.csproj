@@ -47,9 +47,11 @@
     <Compile Include="Infrastructure\Stubs\RetryPolicyStub.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EmptyEventStreamCursorAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\EventStreamReaderCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamProducerDataCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\NotEmptyEventStreamCursorAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Streams\EventStreamConsumerTests.cs" />
     <Compile Include="Streams\EventStreamProducerTests.cs" />
     <Compile Include="Streams\EventStreamReaderTests.cs" />
     <Compile Include="Infrastructure\Customizations\Customizations\JournaledEventCustomization.cs" />

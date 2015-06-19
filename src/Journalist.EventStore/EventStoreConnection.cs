@@ -58,7 +58,7 @@ namespace Journalist.EventStore
 
         public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName)
         {
-            return new EventStreamConsumer();
+            return new EventStreamConsumer(await CreateStreamReaderAsync(streamName));
         }
     }
 }

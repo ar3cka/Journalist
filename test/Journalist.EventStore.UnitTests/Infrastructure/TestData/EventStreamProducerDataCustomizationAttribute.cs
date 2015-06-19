@@ -1,4 +1,3 @@
-using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Journalist.EventStore.Utils;
 
