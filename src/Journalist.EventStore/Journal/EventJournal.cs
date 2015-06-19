@@ -92,8 +92,7 @@ namespace Journalist.EventStore.Journal
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
 
-        public Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion,
-            StreamVersion toVersion)
+        public Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion, StreamVersion toVersion)
         {
             Require.NotEmpty(streamName, "streamName");
 
@@ -148,8 +147,7 @@ namespace Journalist.EventStore.Journal
             return headProperties;
         }
 
-        private static void WriteHeadProperty(string stream, EventStreamPosition position, int targetVersion,
-            IBatchOperation batch)
+        private static void WriteHeadProperty(string stream, EventStreamPosition position, int targetVersion, IBatchOperation batch)
         {
             var headProperties = new Dictionary<string, object>
             {
@@ -192,8 +190,7 @@ namespace Journalist.EventStore.Journal
             return result;
         }
 
-        private static void WriteEvents(string stream, StreamVersion version, IEnumerable<JournaledEvent> events,
-            IBatchOperation batch)
+        private static void WriteEvents(string stream, StreamVersion version, IEnumerable<JournaledEvent> events, IBatchOperation batch)
         {
             var currentVersion = version;
             foreach (var journaledEvent in events)

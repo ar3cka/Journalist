@@ -44,14 +44,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventStoreConnectionTests.cs" />
+    <Compile Include="Infrastructure\Stubs\RetryPolicyStub.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EmptyEventStreamCursorAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\EventStreamProducerDataCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\NotEmptyEventStreamCursorAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\EventStreamProducerTests.cs" />
     <Compile Include="Streams\EventStreamReaderTests.cs" />
     <Compile Include="Infrastructure\Customizations\Customizations\JournaledEventCustomization.cs" />
     <Compile Include="Streams\EventStreamWriterTests.cs" />
+    <Compile Include="Utils\RetryPolicyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Journalist.EventStore\Journalist.EventStore.csproj">
@@ -66,9 +69,7 @@
   <ItemGroup>
     <None Include="paket.references" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Streams\Serializers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

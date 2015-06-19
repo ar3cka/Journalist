@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
-using Journalist.Tasks;
+using Journalist.EventStore.Utils;
 
 namespace Journalist.EventStore
 {
@@ -53,7 +53,7 @@ namespace Journalist.EventStore
 
         public async Task<IEventStreamProducer> CreateStreamProducer(string streamName)
         {
-            return new EventStreamProducer(await CreateStreamWriterAsync(streamName));
+            return new EventStreamProducer(await CreateStreamWriterAsync(streamName), RetryPolicy.Default);
         }
 
         public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName)

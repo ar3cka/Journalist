@@ -20,7 +20,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Fact]
-        public async Task OpenWriterAsync_WhenStreamIsNotExists_ReturnsStreamAtStartPosition()
+        public async Task CreatedWriter_WhenStreamIsNotExists_ReturnsStreamAtStartPosition()
         {
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
 
@@ -28,7 +28,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task OpenedWriterAsync_AppendsEventsAndMovesPositionForward(JournaledEvent[] dummyEvents)
+        public async Task CreatedWriter_AppendsEventsAndMovesPositionForward(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
             await writer.AppendEventsAsync(dummyEvents);
@@ -37,7 +37,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task OpenedReader_CanReadAppendedEvents(JournaledEvent[] dummyEvents)
+        public async Task CreatedReader_CanReadAppendedEvents(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
             await writer.AppendEventsAsync(dummyEvents);
@@ -53,7 +53,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task OpenedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(JournaledEvent[] dummyEvents)
+        public async Task CreatedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
             await writer.AppendEventsAsync(dummyEvents);
@@ -63,6 +63,24 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             Assert.Equal(1, reader.Events.Count);
             Assert.Equal(dummyEvents[writer.StreamPosition - 1], reader.Events[0]);
+        }
+
+        [Theory, AutoMoqData]
+        public async Task CreatedProducer_CanPublishEvents(JournaledEvent[] dummyEvents)
+        {
+            var producer = await Connection.CreateStreamProducer(StreamName);
+            await producer.PublishAsync(dummyEvents);
+        }
+
+        [Theory, AutoMoqData]
+        public async Task CreatedProducer_WhenUnderlyingStreamWasMovedAheadCanPublishEvents(JournaledEvent[] dummyEvents)
+        {
+            // both producer are staying on the one stream version
+            var producer1 = await Connection.CreateStreamProducer(StreamName);
+            var producer2 = await Connection.CreateStreamProducer(StreamName);
+
+            await producer1.PublishAsync(dummyEvents);
+            await producer2.PublishAsync(dummyEvents);
         }
 
         public string StreamName

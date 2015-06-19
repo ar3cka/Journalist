@@ -72,6 +72,8 @@
     <Compile Include="Streams\IEventStreamProducer.cs" />
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
+    <Compile Include="Utils\IRetryPolicy.cs" />
+    <Compile Include="Utils\RetryPolicy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
