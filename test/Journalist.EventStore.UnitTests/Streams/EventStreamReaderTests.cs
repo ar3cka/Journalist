@@ -29,15 +29,15 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory, EmptyEventStreamCursor]
-        public void HasMoreEvents_WhenCursorIsEmpty_ReturnsFalse(EventStreamReader reader)
+        public void HasEvents_WhenCursorIsEmpty_ReturnsFalse(EventStreamReader reader)
         {
-            Assert.False(reader.HasMoreEvents);
+            Assert.False(reader.HasEvents);
         }
 
         [Theory, NotEmptyEventStreamCursor]
-        public void HasMoreEvents_WhenCursorIsNotEmpty_ReturnsTrue(EventStreamReader reader)
+        public void HaEvents_WhenCursorIsNotEmpty_ReturnsTrue(EventStreamReader reader)
         {
-            Assert.True(reader.HasMoreEvents);
+            Assert.True(reader.HasEvents);
         }
     }
 }

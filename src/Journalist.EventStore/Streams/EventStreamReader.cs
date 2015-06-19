@@ -53,7 +53,7 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public bool HasMoreEvents
+        public bool HasEvents
         {
             get { return !m_streamCursor.EndOfStream; }
         }

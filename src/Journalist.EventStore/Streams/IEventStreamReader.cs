@@ -10,7 +10,7 @@ namespace Journalist.EventStore.Streams
 
         IReadOnlyList<JournaledEvent> Events { get; }
 
-        bool HasMoreEvents { get; }
+        bool HasEvents { get; }
 
         string StreamName { get; }
     }

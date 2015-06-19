@@ -1,3 +1,6 @@
+### 0.6.0
+* [EventStore][Breaking] EventStreamReader API changes.
+
 ### 0.5.0 (2015-06-19)
 * [EventStore][Breaking] Rename EventStream to EventStoreConnection.
 * [EventStore][Breaking] Serialization functions were removed.
