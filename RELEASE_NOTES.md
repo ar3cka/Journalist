@@ -1,4 +1,4 @@
-### 0.5.0
+### 0.5.0 (2015-06-19)
 * [EventStore][Breaking] Rename EventStream to EventStoreConnection.
 * [EventStore][Breaking] Serialization functions were removed.
 * [EventStore] Json.Net dependency was removed.
