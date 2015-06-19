@@ -20,12 +20,22 @@ namespace Journalist.EventStore.UnitTests.Streams
             EventStreamWriter writer,
             JournaledEvent[] events)
         {
-            await writer.AppendEvents(events);
+            await writer.AppendEventsAsync(events);
 
             journalMock.Verify(journal => journal.AppendEventsAsync(
                 writer.StreamName,
                 position,
                 It.Is<IReadOnlyCollection<JournaledEvent>>(e => e.Count == events.Length)));
+        }
+
+        [Theory, AutoMoqData]
+        public async Task MoveToEndOfStreamAsync_ReadsEndOfStreamPositionFormJournal(
+            [Frozen] Mock<IEventJournal> journalMock,
+            EventStreamWriter writer)
+        {
+            await writer.MoveToEndOfStreamAsync();
+
+            journalMock.Verify(journal => journal.ReadEndOfStreamPositionAsync(writer.StreamName));
         }
 
         [Theory, AutoMoqData]
@@ -48,7 +58,7 @@ namespace Journalist.EventStore.UnitTests.Streams
                     It.IsAny<IReadOnlyCollection<JournaledEvent>>()))
                 .Returns(position.YieldTask());
 
-            await writer.AppendEvents(events);
+            await writer.AppendEventsAsync(events);
 
             Assert.Equal((int) position.Version, writer.StreamPosition);
         }

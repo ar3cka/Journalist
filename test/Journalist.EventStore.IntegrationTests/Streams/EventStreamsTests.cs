@@ -31,7 +31,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         public async Task OpenedWriterAsync_AppendsEventsAndMovesPositionForward(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
-            await writer.AppendEvents(dummyEvents);
+            await writer.AppendEventsAsync(dummyEvents);
 
             Assert.Equal(dummyEvents.Length, writer.StreamPosition);
         }
@@ -40,7 +40,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         public async Task OpenedReader_CanReadAppendedEvents(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
-            await writer.AppendEvents(dummyEvents);
+            await writer.AppendEventsAsync(dummyEvents);
 
             var reader = await Connection.CreateStreamReaderAsync(StreamName);
             await reader.ReadEventsAsync();
@@ -56,7 +56,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         public async Task OpenedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(JournaledEvent[] dummyEvents)
         {
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
-            await writer.AppendEvents(dummyEvents);
+            await writer.AppendEventsAsync(dummyEvents);
 
             var reader = await Connection.CreateStreamReaderAsync(StreamName, writer.StreamPosition);
             await reader.ReadEventsAsync();

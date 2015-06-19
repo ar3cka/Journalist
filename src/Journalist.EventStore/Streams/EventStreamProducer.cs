@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams
 {
@@ -15,11 +17,20 @@ namespace Journalist.EventStore.Streams
             m_streamWriter = streamWriter;
         }
 
-        public Task PublishAsync(IReadOnlyCollection<JournaledEvent> events)
+        public async Task PublishAsync(IReadOnlyCollection<JournaledEvent> events)
         {
             Require.NotNull(events, "events");
 
-            return m_streamWriter.AppendEvents(events);
+            try
+            {
+                await m_streamWriter.AppendEventsAsync(events);
+            }
+            catch (EventStreamConcurrencyException)
+            {
+            }
+
+            await m_streamWriter.MoveToEndOfStreamAsync();
+            await m_streamWriter.AppendEventsAsync(events);
         }
     }
 }

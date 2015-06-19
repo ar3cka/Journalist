@@ -26,7 +26,7 @@ namespace Journalist.EventStore.Streams
             m_journal = journal;
         }
 
-        public async Task AppendEvents(IReadOnlyCollection<JournaledEvent> events)
+        public async Task AppendEventsAsync(IReadOnlyCollection<JournaledEvent> events)
         {
             Require.NotNull(events, "events");
 
@@ -36,6 +36,11 @@ namespace Journalist.EventStore.Streams
             }
 
             m_endOfStream = await m_journal.AppendEventsAsync(m_streamName, m_endOfStream, events);
+        }
+
+        public async Task MoveToEndOfStreamAsync()
+        {
+            m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(m_streamName);
         }
 
         public int StreamPosition

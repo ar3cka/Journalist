@@ -6,8 +6,10 @@ namespace Journalist.EventStore.Streams
 {
     public interface IEventStreamWriter
     {
-        int StreamPosition { get; }
+        Task AppendEventsAsync(IReadOnlyCollection<JournaledEvent> events);
 
-        Task AppendEvents(IReadOnlyCollection<JournaledEvent> events);
+        Task MoveToEndOfStreamAsync();
+
+        int StreamPosition { get; }
     }
 }

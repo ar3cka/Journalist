@@ -10,7 +10,9 @@ namespace Journalist.EventStore.Events
         {
         }
 
-        public static JournaledEvent Create(Guid eventId, object eventObject,
+        public static JournaledEvent Create(
+            Guid eventId,
+            object eventObject,
             Action<object, Type, StreamWriter> serialize)
         {
             Require.NotEmpty(eventId, "eventObject");
