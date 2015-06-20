@@ -52,9 +52,9 @@ namespace Journalist.EventStore.Streams
             {
                 m_consuming = true;
 
-                foreach (var journaledEvent in m_reader.Events)
+                for (var eventSliceOffset = 0; eventSliceOffset < m_reader.Events.Count; eventSliceOffset++)
                 {
-                    yield return journaledEvent;
+                    yield return m_reader.Events[eventSliceOffset];
                 }
 
                 m_consuming = false;

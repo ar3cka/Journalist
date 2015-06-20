@@ -53,6 +53,11 @@ namespace Journalist.EventStore.Streams
             }
         }
 
+        public int CurrentPosition
+        {
+            get { return (int)m_streamCursor.CurrentVersion; }
+        }
+
         public bool HasEvents
         {
             get { return !m_streamCursor.EndOfStream; }

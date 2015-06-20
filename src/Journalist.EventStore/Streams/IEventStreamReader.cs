@@ -13,5 +13,7 @@ namespace Journalist.EventStore.Streams
         bool HasEvents { get; }
 
         string StreamName { get; }
+
+        int CurrentPosition { get; }
     }
 }
