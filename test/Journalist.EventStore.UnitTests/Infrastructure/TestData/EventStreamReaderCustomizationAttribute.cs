@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.Customizations.Customizations;
 using Journalist.Tasks;
@@ -11,6 +13,9 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         public EventStreamReaderCustomizationAttribute()
         {
             Fixture.Customize(new JournaledEventCustomization());
+
+            Fixture.Customize<IReadOnlyList<JournaledEvent>>(composer => composer
+                .FromFactory((JournaledEvent[] events) => events));
 
             Fixture.Customize<Mock<IEventStreamReader>>(composer => composer
                 .Do(mock => mock

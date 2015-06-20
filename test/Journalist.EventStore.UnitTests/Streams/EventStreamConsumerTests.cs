@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Streams;
@@ -57,7 +58,22 @@ namespace Journalist.EventStore.UnitTests.Streams
         public void EnumerateEvents_WhenReceiveMethodWasNotCalled_Throws(
             EventStreamConsumer consumer)
         {
-            Assert.Throws<InvalidOperationException>(() => consumer.EnumerateEvents());
+            Assert.Throws<InvalidOperationException>(() => consumer.EnumerateEvents().ToList());
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true)]
+        public async Task EnumerateEvents_WhenSecondThreadOpensStream_Throws(
+            EventStreamConsumer consumer)
+        {
+            await consumer.ReceiveEventsAsync();
+
+            // Reads first event
+            var thread1 = consumer.EnumerateEvents();
+            var enumerator1 = thread1.GetEnumerator();
+            enumerator1.MoveNext();
+
+            Assert.Throws<InvalidOperationException>(() => consumer.EnumerateEvents().ToList());
         }
     }
 }

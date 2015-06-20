@@ -8,6 +8,7 @@ namespace Journalist.EventStore.Streams
     public class EventStreamConsumer : IEventStreamConsumer
     {
         private readonly IEventStreamReader m_reader;
+        private bool m_hasUnprocessedEvents;
         private bool m_consuming;
 
         public EventStreamConsumer(IEventStreamReader reader)
@@ -22,7 +23,7 @@ namespace Journalist.EventStore.Streams
             if (m_reader.HasEvents)
             {
                 await m_reader.ReadEventsAsync();
-                m_consuming = true;
+                m_hasUnprocessedEvents = true;
 
                 return true;
             }
@@ -44,7 +45,22 @@ namespace Journalist.EventStore.Streams
         {
             if (m_consuming)
             {
-                return m_reader.Events;
+                throw new InvalidOperationException("Consumer stream is already opened.");
+            }
+
+            if (m_hasUnprocessedEvents)
+            {
+                m_consuming = true;
+
+                foreach (var journaledEvent in m_reader.Events)
+                {
+                    yield return journaledEvent;
+                }
+
+                m_consuming = false;
+                m_hasUnprocessedEvents = false;
+
+                yield break;
             }
 
             throw new InvalidOperationException("Consumer stream is empty.");

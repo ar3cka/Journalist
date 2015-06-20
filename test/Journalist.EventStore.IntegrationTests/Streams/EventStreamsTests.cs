@@ -83,6 +83,18 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await producer2.PublishAsync(dummyEvents);
         }
 
+        [Theory, AutoMoqData]
+        public async Task CreatedConsumer_CanReadPublishedEvents(JournaledEvent[] dummyEvents)
+        {
+            var producer = await Connection.CreateStreamProducer(StreamName);
+            await producer.PublishAsync(dummyEvents);
+
+            var consumer = await Connection.CreateStreamConsumer(StreamName);
+            await consumer.ReceiveEventsAsync();
+
+            Assert.Equal(dummyEvents, consumer.EnumerateEvents());
+        }
+
         public string StreamName
         {
             get;
