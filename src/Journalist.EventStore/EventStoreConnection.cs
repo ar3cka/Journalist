@@ -22,7 +22,7 @@ namespace Journalist.EventStore
 
             var reader = new EventStreamReader(
                 streamName,
-                await m_journal.OpenEventStreamAsync(streamName));
+                await m_journal.OpenEventStreamCursorAsync(streamName));
 
             return reader;
         }
@@ -34,7 +34,7 @@ namespace Journalist.EventStore
 
             var reader = new EventStreamReader(
                 streamName,
-                await m_journal.OpenEventStreamAsync(streamName, StreamVersion.Create(streamVersion)));
+                await m_journal.OpenEventStreamCursorAsync(streamName, StreamVersion.Create(streamVersion)));
 
             return reader;
         }

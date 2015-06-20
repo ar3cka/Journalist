@@ -46,11 +46,13 @@
     <Compile Include="Configuration\EventStoreConnectionBuilder.cs" />
     <Compile Include="Configuration\EventStoreConnectionConfiguration.cs" />
     <Compile Include="Configuration\IEventStoreConnectionConfiguration.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="EventStoreConnection.cs" />
     <Compile Include="Events\JournaledEvent.cs" />
     <Compile Include="Events\JournaledEventPropertyNames.cs" />
     <Compile Include="IEventStoreConnection.cs" />
     <Compile Include="Journal\EventJournal.cs" />
+    <Compile Include="Journal\EventJournalExtensions.cs" />
     <Compile Include="Journal\EventJournalTableRowPropertyNames.cs" />
     <Compile Include="Journal\EventStreamAppendOperationFailedException.cs" />
     <Compile Include="Journal\EventStreamConcurrencyException.cs" />

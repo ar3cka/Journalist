@@ -12,7 +12,6 @@ namespace Journalist.EventStore.Journal
     public class EventJournal : IEventJournal
     {
         private readonly ICloudTable m_table;
-        private const int DEFAULT_SLICE_SIZE = 1000;
 
         public EventJournal(ICloudTable table)
         {
@@ -55,7 +54,7 @@ namespace Journalist.EventStore.Journal
             }
         }
 
-        public async Task<EventStreamCursor> OpenEventStreamAsync(string streamName, int sliceSize)
+        public async Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
@@ -72,15 +71,7 @@ namespace Journalist.EventStore.Journal
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
 
-        public Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion)
-        {
-            Require.NotEmpty(streamName, "streamName");
-
-            return OpenEventStreamAsync(streamName, fromVersion, DEFAULT_SLICE_SIZE);
-        }
-
-        public async Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion,
-            int sliceSize)
+        public async Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
@@ -92,15 +83,11 @@ namespace Journalist.EventStore.Journal
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
 
-        public Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion, StreamVersion toVersion)
-        {
-            Require.NotEmpty(streamName, "streamName");
-
-            return OpenEventStreamAsync(streamName, fromVersion, toVersion, DEFAULT_SLICE_SIZE);
-        }
-
-        public async Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion,
-            StreamVersion toVersion, int sliceSize)
+        public async Task<EventStreamCursor> OpenEventStreamCursorAsync(
+            string streamName,
+            StreamVersion fromVersion,
+            StreamVersion toVersion,
+            int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
@@ -115,11 +102,6 @@ namespace Journalist.EventStore.Journal
                 new EventStreamPosition(string.Empty, toVersion),
                 fromVersion,
                 from => FetchEvents(streamName, from, toVersion, sliceSize));
-        }
-
-        public Task<EventStreamCursor> OpenEventStreamAsync(string streamName)
-        {
-            return OpenEventStreamAsync(streamName, DEFAULT_SLICE_SIZE);
         }
 
         public async Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName)
@@ -164,8 +146,11 @@ namespace Journalist.EventStore.Journal
             }
         }
 
-        private async Task<SortedList<StreamVersion, JournaledEvent>> FetchEvents(string stream,
-            StreamVersion fromVersion, StreamVersion toVersion, int sliceSize)
+        private async Task<SortedList<StreamVersion, JournaledEvent>> FetchEvents(
+            string stream,
+            StreamVersion fromVersion,
+            StreamVersion toVersion,
+            int sliceSize)
         {
             var nextSliceVersion = fromVersion.Increment(sliceSize);
             if (nextSliceVersion >= toVersion)

@@ -9,17 +9,11 @@ namespace Journalist.EventStore.Journal
     {
         Task<EventStreamPosition> AppendEventsAsync(string streamName, EventStreamPosition position, IReadOnlyCollection<JournaledEvent> events);
 
-        Task<EventStreamCursor> OpenEventStreamAsync(string streamName);
+        Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize);
 
-        Task<EventStreamCursor> OpenEventStreamAsync(string streamName, int sliceSize);
+        Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize);
 
-        Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion);
-
-        Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion, int sliceSize);
-
-        Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion, StreamVersion toVersion);
-
-        Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion, StreamVersion toVersion, int sliceSize);
+        Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, StreamVersion toVersion, int sliceSize);
 
         Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName);
     }

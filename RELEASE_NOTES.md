@@ -1,5 +1,6 @@
 ### 0.6.0
-* [EventStore][Breaking] EventStreamReader API changes.
+* [EventStore][Breaking] EventStreamReader API was changed.
+* [EventStore][Breaking] EventJournal API was changed.
 
 ### 0.5.0 (2015-06-19)
 * [EventStore][Breaking] Rename EventStream to EventStoreConnection.

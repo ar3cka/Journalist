@@ -129,7 +129,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
 
         private async Task<List<JournaledEvent>> ReadEventsAsync()
         {
-            var stream = await Journal.OpenEventStreamAsync(StreamName);
+            var stream = await Journal.OpenEventStreamCursorAsync(StreamName);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)
@@ -144,7 +144,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         private async Task<List<JournaledEvent>> ReadEventsPartialAsync(StreamVersion fromVersion,
             StreamVersion toVersion, int sliceSize = 1000)
         {
-            var stream = await Journal.OpenEventStreamAsync(StreamName, fromVersion, toVersion, sliceSize);
+            var stream = await Journal.OpenEventStreamCursorAsync(StreamName, fromVersion, toVersion, sliceSize);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)
