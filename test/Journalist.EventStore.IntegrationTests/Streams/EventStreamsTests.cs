@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Configuration;
 using Journalist.EventStore.Events;
@@ -20,11 +21,11 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Fact]
-        public async Task CreatedWriter_WhenStreamIsNotExists_ReturnsStreamAtStartPosition()
+        public async Task CreatedWriter_WhenStreamIsNotExists_ReturnsStreamAtUnknownPosition()
         {
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
 
-            Assert.Equal(0, writer.StreamPosition);
+            Assert.Equal(StreamVersion.Unknown, writer.StreamVersion);
         }
 
         [Theory, AutoMoqData]
@@ -33,7 +34,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
             await writer.AppendEventsAsync(dummyEvents);
 
-            Assert.Equal(dummyEvents.Length, writer.StreamPosition);
+            Assert.Equal(StreamVersion.Create(dummyEvents.Length), writer.StreamVersion);
         }
 
         [Theory, AutoMoqData]
@@ -58,11 +59,11 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var writer = await Connection.CreateStreamWriterAsync(StreamName);
             await writer.AppendEventsAsync(dummyEvents);
 
-            var reader = await Connection.CreateStreamReaderAsync(StreamName, writer.StreamPosition);
+            var reader = await Connection.CreateStreamReaderAsync(StreamName, writer.StreamVersion);
             await reader.ReadEventsAsync();
 
             Assert.Equal(1, reader.Events.Count);
-            Assert.Equal(dummyEvents[writer.StreamPosition - 1], reader.Events[0]);
+            Assert.Equal(dummyEvents[(int)writer.StreamVersion - 1], reader.Events[0]);
         }
 
         [Theory, AutoMoqData]
@@ -93,6 +94,24 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await consumer.ReceiveEventsAsync();
 
             Assert.Equal(dummyEvents, consumer.EnumerateEvents());
+        }
+
+        [Theory, AutoMoqData]
+        public async Task CreatedConsumer_CanReadPublishedEvents(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
+        {
+            var producer = await Connection.CreateStreamProducer(StreamName);
+            var consumer = await Connection.CreateStreamConsumer(StreamName);
+
+            await producer.PublishAsync(dummyEvents1);
+            await consumer.ReceiveEventsAsync();
+            var receivedEvents1 = consumer.EnumerateEvents().ToList();
+
+            await producer.PublishAsync(dummyEvents2);
+            await consumer.ReceiveEventsAsync();
+            var receivedEvents2 = consumer.EnumerateEvents().ToList();
+
+            Assert.Equal(dummyEvents1, receivedEvents1);
+            Assert.Equal(dummyEvents2, receivedEvents2);
         }
 
         public string StreamName

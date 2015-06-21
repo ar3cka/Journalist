@@ -12,7 +12,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
     {
         public static readonly EventStreamCursor Empty = new EventStreamCursor(
             EventStreamPosition.Start,
-            StreamVersion.Zero,
+            StreamVersion.Unknown,
             from => new SortedList<StreamVersion, JournaledEvent>(0).YieldTask());
 
         private EventStreamSlice m_slice;

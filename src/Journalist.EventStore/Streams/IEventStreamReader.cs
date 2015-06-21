@@ -14,6 +14,6 @@ namespace Journalist.EventStore.Streams
 
         string StreamName { get; }
 
-        int CurrentPosition { get; }
+        StreamVersion CurrentStreamVersion { get; }
     }
 }

@@ -41,7 +41,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         [Theory, AutoMoqData]
         public void StreamPosition_ReturnsStreamVersionValue([Frozen] EventStreamPosition position, EventStreamWriter writer)
         {
-            Assert.Equal((int) position.Version, writer.StreamPosition);
+            Assert.Equal(position.Version, writer.StreamVersion);
         }
 
         [Theory, AutoMoqData]
@@ -60,7 +60,7 @@ namespace Journalist.EventStore.UnitTests.Streams
 
             await writer.AppendEventsAsync(events);
 
-            Assert.Equal((int) position.Version, writer.StreamPosition);
+            Assert.Equal(position.Version, writer.StreamVersion);
         }
     }
 }

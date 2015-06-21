@@ -67,7 +67,7 @@ namespace Journalist.EventStore.Journal
 
             return new EventStreamCursor(
                 position,
-                StreamVersion.Zero,
+                StreamVersion.Start,
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
 

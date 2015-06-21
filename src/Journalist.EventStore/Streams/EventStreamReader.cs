@@ -53,9 +53,9 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public int CurrentPosition
+        public StreamVersion CurrentStreamVersion
         {
-            get { return (int)m_streamCursor.CurrentVersion; }
+            get { return m_streamCursor.CurrentVersion; }
         }
 
         public bool HasEvents

@@ -10,6 +10,6 @@ namespace Journalist.EventStore.Streams
 
         Task MoveToEndOfStreamAsync();
 
-        int StreamPosition { get; }
+        StreamVersion StreamVersion { get; }
     }
 }

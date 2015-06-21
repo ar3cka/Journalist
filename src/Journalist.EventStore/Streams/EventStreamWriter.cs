@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
@@ -43,9 +42,9 @@ namespace Journalist.EventStore.Streams
             m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(m_streamName);
         }
 
-        public int StreamPosition
+        public StreamVersion StreamVersion
         {
-            get { return (int)m_endOfStream.Version; }
+            get { return m_endOfStream.Version; }
         }
 
         public string StreamName

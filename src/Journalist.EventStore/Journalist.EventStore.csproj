@@ -64,7 +64,6 @@
     <Compile Include="Journal\StreamCursor\EventStreamSlice.cs" />
     <Compile Include="Journal\StreamCursor\FetchingCursorState.cs" />
     <Compile Include="Journal\StreamCursor\InitialCursorState.cs" />
-    <Compile Include="Journal\StreamVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\EventStreamConsumer.cs" />
     <Compile Include="Streams\EventStreamProducer.cs" />
@@ -74,6 +73,7 @@
     <Compile Include="Streams\IEventStreamProducer.cs" />
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
+    <Compile Include="StreamVersion.cs" />
     <Compile Include="Utils\IRetryPolicy.cs" />
     <Compile Include="Utils\RetryPolicy.cs" />
   </ItemGroup>

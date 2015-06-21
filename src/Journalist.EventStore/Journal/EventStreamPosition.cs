@@ -4,7 +4,7 @@ namespace Journalist.EventStore.Journal
 {
     public struct EventStreamPosition : IEquatable<EventStreamPosition>
     {
-        public static readonly EventStreamPosition Start = new EventStreamPosition(string.Empty, StreamVersion.Zero);
+        public static readonly EventStreamPosition Start = new EventStreamPosition(string.Empty, StreamVersion.Unknown);
 
         private readonly string m_etag;
         private readonly StreamVersion m_version;

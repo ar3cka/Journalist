@@ -7,7 +7,7 @@ namespace Journalist.EventStore
     {
         Task<IEventStreamReader> CreateStreamReaderAsync(string streamName);
 
-        Task<IEventStreamReader> CreateStreamReaderAsync(string streamName, int streamVersion);
+        Task<IEventStreamReader> CreateStreamReaderAsync(string streamName, StreamVersion streamVersion);
 
         Task<IEventStreamWriter> CreateStreamWriterAsync(string streamName);
 

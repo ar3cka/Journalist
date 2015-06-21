@@ -79,7 +79,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
 
             // act
             var events = await ReadEventsAsync();
-            var eventsPart = await ReadEventsPartialAsync(StreamVersion.Zero, StreamVersion.Create(100), 10);
+            var eventsPart = await ReadEventsPartialAsync(StreamVersion.Start, StreamVersion.Create(100), 10);
 
             // assert
             Assert.Equal(events.Take(100).ToArray(), eventsPart);

@@ -1,12 +1,13 @@
 using System;
 
-namespace Journalist.EventStore.Journal
+namespace Journalist.EventStore
 {
     public struct StreamVersion : IEquatable<StreamVersion>, IComparable<StreamVersion>
     {
         private readonly int m_value;
 
-        public static readonly StreamVersion Zero = new StreamVersion(0);
+        public static readonly StreamVersion Unknown = new StreamVersion(0);
+        public static readonly StreamVersion Start = new StreamVersion(1);
 
         private StreamVersion(int value)
         {
