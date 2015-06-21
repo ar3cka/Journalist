@@ -38,6 +38,11 @@ namespace Journalist.EventStore
             return Create(m_value + incrementValue);
         }
 
+        public StreamVersion Increment()
+        {
+            return Increment(1);
+        }
+
         public StreamVersion Decrement(int decrementValue)
         {
             return Create(m_value - decrementValue);

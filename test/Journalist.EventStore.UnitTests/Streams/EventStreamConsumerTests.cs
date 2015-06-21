@@ -62,18 +62,14 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
-        public async Task EnumerateEvents_WhenSecondThreadOpensStream_Throws(
+        [EventStreamReaderCustomization(Completed = true)]
+        public async Task ReceiveEventsAsync_WhenReaderCompleted_ContinueReading(
+            [Frozen] Mock<IEventStreamReader> readerMock,
             EventStreamConsumer consumer)
         {
             await consumer.ReceiveEventsAsync();
 
-            // Reads first event
-            var thread1 = consumer.EnumerateEvents();
-            var enumerator1 = thread1.GetEnumerator();
-            enumerator1.MoveNext();
-
-            Assert.Throws<InvalidOperationException>(() => consumer.EnumerateEvents().ToList());
+            readerMock.Verify(self => self.ContinueAsync(), Times.Once());
         }
     }
 }

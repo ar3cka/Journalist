@@ -7,30 +7,22 @@ namespace Journalist.EventStore.Streams
 {
     public class EventStreamConsumer : IEventStreamConsumer
     {
-        private readonly Func<StreamVersion, Task<IEventStreamReader>> m_createReader;
-        private IEventStreamReader m_reader;
+        private readonly IEventStreamReader m_reader;
         private bool m_hasUnprocessedEvents;
         private bool m_consuming;
-        private StreamVersion m_consumedVersion;
-        private bool m_readerExhausted;
 
-        public EventStreamConsumer(
-            StreamVersion initialStreamVersion,
-            Func<StreamVersion, Task<IEventStreamReader>> createReader)
+        public EventStreamConsumer(IEventStreamReader streamReader)
         {
-            Require.NotNull(createReader, "createReader");
+            Require.NotNull(streamReader, "streamReader");
 
-            m_consumedVersion = initialStreamVersion;
-            m_createReader = createReader;
-            m_readerExhausted = true;
+            m_reader = streamReader;
         }
 
         public async Task<bool> ReceiveEventsAsync()
         {
-            if (m_readerExhausted)
+            if (m_reader.IsCompleted)
             {
-                m_reader = await m_createReader(m_consumedVersion.Increment(1));
-                m_readerExhausted = false;
+                await m_reader.ContinueAsync();
             }
 
             if (m_reader.HasEvents)
@@ -72,12 +64,6 @@ namespace Journalist.EventStore.Streams
 
                 m_consuming = false;
                 m_hasUnprocessedEvents = false;
-                m_consumedVersion = m_reader.CurrentStreamVersion;
-
-                if (!m_reader.HasEvents)
-                {
-                    m_readerExhausted = true;
-                }
 
                 yield break;
             }

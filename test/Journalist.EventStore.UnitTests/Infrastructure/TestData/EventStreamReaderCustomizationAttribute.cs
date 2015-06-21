@@ -22,7 +22,13 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                     .Setup(self => self.HasEvents)
                     .Returns(HasEvents))
                 .Do(mock => mock
+                    .Setup(self => self.IsCompleted)
+                    .Returns(Completed))
+                .Do(mock => mock
                     .Setup(self => self.ReadEventsAsync())
+                    .Returns(TaskDone.Done))
+                .Do(mock => mock
+                    .Setup(self => self.ContinueAsync())
                     .Returns(TaskDone.Done))
                 .Do(mock => mock
                     .Setup(self => self.Events)
@@ -30,5 +36,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         }
 
         public bool HasEvents { get; set; }
+
+        public bool Completed { get; set; }
     }
 }

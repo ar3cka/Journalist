@@ -22,7 +22,8 @@ namespace Journalist.EventStore
 
             var reader = new EventStreamReader(
                 streamName,
-                await m_journal.OpenEventStreamCursorAsync(streamName));
+                await m_journal.OpenEventStreamCursorAsync(streamName),
+                version => m_journal.OpenEventStreamCursorAsync(streamName, version));
 
             return reader;
         }
@@ -33,7 +34,8 @@ namespace Journalist.EventStore
 
             var reader = new EventStreamReader(
                 streamName,
-                await m_journal.OpenEventStreamCursorAsync(streamName, streamVersion));
+                await m_journal.OpenEventStreamCursorAsync(streamName, streamVersion),
+                version => m_journal.OpenEventStreamCursorAsync(streamName, version));
 
             return reader;
         }
@@ -57,9 +59,7 @@ namespace Journalist.EventStore
 
         public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName)
         {
-            return new EventStreamConsumer(
-                StreamVersion.Unknown,
-                version => CreateStreamReaderAsync(streamName, version));
+            return new EventStreamConsumer(await CreateStreamReaderAsync(streamName));
         }
     }
 }

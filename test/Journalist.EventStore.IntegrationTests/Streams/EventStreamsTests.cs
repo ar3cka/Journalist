@@ -92,17 +92,18 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             var consumer = await Connection.CreateStreamConsumer(StreamName);
             await consumer.ReceiveEventsAsync();
+            var receivedEvents = consumer.EnumerateEvents().ToList();
 
-            Assert.Equal(dummyEvents, consumer.EnumerateEvents());
+            Assert.Equal(dummyEvents, receivedEvents);
         }
 
         [Theory, AutoMoqData]
         public async Task CreatedConsumer_CanReadPublishedEvents(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
         {
             var producer = await Connection.CreateStreamProducer(StreamName);
-            var consumer = await Connection.CreateStreamConsumer(StreamName);
-
             await producer.PublishAsync(dummyEvents1);
+
+            var consumer = await Connection.CreateStreamConsumer(StreamName);
             await consumer.ReceiveEventsAsync();
             var receivedEvents1 = consumer.EnumerateEvents().ToList();
 

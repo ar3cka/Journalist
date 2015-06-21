@@ -11,17 +11,23 @@ namespace Journalist.EventStore.Streams
     public class EventStreamReader : IEventStreamReader
     {
         private readonly string m_streamName;
-        private readonly EventStreamCursor m_streamCursor;
+        private readonly Func<StreamVersion, Task<EventStreamCursor>> m_openCursor;
 
+        private EventStreamCursor m_streamCursor;
         private List<JournaledEvent> m_readedEvents;
 
-        public EventStreamReader(string streamName, EventStreamCursor streamCursor)
+        public EventStreamReader(
+            string streamName,
+            EventStreamCursor streamCursor,
+            Func<StreamVersion, Task<EventStreamCursor>> openCursor)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(streamCursor, "streamCursor");
+            Require.NotNull(openCursor, "openCursor");
 
             m_streamName = streamName;
             m_streamCursor = streamCursor;
+            m_openCursor = openCursor;
         }
 
         public async Task ReadEventsAsync()
@@ -38,6 +44,18 @@ namespace Journalist.EventStore.Streams
             {
                 m_readedEvents.Add(journaledEvent);
             }
+        }
+
+        public async Task ContinueAsync()
+        {
+            if (IsCompleted)
+            {
+                m_streamCursor = await m_openCursor(CurrentStreamVersion.Increment());
+                m_readedEvents = null;
+                return;
+            }
+
+            throw new InvalidOperationException("Reader is not in competed state.");
         }
 
         public IReadOnlyList<JournaledEvent> Events
@@ -66,6 +84,21 @@ namespace Journalist.EventStore.Streams
         public string StreamName
         {
             get { return m_streamName; }
+        }
+
+        public bool IsCompleted
+        {
+            get { return m_streamCursor.EndOfStream; }
+        }
+
+        public bool IsInitial
+        {
+            get { return !m_streamCursor.Fetching && !m_streamCursor.EndOfStream; }
+        }
+
+        public bool IsReading
+        {
+            get { return m_streamCursor.Fetching; }
         }
     }
 }

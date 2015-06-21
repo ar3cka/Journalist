@@ -57,6 +57,11 @@ namespace Journalist.EventStore.Journal.StreamCursor
             get { return m_slice.SlicePosition.Version; }
         }
 
+        public bool Fetching
+        {
+            get { return CursorState.IsFetching(m_state); }
+        }
+
         public bool EndOfStream
         {
             get { return CursorState.IsEndOfStream(m_state); }
