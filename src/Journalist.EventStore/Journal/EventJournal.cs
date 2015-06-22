@@ -114,21 +114,30 @@ namespace Journalist.EventStore.Journal
                 return EventStreamPosition.Start;
             }
 
-            var timestamp = (string) headProperties[EventJournalTableRowPropertyNames.ETag];
-            var version = StreamVersion.Create((int) headProperties[EventJournalTableRowPropertyNames.Version]);
+            var timestamp = (string)headProperties[EventJournalTableRowPropertyNames.ETag];
+            var version = StreamVersion.Create((int)headProperties[EventJournalTableRowPropertyNames.Version]);
 
             return new EventStreamPosition(timestamp, version);
         }
 
-        public Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, string readerName)
+        public async Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, string readerName)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(readerName, "readerName");
 
-            throw new System.NotImplementedException();
+            var referenceRow = await ReadReferenceRowHeadAsync(
+                streamName,
+                "RDR_" + readerName);
+
+            if (referenceRow == null)
+            {
+                return StreamVersion.Unknown;
+            }
+
+            return StreamVersion.Create((int)referenceRow[EventJournalTableRowPropertyNames.Version]);
         }
 
-        public Task CommitStreamReaderPositionAsync(
+        public async Task CommitStreamReaderPositionAsync(
             string streamName,
             string readerName,
             StreamVersion readerVersion)
@@ -136,13 +145,48 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(readerName, "readerName");
 
-            throw new System.NotImplementedException();
+            var referenceRow = await ReadReferenceRowHeadAsync(
+                streamName,
+                "RDR_" + readerName);
+
+            var operation = m_table.PrepareBatchOperation();
+            if (referenceRow == null)
+            {
+                operation.Insert(
+                    streamName,
+                    "RDR_" + readerName,
+                    new Dictionary<string, object>
+                    {
+                        { EventJournalTableRowPropertyNames.Version, (int)readerVersion }
+                    });
+            }
+            else
+            {
+                operation.Merge(
+                    streamName,
+                    "RDR_" + readerName,
+                    (string)referenceRow[KnownProperties.ETag],
+                    new Dictionary<string, object>
+                    {
+                        { EventJournalTableRowPropertyNames.Version, (int)readerVersion }
+                    });
+            }
+
+            await operation.ExecuteAsync();
         }
 
-        private async Task<IDictionary<string, object>> ReadHeadAsync(string streamName)
+        private Task<IDictionary<string, object>> ReadHeadAsync(string streamName)
         {
-            var query = m_table.PrepareEntityPointQuery(streamName, "HEAD",
+            return ReadReferenceRowHeadAsync(streamName, "HEAD");
+        }
+
+        private async Task<IDictionary<string, object>> ReadReferenceRowHeadAsync(string streamName, string referenceType)
+        {
+            var query = m_table.PrepareEntityPointQuery(
+                streamName,
+                referenceType,
                 EventJournalTableRowPropertyNames.Version.YieldArray());
+
             var headProperties = await query.ExecuteAsync();
 
             return headProperties;
