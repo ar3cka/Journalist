@@ -99,5 +99,39 @@ namespace Journalist.EventStore.UnitTests.Streams
             Assert.Equal(0, commitStreamVersionMock.CallsCount);
             Assert.Equal(StreamVersion.Unknown, commitStreamVersionMock.CommitedVersion);
         }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true)]
+        public async Task CloseAsync_WhenReaderHasUnprocessedEvents_Throws(
+            EventStreamConsumer consumer)
+        {
+            await consumer.ReceiveEventsAsync();
+
+            await Assert.ThrowsAsync<InvalidOperationException>(consumer.CloseAsync);
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true)]
+        public async Task CloseAsync_WhenReaderHasNoUnprocessedEvents_NotThrows(
+            EventStreamConsumer consumer)
+        {
+            await consumer.CloseAsync();
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true, Completed = true)]
+        public async Task CloseAsync_WhenReaderInCompletedStateAndHasNoUnprocessedEvents_CommitsConsumedVersion(
+            [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
+            [Frozen] IEventStreamReader reader,
+            EventStreamConsumer consumer)
+        {
+            await consumer.ReceiveEventsAsync();
+            consumer.EnumerateEvents().ToList(); // drains events from reader;
+
+            await consumer.CloseAsync();
+
+            Assert.Equal(1, commitStreamVersionMock.CallsCount);
+            Assert.Equal(reader.CurrentStreamVersion, commitStreamVersionMock.CommitedVersion);
+        }
     }
 }

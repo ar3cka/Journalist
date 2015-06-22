@@ -115,6 +115,49 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             Assert.Equal(dummyEvents2, receivedEvents2);
         }
 
+        [Theory, AutoMoqData]
+        public async Task CreatedConsumer_SavesConsumedPositionPosition(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
+        {
+            var producer = await Connection.CreateStreamProducer(StreamName);
+            await producer.PublishAsync(dummyEvents1);
+
+            var consumer1 = await Connection.CreateStreamConsumer(StreamName);
+            await consumer1.ReceiveEventsAsync();
+
+            await producer.PublishAsync(dummyEvents2);
+            var receivedEvents1 = consumer1.EnumerateEvents().ToList();
+            await consumer1.ReceiveEventsAsync(); // saves position and stops reading.
+
+            var consumer2 = await Connection.CreateStreamConsumer(StreamName);
+            await consumer2.ReceiveEventsAsync();
+            var receivedEvents2 = consumer2.EnumerateEvents().ToList();
+
+            Assert.Equal(dummyEvents1, receivedEvents1);
+            Assert.Equal(dummyEvents2, receivedEvents2);
+        }
+
+        [Theory, AutoMoqData]
+        public async Task CreatedConsumer_SavesConsumedPositionPositionOnClose(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
+        {
+            var producer = await Connection.CreateStreamProducer(StreamName);
+            await producer.PublishAsync(dummyEvents1);
+
+            var consumer1 = await Connection.CreateStreamConsumer(StreamName);
+            await consumer1.ReceiveEventsAsync();
+
+            await producer.PublishAsync(dummyEvents2);
+            var receivedEvents1 = consumer1.EnumerateEvents().ToList();
+            await consumer1.CloseAsync(); // saves position and stops reading.
+
+            var consumer2 = await Connection.CreateStreamConsumer(StreamName);
+            await consumer2.ReceiveEventsAsync();
+            var receivedEvents2 = consumer2.EnumerateEvents().ToList();
+            await consumer2.CloseAsync();
+
+            Assert.Equal(dummyEvents1, receivedEvents1);
+            Assert.Equal(dummyEvents2, receivedEvents2);
+        }
+
         public string StreamName
         {
             get;

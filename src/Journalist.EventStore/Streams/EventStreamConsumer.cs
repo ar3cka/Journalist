@@ -58,9 +58,18 @@ namespace Journalist.EventStore.Streams
             throw new NotImplementedException();
         }
 
-        public Task CloseAsync()
+        public async Task CloseAsync()
         {
-            throw new NotImplementedException();
+            if (m_hasUnprocessedEvents)
+            {
+                throw new InvalidOperationException("Stream has unhandled events.");
+            }
+
+            if (m_receiving)
+            {
+                await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
+                m_receiving = false;
+            }
         }
 
         public IEnumerable<JournaledEvent> EnumerateEvents()
