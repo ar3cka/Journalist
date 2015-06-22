@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.Customizations.Customizations;
+using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Journalist.Tasks;
 using Moq;
 using Ploeh.AutoFixture.AutoMoq;
@@ -13,6 +16,9 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         public EventStreamReaderCustomizationAttribute()
         {
             Fixture.Customize(new JournaledEventCustomization());
+
+            Fixture.Customize<Func<StreamVersion, Task>>(composer => composer
+                .FromFactory((CommitStreamVersionFMock mock) => mock.Invoke));
 
             Fixture.Customize<IReadOnlyList<JournaledEvent>>(composer => composer
                 .FromFactory((JournaledEvent[] events) => events));

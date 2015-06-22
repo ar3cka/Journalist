@@ -17,9 +17,9 @@ namespace Journalist.EventStore.Journal
             m_version = version;
         }
 
-        public static bool IsAtStart(EventStreamPosition position)
+        public static bool IsNewStream(EventStreamPosition position)
         {
-            return StreamVersion.IsZero(position.Version);
+            return StreamVersion.IsUnknown(position.Version);
         }
 
         public bool Equals(EventStreamPosition other)

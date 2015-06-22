@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventStoreConnectionTests.cs" />
+    <Compile Include="Infrastructure\Stubs\CommitStreamVersionFMock.cs" />
     <Compile Include="Infrastructure\Stubs\RetryPolicyStub.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EmptyEventStreamCursorAttribute.cs" />

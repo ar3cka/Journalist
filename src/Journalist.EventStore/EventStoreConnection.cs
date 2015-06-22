@@ -59,7 +59,18 @@ namespace Journalist.EventStore
 
         public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName)
         {
-            return new EventStreamConsumer(await CreateStreamReaderAsync(streamName));
+            var readerVersion = await m_journal.ReadStreamReaderPositionAsync(
+                streamName,
+                Constants.DEFAULT_STREAM_READER_NAME);
+
+            var reader = await CreateStreamReaderAsync(streamName, readerVersion.Increment());
+
+            return new EventStreamConsumer(
+                reader,
+                currentVersion => m_journal.CommitStreamReaderPositionAsync(
+                    streamName,
+                    Constants.DEFAULT_STREAM_READER_NAME,
+                    currentVersion));
         }
     }
 }

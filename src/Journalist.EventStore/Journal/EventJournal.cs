@@ -60,7 +60,7 @@ namespace Journalist.EventStore.Journal
             Require.Positive(sliceSize, "sliceSize");
 
             var position = await ReadEndOfStreamPositionAsync(streamName);
-            if (EventStreamPosition.IsAtStart(position))
+            if (EventStreamPosition.IsNewStream(position))
             {
                 return EventStreamCursor.Empty;
             }
@@ -120,6 +120,25 @@ namespace Journalist.EventStore.Journal
             return new EventStreamPosition(timestamp, version);
         }
 
+        public Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, string readerName)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(readerName, "readerName");
+
+            throw new System.NotImplementedException();
+        }
+
+        public Task CommitStreamReaderPositionAsync(
+            string streamName,
+            string readerName,
+            StreamVersion readerVersion)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(readerName, "readerName");
+
+            throw new System.NotImplementedException();
+        }
+
         private async Task<IDictionary<string, object>> ReadHeadAsync(string streamName)
         {
             var query = m_table.PrepareEntityPointQuery(streamName, "HEAD",
@@ -136,7 +155,7 @@ namespace Journalist.EventStore.Journal
                 {EventJournalTableRowPropertyNames.Version, targetVersion}
             };
 
-            if (EventStreamPosition.IsAtStart(position))
+            if (EventStreamPosition.IsNewStream(position))
             {
                 batch.Insert(stream, "HEAD", headProperties);
             }

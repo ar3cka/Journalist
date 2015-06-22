@@ -14,7 +14,7 @@ namespace Journalist.EventStore
             m_value = value;
         }
 
-        public static bool IsZero(StreamVersion version)
+        public static bool IsUnknown(StreamVersion version)
         {
             return version.m_value == 0;
         }

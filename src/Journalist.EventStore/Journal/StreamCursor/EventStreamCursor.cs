@@ -22,7 +22,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
         {
             Require.NotNull(fetch, "fetch");
 
-            if (EventStreamPosition.IsAtStart(position))
+            if (EventStreamPosition.IsNewStream(position))
             {
                 m_state = new EndOfStreamCursorState();
                 m_slice = EventStreamSlice.Empty;
