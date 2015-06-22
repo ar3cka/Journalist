@@ -133,5 +133,57 @@ namespace Journalist.EventStore.UnitTests.Streams
             Assert.Equal(1, commitStreamVersionMock.CallsCount);
             Assert.Equal(reader.CurrentStreamVersion, commitStreamVersionMock.CommitedVersion);
         }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true, Completed = true)]
+        public async Task RememberConsumedStreamVersionAsync_WhenEventWasConsumed_CommitsConsumedVersion(
+            [Frozen] StreamVersion version,
+            [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
+            EventStreamConsumer consumer)
+        {
+            await consumer.ReceiveEventsAsync();
+
+            var handledEvents = 0;
+            foreach (var e in consumer.EnumerateEvents())
+            {
+                handledEvents++;
+                await consumer.RememberConsumedStreamVersionAsync();
+                break;
+            }
+
+
+            Assert.Equal(1, commitStreamVersionMock.CallsCount);
+            Assert.Equal(version.Increment(handledEvents), commitStreamVersionMock.CommitedVersion);
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true, Completed = true)]
+        public async Task RememberConsumedStreamVersionAsync_WhenLatestManuallyCommitedVersionEqualsToStreamCurrent_SkipCommitOnRecevieAsync(
+            [Frozen] StreamVersion version,
+            [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
+            [Frozen] Mock<IEventStreamReader> readerMock,
+            [Frozen] JournaledEvent[] events,
+            EventStreamConsumer consumer)
+        {
+            var streamVersion = version.Increment(events.Length);
+
+            readerMock
+                .Setup(self => self.CurrentStreamVersion)
+                .Returns(streamVersion);
+
+            await consumer.ReceiveEventsAsync();
+
+            var handledEvents = 0;
+            foreach (var e in consumer.EnumerateEvents())
+            {
+                handledEvents++;
+                await consumer.RememberConsumedStreamVersionAsync();
+            }
+
+            await consumer.ReceiveEventsAsync();
+
+            Assert.Equal(handledEvents, commitStreamVersionMock.CallsCount);
+            Assert.Equal(streamVersion, commitStreamVersionMock.CommitedVersion);
+        }
     }
 }

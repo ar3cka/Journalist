@@ -12,9 +12,12 @@ namespace Journalist.EventStore.Streams
         private bool m_hasUnprocessedEvents;
         private bool m_consuming;
         private bool m_receiving;
+        private int m_uncommittedEventsCount = 0;
+        private StreamVersion m_commitedStreamVersion;
 
         public EventStreamConsumer(
             IEventStreamReader streamReader,
+            StreamVersion commitedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
             Require.NotNull(streamReader, "streamReader");
@@ -22,13 +25,16 @@ namespace Journalist.EventStore.Streams
 
             m_reader = streamReader;
             m_commitConsumedVersion = commitConsumedVersion;
+            m_commitedStreamVersion = commitedStreamVersion;
         }
 
         public async Task<bool> ReceiveEventsAsync()
         {
-            if (m_receiving)
+            if (m_receiving && m_commitedStreamVersion != m_reader.CurrentStreamVersion)
             {
                 await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
+                m_commitedStreamVersion = m_reader.CurrentStreamVersion;
+                m_uncommittedEventsCount = 0;
             }
 
             if (m_reader.IsCompleted)
@@ -53,9 +59,19 @@ namespace Journalist.EventStore.Streams
             return false;
         }
 
-        public Task RememberConsumedStreamVersionAsync()
+        public async Task RememberConsumedEventsAsync()
         {
-            throw new NotImplementedException();
+            if (m_consuming)
+            {
+                var version = m_commitedStreamVersion.Increment(m_uncommittedEventsCount);
+                await m_commitConsumedVersion(version);
+
+                m_commitedStreamVersion = version;
+                m_uncommittedEventsCount = 0;
+                return;
+            }
+
+            throw new InvalidOperationException("Stream is not opened.");
         }
 
         public async Task CloseAsync()
@@ -68,6 +84,8 @@ namespace Journalist.EventStore.Streams
             if (m_receiving)
             {
                 await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
+                m_commitedStreamVersion = m_reader.CurrentStreamVersion;
+
                 m_receiving = false;
             }
         }
@@ -85,6 +103,8 @@ namespace Journalist.EventStore.Streams
 
                 for (var eventSliceOffset = 0; eventSliceOffset < m_reader.Events.Count; eventSliceOffset++)
                 {
+                    m_uncommittedEventsCount++;
+
                     yield return m_reader.Events[eventSliceOffset];
                 }
 

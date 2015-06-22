@@ -158,6 +158,28 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             Assert.Equal(dummyEvents2, receivedEvents2);
         }
 
+        [Theory, AutoMoqData]
+        public async Task CreatedConsumer_RememberConsumedVersion(JournaledEvent[] dummyEvents)
+        {
+            var producer = await Connection.CreateStreamProducer(StreamName);
+            await producer.PublishAsync(dummyEvents);
+
+            var consumer1 = await Connection.CreateStreamConsumer(StreamName);
+            await consumer1.ReceiveEventsAsync();
+            foreach (var e in consumer1.EnumerateEvents())
+            {
+                await consumer1.RememberConsumedStreamVersionAsync();
+                break;
+            }
+
+            var consumer2 = await Connection.CreateStreamConsumer(StreamName);
+            await consumer2.ReceiveEventsAsync();
+            var receivedEvents = consumer2.EnumerateEvents().ToList();
+            await consumer2.CloseAsync();
+
+            Assert.Equal(dummyEvents.Skip(1), receivedEvents);
+        }
+
         public string StreamName
         {
             get;

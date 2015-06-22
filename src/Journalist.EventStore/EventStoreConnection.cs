@@ -67,6 +67,7 @@ namespace Journalist.EventStore
 
             return new EventStreamConsumer(
                 reader,
+                readerVersion,
                 currentVersion => m_journal.CommitStreamReaderPositionAsync(
                     streamName,
                     Constants.DEFAULT_STREAM_READER_NAME,

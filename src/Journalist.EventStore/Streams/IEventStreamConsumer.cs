@@ -8,7 +8,7 @@ namespace Journalist.EventStore.Streams
     {
         Task<bool> ReceiveEventsAsync();
 
-        Task RememberConsumedStreamVersionAsync();
+        Task RememberConsumedEventsAsync();
 
         Task CloseAsync();
 
