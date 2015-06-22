@@ -147,7 +147,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             foreach (var e in consumer.EnumerateEvents())
             {
                 handledEvents++;
-                await consumer.RememberConsumedStreamVersionAsync();
+                await consumer.RememberConsumedEventsAsync();
                 break;
             }
 
@@ -177,7 +177,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             foreach (var e in consumer.EnumerateEvents())
             {
                 handledEvents++;
-                await consumer.RememberConsumedStreamVersionAsync();
+                await consumer.RememberConsumedEventsAsync();
             }
 
             await consumer.ReceiveEventsAsync();
