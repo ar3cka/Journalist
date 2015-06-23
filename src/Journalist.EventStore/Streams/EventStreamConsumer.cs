@@ -12,7 +12,8 @@ namespace Journalist.EventStore.Streams
         private bool m_hasUnprocessedEvents;
         private bool m_consuming;
         private bool m_receiving;
-        private int m_uncommittedEventsCount = 0;
+        private int m_eventSliceOffset;
+        private int m_commitedEventCount;
         private StreamVersion m_commitedStreamVersion;
 
         public EventStreamConsumer(
@@ -34,7 +35,7 @@ namespace Journalist.EventStore.Streams
             {
                 await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
                 m_commitedStreamVersion = m_reader.CurrentStreamVersion;
-                m_uncommittedEventsCount = 0;
+                m_eventSliceOffset = 0;
             }
 
             if (m_reader.IsCompleted)
@@ -59,15 +60,21 @@ namespace Journalist.EventStore.Streams
             return false;
         }
 
-        public async Task RememberConsumedEventsAsync()
+        public async Task RememberConsumedEventsAsync(bool skipCurrent)
         {
             if (m_consuming)
             {
-                var version = m_commitedStreamVersion.Increment(m_uncommittedEventsCount);
-                await m_commitConsumedVersion(version);
+                var eventNumber = skipCurrent ? m_eventSliceOffset : m_eventSliceOffset + 1;
+                var version = m_commitedStreamVersion.Increment(eventNumber - m_commitedEventCount);
 
-                m_commitedStreamVersion = version;
-                m_uncommittedEventsCount = 0;
+                if (m_commitedStreamVersion < version)
+                {
+                    await m_commitConsumedVersion(version);
+
+                    m_commitedStreamVersion = version;
+                    m_commitedEventCount++;
+                }
+
                 return;
             }
 
@@ -101,11 +108,9 @@ namespace Journalist.EventStore.Streams
             {
                 m_consuming = true;
 
-                for (var eventSliceOffset = 0; eventSliceOffset < m_reader.Events.Count; eventSliceOffset++)
+                for (m_eventSliceOffset = 0; m_eventSliceOffset < m_reader.Events.Count; m_eventSliceOffset++)
                 {
-                    m_uncommittedEventsCount++;
-
-                    yield return m_reader.Events[eventSliceOffset];
+                    yield return m_reader.Events[m_eventSliceOffset];
                 }
 
                 m_consuming = false;

@@ -135,7 +135,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true, Completed = true)]
+        [EventStreamReaderCustomization(HasEvents = true)]
         public async Task RememberConsumedStreamVersionAsync_WhenEventWasConsumed_CommitsConsumedVersion(
             [Frozen] StreamVersion version,
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
@@ -157,7 +157,55 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true, Completed = true)]
+        [EventStreamReaderCustomization(HasEvents = true)]
+        public async Task RememberConsumedStreamVersionAsync_WhenSkipCurrentFlagIsTrue_CommitsOnlyProcessedEvents(
+            [Frozen] StreamVersion version,
+            [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
+            EventStreamConsumer consumer)
+        {
+            await consumer.ReceiveEventsAsync();
+
+            var handledEvents = 0;
+            foreach (var e in consumer.EnumerateEvents())
+            {
+                handledEvents++;
+                await consumer.RememberConsumedEventsAsync(skipCurrent: true);
+                break;
+            }
+
+            Assert.Equal(0, commitStreamVersionMock.CallsCount);
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true)]
+        public async Task RememberConsumedStreamVersionAsync_WhenSkipCurrentFlagIsTrue_CommitsOnlyProcessedEvents(
+            [Frozen] StreamVersion version,
+            [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
+            [Frozen] Mock<IEventStreamReader> readerMock,
+            [Frozen] JournaledEvent[] events,
+            EventStreamConsumer consumer)
+        {
+            var streamVersion = version.Increment(events.Length);
+
+            readerMock
+                .Setup(self => self.CurrentStreamVersion)
+                .Returns(streamVersion);
+
+            await consumer.ReceiveEventsAsync();
+
+            var handledEvents = 0;
+            foreach (var e in consumer.EnumerateEvents())
+            {
+                handledEvents++;
+                await consumer.RememberConsumedEventsAsync(skipCurrent: true);
+            }
+
+            Assert.Equal(handledEvents - 1, commitStreamVersionMock.CallsCount);
+            Assert.Equal(streamVersion.Decrement(), commitStreamVersionMock.CommitedVersion);
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true)]
         public async Task RememberConsumedStreamVersionAsync_WhenLatestManuallyCommitedVersionEqualsToStreamCurrent_SkipCommitOnRecevieAsync(
             [Frozen] StreamVersion version,
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,

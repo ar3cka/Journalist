@@ -48,6 +48,11 @@ namespace Journalist.EventStore
             return Create(m_value - decrementValue);
         }
 
+        public StreamVersion Decrement()
+        {
+            return Decrement(1);
+        }
+
         public bool Equals(StreamVersion other)
         {
             return m_value == other.m_value;

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Configuration;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Streams;
 using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
 using Xunit;
 
