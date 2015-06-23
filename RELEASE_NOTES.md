@@ -1,4 +1,5 @@
 ### 0.6.0
+* [EventStore][Breaking] High level API for producing and consuming streams.
 * [EventStore][Breaking] EventStreamReader API was changed.
 * [EventStore][Breaking] EventJournal API was changed.
 
