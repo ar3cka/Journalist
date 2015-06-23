@@ -50,12 +50,14 @@
     <Compile Include="Infrastructure\Stubs\CommitStreamVersionFMock.cs" />
     <Compile Include="Infrastructure\Stubs\RetryPolicyStub.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\CloudBlockBlobContainerDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EmptyEventStreamCursorAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamReaderCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamProducerDataCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\NotEmptyEventStreamCursorAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\EventStreamConsumerTests.cs" />
+    <Compile Include="Streams\EventStreamConsumingSessionTests.cs" />
     <Compile Include="Streams\EventStreamProducerTests.cs" />
     <Compile Include="Streams\EventStreamReaderTests.cs" />
     <Compile Include="Streams\EventStreamWriterTests.cs" />
@@ -69,6 +71,10 @@
     <ProjectReference Include="..\..\src\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
       <Project>{74fff4d4-eb88-44d5-b19b-f96f54faae38}</Project>
       <Name>Journalist.LanguageExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Journalist.WindowsAzure.Storage.Abstractions\Journalist.WindowsAzure.Storage.Abstractions.csproj">
+      <Project>{02de3364-1504-4936-934b-52da4b8a2092}</Project>
+      <Name>Journalist.WindowsAzure.Storage.Abstractions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

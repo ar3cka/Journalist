@@ -13,7 +13,7 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Blobs
         {
             Factory = new StorageFactory();
             Container = Factory.CreateBlobContainer("UseDevelopmentStorage=true", "cloud-block-blob-tests");
-            Blob = Container.CreateBlockBlob(Guid.NewGuid().ToString("D"));
+            Blob = Container.CreateBlockBlob(Guid.NewGuid().ToString("D") + "/" );
         }
 
         [Fact]

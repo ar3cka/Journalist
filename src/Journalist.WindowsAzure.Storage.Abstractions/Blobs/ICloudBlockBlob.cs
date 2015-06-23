@@ -7,7 +7,7 @@ namespace Journalist.WindowsAzure.Storage.Blobs
 {
     public interface ICloudBlockBlob
     {
-        Task<string> AcquireLeaseAsync(TimeSpan period);
+        Task<string> AcquireLeaseAsync(TimeSpan? period);
 
         Task ReleaseLeaseAsync(string leaseId);
 

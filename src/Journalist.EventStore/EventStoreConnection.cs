@@ -8,12 +8,17 @@ namespace Journalist.EventStore
     public class EventStoreConnection : IEventStoreConnection
     {
         private readonly IEventJournal m_journal;
+        private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
 
-        public EventStoreConnection(IEventJournal journal)
+        public EventStoreConnection(
+            IEventJournal journal,
+            IEventStreamConsumingSessionFactory sessionFactory)
         {
             Require.NotNull(journal, "journal");
+            Require.NotNull(sessionFactory, "sessionFactory");
 
             m_journal = journal;
+            m_sessionFactory = sessionFactory;
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
@@ -68,7 +73,7 @@ namespace Journalist.EventStore
             return new EventStreamConsumer(
                 Constants.DEFAULT_STREAM_READER_NAME,
                 reader,
-                new EventStreamConsumingSession(),
+                m_sessionFactory.CreateSession(streamName),
                 readerVersion,
                 currentVersion => m_journal.CommitStreamReaderPositionAsync(
                     streamName,

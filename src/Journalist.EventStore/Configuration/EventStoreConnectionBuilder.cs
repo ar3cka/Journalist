@@ -1,5 +1,6 @@
 using System;
 using Journalist.EventStore.Journal;
+using Journalist.EventStore.Streams;
 using Journalist.WindowsAzure.Storage;
 
 namespace Journalist.EventStore.Configuration
@@ -38,7 +39,13 @@ namespace Journalist.EventStore.Configuration
                 m_configuration.StorageConnectionString,
                 m_configuration.JournalTableName);
 
-            return new EventStoreConnection(new EventJournal(journalTable));
+            var sessionsBlob = m_factory.CreateBlobContainer(
+                m_configuration.StorageConnectionString,
+                m_configuration.StreamConsumerSessionsBlobName);
+
+            return new EventStoreConnection(
+                new EventJournal(journalTable),
+                new EventStreamConsumingSessionFactory(sessionsBlob));
         }
     }
 }

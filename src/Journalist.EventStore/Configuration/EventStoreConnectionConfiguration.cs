@@ -16,15 +16,25 @@ namespace Journalist.EventStore.Configuration
             {
                 throw new InvalidOperationException("JournalTableName is not specified.");
             }
+
+            if (JournalTableName.IsNullOrEmpty())
+            {
+                throw new InvalidOperationException("StreamConsumerSessionsBlobName is not specified.");
+            }
         }
 
-        public IEventStoreConnectionConfiguration UseStorage(string storageConnectionString, string journalTableName)
+        public IEventStoreConnectionConfiguration UseStorage(
+            string storageConnectionString,
+            string journalTableName,
+            string streamConsumerSessionsBlobName)
         {
             Require.NotEmpty(storageConnectionString, "storageConnectionString");
             Require.NotEmpty(journalTableName, "journalTableName");
+            Require.NotEmpty(streamConsumerSessionsBlobName, "streamConsumerSessionsBlobName");
 
             StorageConnectionString = storageConnectionString;
             JournalTableName = journalTableName;
+            StreamConsumerSessionsBlobName = streamConsumerSessionsBlobName;
 
             return this;
         }
@@ -32,5 +42,7 @@ namespace Journalist.EventStore.Configuration
         public string StorageConnectionString { get; private set; }
 
         public string JournalTableName { get; private set; }
+
+        public string StreamConsumerSessionsBlobName { get; private set; }
     }
 }

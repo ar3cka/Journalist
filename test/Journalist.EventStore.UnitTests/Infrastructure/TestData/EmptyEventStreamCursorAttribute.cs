@@ -12,7 +12,6 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 
             Fixture.Customize<EventStreamCursor>(composer => composer
                 .FromFactory(() => EventStreamCursor.Empty));
-
         }
     }
 }
