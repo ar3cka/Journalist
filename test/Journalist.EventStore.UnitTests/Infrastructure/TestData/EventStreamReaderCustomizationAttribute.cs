@@ -1,48 +1,23 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Journalist.EventStore.Events;
-using Journalist.EventStore.Streams;
-using Journalist.EventStore.UnitTests.Infrastructure.Customizations.Customizations;
+using Journalist.EventStore.UnitTests.Infrastructure.Customizations;
 using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
-using Journalist.Tasks;
-using Moq;
-using Ploeh.AutoFixture.AutoMoq;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 {
     public class EventStreamReaderCustomizationAttribute : AutoMoqDataAttribute
     {
-        public EventStreamReaderCustomizationAttribute()
+        public EventStreamReaderCustomizationAttribute(
+            bool hasEvents = true,
+            bool completed = false,
+            bool leaderPromotion = true)
         {
-            Fixture.Customize(new JournaledEventCustomization());
+            Fixture.Customize(new EventStreamReaderCustomization(completed, hasEvents));
+            Fixture.Customize(new EventStreamConsumingSessionCustomization(leaderPromotion));
 
             Fixture.Customize<Func<StreamVersion, Task>>(composer => composer
                 .FromFactory((CommitStreamVersionFMock mock) => mock.Invoke));
 
-            Fixture.Customize<IReadOnlyList<JournaledEvent>>(composer => composer
-                .FromFactory((JournaledEvent[] events) => events));
-
-            Fixture.Customize<Mock<IEventStreamReader>>(composer => composer
-                .Do(mock => mock
-                    .Setup(self => self.HasEvents)
-                    .Returns(HasEvents))
-                .Do(mock => mock
-                    .Setup(self => self.IsCompleted)
-                    .Returns(Completed))
-                .Do(mock => mock
-                    .Setup(self => self.ReadEventsAsync())
-                    .Returns(TaskDone.Done))
-                .Do(mock => mock
-                    .Setup(self => self.ContinueAsync())
-                    .Returns(TaskDone.Done))
-                .Do(mock => mock
-                    .Setup(self => self.Events)
-                    .ReturnsUsingFixture(Fixture)));
         }
-
-        public bool HasEvents { get; set; }
-
-        public bool Completed { get; set; }
     }
 }

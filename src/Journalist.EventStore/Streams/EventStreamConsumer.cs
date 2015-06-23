@@ -7,8 +7,11 @@ namespace Journalist.EventStore.Streams
 {
     public class EventStreamConsumer : IEventStreamConsumer
     {
+        private readonly string m_consumerName;
         private readonly IEventStreamReader m_reader;
+        private readonly IEventStreamConsumingSession m_session;
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
+
         private bool m_hasUnprocessedEvents;
         private bool m_consuming;
         private bool m_receiving;
@@ -18,14 +21,20 @@ namespace Journalist.EventStore.Streams
         private bool m_closed;
 
         public EventStreamConsumer(
+            string consumerName,
             IEventStreamReader streamReader,
+            IEventStreamConsumingSession session,
             StreamVersion commitedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
+            Require.NotEmpty(consumerName, "consumerName");
             Require.NotNull(streamReader, "streamReader");
+            Require.NotNull(session, "session");
             Require.NotNull(commitConsumedVersion, "commitConsumedVersion");
 
+            m_consumerName = consumerName;
             m_reader = streamReader;
+            m_session = session;
             m_commitConsumedVersion = commitConsumedVersion;
             m_commitedStreamVersion = commitedStreamVersion;
         }
@@ -34,6 +43,11 @@ namespace Journalist.EventStore.Streams
         {
             AssertConsumerWasNotClosed();
             AssertConsumerIsNotInConsumingState();
+
+            if (!(await m_session.PromoteToLeaderAsync(m_consumerName)))
+            {
+                return false;
+            }
 
             if (m_receiving && m_commitedStreamVersion != m_reader.CurrentStreamVersion)
             {
@@ -58,6 +72,7 @@ namespace Journalist.EventStore.Streams
                 return true;
             }
 
+            await m_session.FreeAsync(m_consumerName);
             m_receiving = false;
 
             return false;
@@ -109,6 +124,8 @@ namespace Journalist.EventStore.Streams
                 m_receiving = false;
             }
 
+            await m_session.FreeAsync(m_consumerName);
+
             m_closed = true;
         }
 
@@ -149,6 +166,11 @@ namespace Journalist.EventStore.Streams
             {
                 throw new InvalidOperationException("Consumer was closed.");
             }
+        }
+
+        public string Name
+        {
+            get { return m_consumerName; }
         }
     }
 }

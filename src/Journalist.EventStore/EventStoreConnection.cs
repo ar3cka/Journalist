@@ -66,7 +66,9 @@ namespace Journalist.EventStore
             var reader = await CreateStreamReaderAsync(streamName, readerVersion.Increment());
 
             return new EventStreamConsumer(
+                Constants.DEFAULT_STREAM_READER_NAME,
                 reader,
+                new EventStreamConsumingSession(),
                 readerVersion,
                 currentVersion => m_journal.CommitStreamReaderPositionAsync(
                     streamName,

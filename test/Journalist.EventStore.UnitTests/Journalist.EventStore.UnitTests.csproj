@@ -44,6 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventStoreConnectionTests.cs" />
+    <Compile Include="Infrastructure\Customizations\EventStreamConsumingSessionCustomization.cs" />
+    <Compile Include="Infrastructure\Customizations\EventStreamReaderCustomization.cs" />
+    <Compile Include="Infrastructure\Customizations\JournaledEventCustomization.cs" />
     <Compile Include="Infrastructure\Stubs\CommitStreamVersionFMock.cs" />
     <Compile Include="Infrastructure\Stubs\RetryPolicyStub.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
@@ -55,7 +58,6 @@
     <Compile Include="Streams\EventStreamConsumerTests.cs" />
     <Compile Include="Streams\EventStreamProducerTests.cs" />
     <Compile Include="Streams\EventStreamReaderTests.cs" />
-    <Compile Include="Infrastructure\Customizations\Customizations\JournaledEventCustomization.cs" />
     <Compile Include="Streams\EventStreamWriterTests.cs" />
     <Compile Include="Utils\RetryPolicyTests.cs" />
   </ItemGroup>

@@ -15,7 +15,7 @@ namespace Journalist.EventStore.UnitTests.Streams
     public class EventStreamConsumerTests
     {
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = false)]
+        [EventStreamReaderCustomization(hasEvents: false)]
         public async Task ReceiveAsync_WhenReaderIsEmpty_ReturnsFalse(
             EventStreamConsumer consumer)
         {
@@ -23,7 +23,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public async Task ReceiveAsync_WhenReaderIsNotEmpty_ReturnsTrue(
             EventStreamConsumer consumer)
         {
@@ -31,7 +31,15 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization(leaderPromotion: false)]
+        public async Task ReceiveAsync_WhenReaderWasNotBeenPromotedToLeader_ReturnsFalse(
+            EventStreamConsumer consumer)
+        {
+            Assert.False(await consumer.ReceiveEventsAsync());
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization]
         public async Task ReceiveAsync_WhenReaderIsNotEmpty_ReadEventsFromReader(
             [Frozen] Mock<IEventStreamReader> readerMock,
             EventStreamConsumer consumer)
@@ -42,7 +50,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public async Task EnumerateEvents_WhenReceiveMethodWasCalled_ReturnsEventsFromReader(
             [Frozen] IReadOnlyList<JournaledEvent> events,
             EventStreamConsumer consumer)
@@ -55,7 +63,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public void EnumerateEvents_WhenReceiveMethodWasNotCalled_Throws(
             EventStreamConsumer consumer)
         {
@@ -63,7 +71,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(Completed = true)]
+        [EventStreamReaderCustomization(completed: true)]
         public async Task ReceiveEventsAsync_WhenReaderCompleted_ContinueReading(
             [Frozen] Mock<IEventStreamReader> readerMock,
             EventStreamConsumer consumer)
@@ -74,7 +82,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public async Task ReceiveEventsAsync_WhenReceivingWasStarted_CommitsReaderVersion(
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
             [Frozen] IEventStreamReader reader,
@@ -88,7 +96,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public async Task ReceiveEventsAsync_WhenReceivingWasNotStartedBefore_CommitsReaderVersion(
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
             [Frozen] IEventStreamReader reader,
@@ -101,7 +109,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public async Task CloseAsync_WhenReaderHasUnprocessedEventsAndNoMessagesWereConsumed_DoesNotThrow(
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
             EventStreamConsumer consumer)
@@ -113,7 +121,18 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
+        public async Task CloseAsync_FreesConsumingSessions(
+            [Frozen] Mock<IEventStreamConsumingSession> sessionMock,
+            EventStreamConsumer consumer)
+        {
+            await consumer.CloseAsync();
+
+            sessionMock.Verify(self => self.FreeAsync(consumer.Name), Times.Once());
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization]
         public async Task CloseAsync_WhenReaderHasUnprocessedEventsAndOnMessagesWasConsumed_CommitsConsumedVersion(
             [Frozen] StreamVersion version,
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
@@ -139,7 +158,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public async Task CloseAsync_WhenReaderHasNoUnprocessedEvents_NotThrows(
             EventStreamConsumer consumer)
         {
@@ -147,7 +166,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true, Completed = true)]
+        [EventStreamReaderCustomization(completed: true)]
         public async Task CloseAsync_WhenReaderInCompletedStateAndHasNoUnprocessedEvents_CommitsConsumedVersion(
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
             [Frozen] IEventStreamReader reader,
@@ -163,7 +182,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public async Task RememberConsumedStreamVersionAsync_WhenEventWasConsumed_CommitsConsumedVersion(
             [Frozen] StreamVersion version,
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
@@ -185,7 +204,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization()]
         public async Task RememberConsumedStreamVersionAsync_WhenSkipCurrentFlagIsTrue_CommitsOnlyProcessedEvents(
             [Frozen] StreamVersion version,
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
@@ -205,7 +224,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization]
         public async Task RememberConsumedStreamVersionAsync_WhenSkipCurrentFlagIsTrue_CommitsOnlyProcessedEvents(
             [Frozen] StreamVersion version,
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
@@ -233,7 +252,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(HasEvents = true)]
+        [EventStreamReaderCustomization()]
         public async Task RememberConsumedStreamVersionAsync_WhenLatestManuallyCommitedVersionEqualsToStreamCurrent_SkipCommitOnRecevieAsync(
             [Frozen] StreamVersion version,
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
