@@ -169,7 +169,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await consumer1.ReceiveEventsAsync();
             foreach (var e in consumer1.EnumerateEvents())
             {
-                await consumer1.RememberConsumedEventsAsync();
+                await consumer1.CommitProcessedStreamVersionAsync();
                 break;
             }
 

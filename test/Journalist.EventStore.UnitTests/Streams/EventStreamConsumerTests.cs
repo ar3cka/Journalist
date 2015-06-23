@@ -102,12 +102,40 @@ namespace Journalist.EventStore.UnitTests.Streams
 
         [Theory]
         [EventStreamReaderCustomization(HasEvents = true)]
-        public async Task CloseAsync_WhenReaderHasUnprocessedEvents_Throws(
+        public async Task CloseAsync_WhenReaderHasUnprocessedEventsAndNoMessagesWereConsumed_DoesNotThrow(
+            [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
+            EventStreamConsumer consumer)
+        {
+            await consumer.ReceiveEventsAsync();
+            await consumer.CloseAsync();
+
+            Assert.Equal(0, commitStreamVersionMock.CallsCount);
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization(HasEvents = true)]
+        public async Task CloseAsync_WhenReaderHasUnprocessedEventsAndOnMessagesWasConsumed_CommitsConsumedVersion(
+            [Frozen] StreamVersion version,
+            [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
             EventStreamConsumer consumer)
         {
             await consumer.ReceiveEventsAsync();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(consumer.CloseAsync);
+            var handledEventCount = 0;
+            foreach (var e in consumer.EnumerateEvents())
+            {
+                if (handledEventCount >= 1)
+                {
+                    break;
+                }
+
+                handledEventCount++;
+            }
+
+            await consumer.CloseAsync();
+
+            Assert.Equal(1, commitStreamVersionMock.CallsCount);
+            Assert.Equal(version.Increment(), commitStreamVersionMock.CommitedVersion);
         }
 
         [Theory]
@@ -147,7 +175,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             foreach (var e in consumer.EnumerateEvents())
             {
                 handledEvents++;
-                await consumer.RememberConsumedEventsAsync();
+                await consumer.CommitProcessedStreamVersionAsync();
                 break;
             }
 
@@ -169,7 +197,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             foreach (var e in consumer.EnumerateEvents())
             {
                 handledEvents++;
-                await consumer.RememberConsumedEventsAsync(skipCurrent: true);
+                await consumer.CommitProcessedStreamVersionAsync(skipCurrent: true);
                 break;
             }
 
@@ -197,7 +225,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             foreach (var e in consumer.EnumerateEvents())
             {
                 handledEvents++;
-                await consumer.RememberConsumedEventsAsync(skipCurrent: true);
+                await consumer.CommitProcessedStreamVersionAsync(skipCurrent: true);
             }
 
             Assert.Equal(handledEvents - 1, commitStreamVersionMock.CallsCount);
@@ -225,7 +253,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             foreach (var e in consumer.EnumerateEvents())
             {
                 handledEvents++;
-                await consumer.RememberConsumedEventsAsync();
+                await consumer.CommitProcessedStreamVersionAsync();
             }
 
             await consumer.ReceiveEventsAsync();

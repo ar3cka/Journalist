@@ -15,6 +15,7 @@ namespace Journalist.EventStore.Streams
         private int m_eventSliceOffset;
         private int m_commitedEventCount;
         private StreamVersion m_commitedStreamVersion;
+        private bool m_closed;
 
         public EventStreamConsumer(
             IEventStreamReader streamReader,
@@ -31,6 +32,9 @@ namespace Journalist.EventStore.Streams
 
         public async Task<bool> ReceiveEventsAsync()
         {
+            AssertConsumerWasNotClosed();
+            AssertConsumerIsNotInConsumingState();
+
             if (m_receiving && m_commitedStreamVersion != m_reader.CurrentStreamVersion)
             {
                 await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
@@ -46,7 +50,6 @@ namespace Journalist.EventStore.Streams
 
             if (m_reader.HasEvents)
             {
-
                 await m_reader.ReadEventsAsync();
 
                 m_hasUnprocessedEvents = true;
@@ -60,8 +63,10 @@ namespace Journalist.EventStore.Streams
             return false;
         }
 
-        public async Task RememberConsumedEventsAsync(bool skipCurrent)
+        public async Task CommitProcessedStreamVersionAsync(bool skipCurrent)
         {
+            AssertConsumerWasNotClosed();
+
             if (m_consuming)
             {
                 var eventNumber = skipCurrent ? m_eventSliceOffset : m_eventSliceOffset + 1;
@@ -74,35 +79,43 @@ namespace Journalist.EventStore.Streams
                     m_commitedStreamVersion = version;
                     m_commitedEventCount++;
                 }
-
-                return;
             }
-
-            throw new InvalidOperationException("Stream is not opened.");
+            else
+            {
+                await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
+                m_commitedStreamVersion = m_reader.CurrentStreamVersion;
+                m_eventSliceOffset = 0;
+            }
         }
 
         public async Task CloseAsync()
         {
-            if (m_hasUnprocessedEvents)
-            {
-                throw new InvalidOperationException("Stream has unhandled events.");
-            }
+            AssertConsumerWasNotClosed();
 
             if (m_receiving)
             {
-                await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
-                m_commitedStreamVersion = m_reader.CurrentStreamVersion;
+                if (m_hasUnprocessedEvents)
+                {
+                    if (m_consuming)
+                    {
+                        await CommitProcessedStreamVersionAsync(true);
+                    }
+                }
+                else
+                {
+                    await CommitProcessedStreamVersionAsync(false);
+                }
 
                 m_receiving = false;
             }
+
+            m_closed = true;
         }
 
         public IEnumerable<JournaledEvent> EnumerateEvents()
         {
-            if (m_consuming)
-            {
-                throw new InvalidOperationException("Consumer stream is already opened.");
-            }
+            AssertConsumerWasNotClosed();
+            AssertConsumerIsNotInConsumingState();
 
             if (m_hasUnprocessedEvents)
             {
@@ -120,6 +133,22 @@ namespace Journalist.EventStore.Streams
             }
 
             throw new InvalidOperationException("Consumer stream is empty.");
+        }
+
+        private void AssertConsumerIsNotInConsumingState()
+        {
+            if (m_consuming)
+            {
+                throw new InvalidOperationException("Consumer stream is already opened.");
+            }
+        }
+
+        private void AssertConsumerWasNotClosed()
+        {
+            if (m_closed)
+            {
+                throw new InvalidOperationException("Consumer was closed.");
+            }
         }
     }
 }

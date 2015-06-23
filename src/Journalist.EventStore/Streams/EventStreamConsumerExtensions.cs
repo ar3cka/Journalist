@@ -4,11 +4,11 @@ namespace Journalist.EventStore.Streams
 {
     public static class EventStreamConsumerExtensions
     {
-        public static Task RememberConsumedEventsAsync(this IEventStreamConsumer consumer)
+        public static Task CommitProcessedStreamVersionAsync(this IEventStreamConsumer consumer)
         {
             Require.NotNull(consumer, "consumer");
 
-            return consumer.RememberConsumedEventsAsync(false);
+            return consumer.CommitProcessedStreamVersionAsync(false);
         }
     }
 }
