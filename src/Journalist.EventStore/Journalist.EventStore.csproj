@@ -58,6 +58,8 @@
     <Compile Include="Journal\EventStreamConcurrencyException.cs" />
     <Compile Include="Journal\EventStreamPosition.cs" />
     <Compile Include="Journal\IEventJournal.cs" />
+    <Compile Include="Journal\IEventStreamCursor.cs" />
+    <Compile Include="Journal\IEventStreamSlice.cs" />
     <Compile Include="Journal\StreamCursor\CursorState.cs" />
     <Compile Include="Journal\StreamCursor\EndOfStreamCursorState.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursor.cs" />

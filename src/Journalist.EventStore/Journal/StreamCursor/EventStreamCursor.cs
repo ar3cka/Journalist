@@ -8,7 +8,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
 {
     public delegate Task<SortedList<StreamVersion, JournaledEvent>> FetchEvents(StreamVersion fromVersion);
 
-    public class EventStreamCursor
+    public class EventStreamCursor : IEventStreamCursor
     {
         public static readonly EventStreamCursor Empty = new EventStreamCursor(
             EventStreamPosition.Start,

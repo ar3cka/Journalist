@@ -1,3 +1,6 @@
+### 0.6.2
+* [EventStore][Breaking] Interfaces for EventStreamCursor and EventStreamSlice.
+
 ### 0.6.1 (2015-06-24)
 * [EventStore][BUGFIX] EventStreamConsumer.CloseAsync fail when current has been already commited.
 * [EventStore][IMPROVEMENT] Exclusive stream access for event stream consumer group.
