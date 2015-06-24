@@ -44,7 +44,7 @@ namespace Journalist.EventStore.Streams
             AssertConsumerWasNotClosed();
             AssertConsumerIsNotInConsumingState();
 
-            if (!(await m_session.PromoteToLeaderAsync(m_consumerName)))
+            if (!(await m_session.PromoteToLeaderAsync()))
             {
                 return false;
             }

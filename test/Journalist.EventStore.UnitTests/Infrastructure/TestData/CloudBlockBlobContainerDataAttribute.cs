@@ -23,6 +23,18 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                     .Setup(self => self.AcquireLeaseAsync(It.IsAny<TimeSpan?>()))
                     .Returns(leaseLocked ? Task.FromResult<string>(null) : Task.FromResult(Fixture.Create("LeaseId"))))
                 .Do(mock => mock
+                    .Setup(self => self.Metadata)
+                    .ReturnsUsingFixture(Fixture))
+                .Do(mock => mock
+                    .Setup(self => self.FetchAttributesAsync())
+                    .Returns(TaskDone.Done))
+                .Do(mock => mock
+                    .Setup(self => self.SaveMetadataAsync(It.IsAny<string>()))
+                    .Returns(TaskDone.Done))
+                .Do(mock => mock
+                    .Setup(self => self.BreakLeaseAsync(It.IsAny<TimeSpan?>()))
+                    .Returns(TaskDone.Done))
+                .Do(mock => mock
                     .Setup(self => self.ReleaseLeaseAsync(It.IsAny<string>()))
                     .Returns(TaskDone.True)));
 

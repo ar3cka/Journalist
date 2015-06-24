@@ -21,6 +21,8 @@ namespace Journalist.WindowsAzure.Storage.Blobs
 
         Task SaveMetadataAsync();
 
+        Task SaveMetadataAsync(string leaseId);
+
         Task UploadAsync(Stream stream);
 
         Task<Stream> DownloadAsync();

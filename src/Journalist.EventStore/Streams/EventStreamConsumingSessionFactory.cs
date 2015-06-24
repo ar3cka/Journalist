@@ -1,3 +1,4 @@
+using System;
 using Journalist.WindowsAzure.Storage.Blobs;
 
 namespace Journalist.EventStore.Streams
@@ -13,11 +14,16 @@ namespace Journalist.EventStore.Streams
             m_sessionsBlob = sessionsBlob;
         }
 
-        public IEventStreamConsumingSession CreateSession(string streamName)
+        public IEventStreamConsumingSession CreateSession(string consumerName, string streamName)
         {
+            Require.NotEmpty(consumerName, "consumerName");
             Require.NotEmpty(streamName, "streamName");
 
-           return new EventStreamConsumingSession(streamName, m_sessionsBlob);
+            return new EventStreamConsumingSession(
+               streamName,
+               consumerName,
+               TimeSpan.FromMinutes(Constants.Settings.DEFAULT_SESSION_LOCK_TIMEOUT_MINUTES),
+               m_sessionsBlob);
         }
     }
 }

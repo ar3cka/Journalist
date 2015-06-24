@@ -4,6 +4,7 @@ namespace Journalist.EventStore
     {
         public class Settings
         {
+            public const int DEFAULT_SESSION_LOCK_TIMEOUT_MINUTES = 15;
             public const int DEFAULT_EVENT_SLICE_SIZE = 100;
         }
 
@@ -14,5 +15,10 @@ namespace Journalist.EventStore
         }
 
         public const string DEFAULT_STREAM_READER_NAME = "DEFAULT";
+
+        public static class MetadataProperties
+        {
+            public const string SESSION_EXPIRES_ON = "SessionExpiresOn";
+        }
     }
 }

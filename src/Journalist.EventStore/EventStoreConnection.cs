@@ -73,7 +73,7 @@ namespace Journalist.EventStore
             return new EventStreamConsumer(
                 Constants.DEFAULT_STREAM_READER_NAME,
                 reader,
-                m_sessionFactory.CreateSession(streamName),
+                m_sessionFactory.CreateSession(Constants.DEFAULT_STREAM_READER_NAME, streamName),
                 readerVersion,
                 currentVersion => m_journal.CommitStreamReaderPositionAsync(
                     streamName,

@@ -83,6 +83,11 @@ namespace Journalist.WindowsAzure.Storage.Blobs
             return m_blob.SetMetadataAsync();
         }
 
+        public Task SaveMetadataAsync(string leaseId)
+        {
+            return m_blob.SetMetadataAsync(AccessCondition.GenerateLeaseCondition(leaseId), null, null);
+        }
+
         public Task UploadAsync(Stream stream)
         {
             Require.NotNull(stream, "stream");

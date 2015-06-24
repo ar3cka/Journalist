@@ -19,7 +19,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                     .Setup(self => self.FreeAsync())
                     .Returns(TaskDone.Done))
                 .Do(mock => mock
-                    .Setup(self => self.PromoteToLeaderAsync(It.IsAny<string>()))
+                    .Setup(self => self.PromoteToLeaderAsync())
                     .Returns(LeaderPromotion ? TaskDone.True : TaskDone.False)));
         }
 
