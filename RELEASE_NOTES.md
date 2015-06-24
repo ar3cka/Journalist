@@ -1,4 +1,4 @@
-### 0.6.2 ()
+### 0.6.2 (2015-06-24)
 * [WAZ.Storage][New] Set of extensions query methods for TableStorageQuery.
 * [EventStore][Breaking] Interfaces for EventStreamCursor and EventStreamSlice.
 
