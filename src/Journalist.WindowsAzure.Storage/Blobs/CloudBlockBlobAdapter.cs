@@ -63,6 +63,11 @@ namespace Journalist.WindowsAzure.Storage.Blobs
             await m_blob.RenewLeaseAsync(new AccessCondition {LeaseId = leaseId});
         }
 
+        public Task BreakLeaseAsync(TimeSpan? breakPeriod)
+        {
+            return m_blob.BreakLeaseAsync(breakPeriod);
+        }
+
         public Task<bool> IsExistsAsync()
         {
             return m_blob.ExistsAsync();

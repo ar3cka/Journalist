@@ -44,6 +44,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Blobs\CloudBlobBlockExtensions.cs" />
     <Compile Include="Blobs\ICloudBlobContainer.cs" />
     <Compile Include="Blobs\ICloudBlockBlob.cs" />
     <Compile Include="Blobs\LeaseAlreadyAcquiredException.cs" />

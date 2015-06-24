@@ -13,6 +13,8 @@ namespace Journalist.WindowsAzure.Storage.Blobs
 
         Task RenewLeaseAsync(string leaseId);
 
+        Task BreakLeaseAsync(TimeSpan? breakPeriod);
+
         Task<bool> IsExistsAsync();
 
         Task FetchAttributesAsync();

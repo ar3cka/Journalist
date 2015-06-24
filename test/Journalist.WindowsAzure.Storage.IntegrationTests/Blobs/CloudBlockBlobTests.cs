@@ -64,6 +64,16 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Blobs
             Assert.False(await Blob.IsLeaseLocked());
         }
 
+        [Fact]
+        public async Task BreakedLease_CanBeAcquired()
+        {
+            await Blob.AcquireLeaseAsync();
+
+            await Blob.BreakLeaseAsync();
+
+            Assert.NotNull(await Blob.AcquireLeaseAsync());
+        }
+
         public ICloudBlockBlob Blob { get; set; }
 
         public ICloudBlobContainer Container { get; set; }

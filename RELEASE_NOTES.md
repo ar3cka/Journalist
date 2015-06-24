@@ -1,3 +1,6 @@
+### 0.6.3
+* [WAZ.Storage][New] Extensions and new methods for CloudBlockBlob.
+
 ### 0.6.2 (2015-06-24)
 * [WAZ.Storage][New] Set of extensions query methods for TableStorageQuery.
 * [EventStore][Breaking] Interfaces for EventStreamCursor and EventStreamSlice.
