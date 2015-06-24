@@ -53,6 +53,7 @@
     <Compile Include="Queues\ICloudQueue.cs" />
     <Compile Include="Queues\ICloudQueueMessage.cs" />
     <Compile Include="Tables\BatchOperationException.cs" />
+    <Compile Include="Tables\CloudTableExtensions.cs" />
     <Compile Include="Tables\IBatchOperation.cs" />
     <Compile Include="Tables\ICloudTable.cs" />
     <Compile Include="Tables\ICloudTableEntityQuery.cs" />
