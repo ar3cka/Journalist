@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
-using Journalist.EventStore.Journal.StreamCursor;
 
 namespace Journalist.EventStore.Journal
 {
@@ -9,11 +8,11 @@ namespace Journalist.EventStore.Journal
     {
         Task<EventStreamPosition> AppendEventsAsync(string streamName, EventStreamPosition position, IReadOnlyCollection<JournaledEvent> events);
 
-        Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize);
+        Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize);
 
-        Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize);
+        Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize);
 
-        Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, StreamVersion toVersion, int sliceSize);
+        Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, StreamVersion toVersion, int sliceSize);
 
         Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName);
 

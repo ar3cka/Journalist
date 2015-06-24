@@ -1,11 +1,10 @@
 using System.Threading.Tasks;
-using Journalist.EventStore.Journal.StreamCursor;
 
 namespace Journalist.EventStore.Journal
 {
     public static class EventJournalExtensions
     {
-        public static Task<EventStreamCursor> OpenEventStreamCursorAsync(
+        public static Task<IEventStreamCursor> OpenEventStreamCursorAsync(
             this IEventJournal journal,
             string streamName,
             StreamVersion fromVersion)
@@ -18,7 +17,7 @@ namespace Journalist.EventStore.Journal
                 Constants.Settings.DEFAULT_EVENT_SLICE_SIZE);
         }
 
-        public static Task<EventStreamCursor> OpenEventStreamCursorAsync(
+        public static Task<IEventStreamCursor> OpenEventStreamCursorAsync(
             this IEventJournal journal,
             string streamName,
             StreamVersion fromVersion,
@@ -33,7 +32,7 @@ namespace Journalist.EventStore.Journal
                 Constants.Settings.DEFAULT_EVENT_SLICE_SIZE);
         }
 
-        public static Task<EventStreamCursor> OpenEventStreamCursorAsync(
+        public static Task<IEventStreamCursor> OpenEventStreamCursorAsync(
             this IEventJournal journal,
             string streamName)
         {

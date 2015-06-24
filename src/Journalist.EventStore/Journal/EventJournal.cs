@@ -54,7 +54,7 @@ namespace Journalist.EventStore.Journal
             }
         }
 
-        public async Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize)
+        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
@@ -71,7 +71,7 @@ namespace Journalist.EventStore.Journal
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
 
-        public async Task<EventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize)
+        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
@@ -83,7 +83,7 @@ namespace Journalist.EventStore.Journal
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
 
-        public async Task<EventStreamCursor> OpenEventStreamCursorAsync(
+        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(
             string streamName,
             StreamVersion fromVersion,
             StreamVersion toVersion,

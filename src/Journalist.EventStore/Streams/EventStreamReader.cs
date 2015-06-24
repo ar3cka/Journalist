@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Events;
-using Journalist.EventStore.Journal.StreamCursor;
+using Journalist.EventStore.Journal;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Streams
@@ -11,15 +11,15 @@ namespace Journalist.EventStore.Streams
     public class EventStreamReader : IEventStreamReader
     {
         private readonly string m_streamName;
-        private readonly Func<StreamVersion, Task<EventStreamCursor>> m_openCursor;
+        private readonly Func<StreamVersion, Task<IEventStreamCursor>> m_openCursor;
 
-        private EventStreamCursor m_streamCursor;
+        private IEventStreamCursor m_streamCursor;
         private List<JournaledEvent> m_readedEvents;
 
         public EventStreamReader(
             string streamName,
-            EventStreamCursor streamCursor,
-            Func<StreamVersion, Task<EventStreamCursor>> openCursor)
+            IEventStreamCursor streamCursor,
+            Func<StreamVersion, Task<IEventStreamCursor>> openCursor)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(streamCursor, "streamCursor");
