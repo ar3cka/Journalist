@@ -19,7 +19,7 @@ build_script:
 
 test: off
 
-version: 0.5.0.{build}
+version: 0.6.2.{build}
 
 artifacts:
   - path: out
