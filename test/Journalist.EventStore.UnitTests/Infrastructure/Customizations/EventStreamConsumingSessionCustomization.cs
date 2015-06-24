@@ -16,7 +16,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
         {
             fixture.Customize<Mock<IEventStreamConsumingSession>>(composer => composer
                 .Do(mock => mock
-                    .Setup(self => self.FreeAsync(It.IsAny<string>()))
+                    .Setup(self => self.FreeAsync())
                     .Returns(TaskDone.Done))
                 .Do(mock => mock
                     .Setup(self => self.PromoteToLeaderAsync(It.IsAny<string>()))

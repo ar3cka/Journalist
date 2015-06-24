@@ -1,4 +1,8 @@
-### 0.6.0 (2015-06-2015)
+### 0.6.1 (2015-06-24)
+* [EventStore][BUGFIX] EventStreamConsumer.CloseAsync fail when current has been already commited.
+* [EventStore][IMPROVEMENT] Exclusive stream access for event stream consumer group.
+
+### 0.6.0 (2015-06-23)
 * [EventStore][Breaking] High level API for producing and consuming streams.
 * [EventStore][Breaking] EventStreamReader API was changed.
 * [EventStore][Breaking] EventJournal API was changed.

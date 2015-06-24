@@ -1,7 +1,4 @@
-using System;
-using System.IO;
 using System.Threading.Tasks;
-using Journalist.Tasks;
 using Journalist.WindowsAzure.Storage.Blobs;
 
 namespace Journalist.EventStore.Streams
@@ -11,6 +8,7 @@ namespace Journalist.EventStore.Streams
         private readonly string m_streamName;
         private readonly ICloudBlobContainer m_blobContainer;
         private ICloudBlockBlob m_blob;
+        private string m_acquiredLease;
 
         public EventStreamConsumingSession(string streamName, ICloudBlobContainer blobContainer)
         {
@@ -25,15 +23,21 @@ namespace Journalist.EventStore.Streams
         {
             Require.NotEmpty(consumerId, "consumerId");
 
-            EnsureBlobExists(consumerId);
-            var leaseId = await m_blob.AcquireLeaseAsync(null);
+            if (m_acquiredLease == null)
+            {
+                EnsureBlobExists(consumerId);
+                m_acquiredLease = await m_blob.AcquireLeaseAsync(null);
+            }
 
-            return leaseId != null;
+            return m_acquiredLease != null;
         }
 
-        public Task FreeAsync(string consumerId)
+        public async Task FreeAsync()
         {
-            return TaskDone.Done;
+            if (m_acquiredLease != null)
+            {
+                await m_blob.ReleaseLeaseAsync(m_acquiredLease);
+            }
         }
 
         private void EnsureBlobExists(string consumerId)

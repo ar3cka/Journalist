@@ -21,7 +21,10 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                     .Returns(leaseLocked ? TaskDone.True : TaskDone.False))
                 .Do(mock => mock
                     .Setup(self => self.AcquireLeaseAsync(It.IsAny<TimeSpan?>()))
-                    .Returns(leaseLocked ? Task.FromResult<string>(null) : Task.FromResult(Fixture.Create("LeaseId")))));
+                    .Returns(leaseLocked ? Task.FromResult<string>(null) : Task.FromResult(Fixture.Create("LeaseId"))))
+                .Do(mock => mock
+                    .Setup(self => self.ReleaseLeaseAsync(It.IsAny<string>()))
+                    .Returns(TaskDone.True)));
 
             Fixture.Customize<Mock<ICloudBlobContainer>>(composer => composer
                 .Do(mock => mock

@@ -6,7 +6,7 @@ namespace Journalist.EventStore.Streams
     {
         Task<bool> PromoteToLeaderAsync(string consumerId);
 
-        Task FreeAsync(string consumerId);
+        Task FreeAsync();
 
         string StreamName { get; }
     }

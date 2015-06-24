@@ -35,6 +35,8 @@ namespace Journalist.EventStore
 
         public StreamVersion Increment(int incrementValue)
         {
+            Require.ZeroOrGreater(incrementValue, "incrementValue");
+
             return Create(m_value + incrementValue);
         }
 
@@ -45,6 +47,8 @@ namespace Journalist.EventStore
 
         public StreamVersion Decrement(int decrementValue)
         {
+            Require.ZeroOrGreater(decrementValue, "decrementValue");
+
             return Create(m_value - decrementValue);
         }
 

@@ -128,6 +128,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await producer.PublishAsync(dummyEvents2);
             var receivedEvents1 = consumer1.EnumerateEvents().ToList();
             await consumer1.ReceiveEventsAsync(); // saves position and stops reading.
+            await consumer1.CloseAsync(); // frees session
 
             var consumer2 = await Connection.CreateStreamConsumer(StreamName);
             await consumer2.ReceiveEventsAsync();
@@ -172,6 +173,8 @@ namespace Journalist.EventStore.IntegrationTests.Streams
                 await consumer1.CommitProcessedStreamVersionAsync();
                 break;
             }
+            await consumer1.CloseAsync(); // frees session
+
 
             var consumer2 = await Connection.CreateStreamConsumer(StreamName);
             await consumer2.ReceiveEventsAsync();

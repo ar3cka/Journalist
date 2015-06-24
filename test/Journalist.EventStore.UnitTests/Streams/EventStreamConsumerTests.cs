@@ -23,6 +23,17 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
+        [EventStreamReaderCustomization(hasEvents: false)]
+        public async Task ReceiveAsync_WhenReaderIsEmpty_FreesSession(
+            [Frozen] Mock<IEventStreamConsumingSession> sessionMock,
+            EventStreamConsumer consumer)
+        {
+            await consumer.ReceiveEventsAsync();
+
+            sessionMock.Verify(self => self.FreeAsync(), Times.Once());
+        }
+
+        [Theory]
         [EventStreamReaderCustomization]
         public async Task ReceiveAsync_WhenReaderIsNotEmpty_ReturnsTrue(
             EventStreamConsumer consumer)
@@ -128,7 +139,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         {
             await consumer.CloseAsync();
 
-            sessionMock.Verify(self => self.FreeAsync(consumer.Name), Times.Once());
+            sessionMock.Verify(self => self.FreeAsync(), Times.Once());
         }
 
         [Theory]
@@ -149,6 +160,27 @@ namespace Journalist.EventStore.UnitTests.Streams
                 }
 
                 handledEventCount++;
+            }
+
+            await consumer.CloseAsync();
+
+            Assert.Equal(1, commitStreamVersionMock.CallsCount);
+            Assert.Equal(version.Increment(), commitStreamVersionMock.CommitedVersion);
+        }
+
+        [Theory]
+        [EventStreamReaderCustomization]
+        public async Task CloseAsync_WhenReaderHasUnprocessedEventsAndCurrentEventHasBeenCommited_SkipCommit(
+            [Frozen] StreamVersion version,
+            [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
+            EventStreamConsumer consumer)
+        {
+            await consumer.ReceiveEventsAsync();
+
+            foreach (var e in consumer.EnumerateEvents())
+            {
+                await consumer.CommitProcessedStreamVersionAsync();
+                break;
             }
 
             await consumer.CloseAsync();

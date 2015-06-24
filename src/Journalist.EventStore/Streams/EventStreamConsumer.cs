@@ -72,7 +72,7 @@ namespace Journalist.EventStore.Streams
                 return true;
             }
 
-            await m_session.FreeAsync(m_consumerName);
+            await m_session.FreeAsync();
             m_receiving = false;
 
             return false;
@@ -84,8 +84,14 @@ namespace Journalist.EventStore.Streams
 
             if (m_consuming)
             {
-                var eventNumber = skipCurrent ? m_eventSliceOffset : m_eventSliceOffset + 1;
-                var version = m_commitedStreamVersion.Increment(eventNumber - m_commitedEventCount);
+                var eventOffset = skipCurrent ? m_eventSliceOffset : m_eventSliceOffset + 1;
+                if (eventOffset <= m_commitedEventCount)
+                {
+                    // current event has been commited.
+                    return;
+                }
+
+                var version = m_commitedStreamVersion.Increment(eventOffset - m_commitedEventCount);
 
                 if (m_commitedStreamVersion < version)
                 {
@@ -124,7 +130,7 @@ namespace Journalist.EventStore.Streams
                 m_receiving = false;
             }
 
-            await m_session.FreeAsync(m_consumerName);
+            await m_session.FreeAsync();
 
             m_closed = true;
         }
