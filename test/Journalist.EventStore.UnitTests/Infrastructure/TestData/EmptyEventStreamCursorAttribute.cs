@@ -1,3 +1,4 @@
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Journal.StreamCursor;
 using Ploeh.AutoFixture.AutoMoq;
 using Ploeh.AutoFixture.Xunit2;
@@ -10,7 +11,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         {
             Fixture.Customize(new AutoConfiguredMoqCustomization());
 
-            Fixture.Customize<EventStreamCursor>(composer => composer
+            Fixture.Customize<IEventStreamCursor>(composer => composer
                 .FromFactory(() => EventStreamCursor.Empty));
         }
     }

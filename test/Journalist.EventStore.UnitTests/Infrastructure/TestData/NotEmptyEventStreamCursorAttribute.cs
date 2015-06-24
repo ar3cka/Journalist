@@ -33,7 +33,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                     Fixture.Create("ETag"),
                     StreamVersion.Create(3))));
 
-            Fixture.Customize<EventStreamCursor>(composer => composer
+            Fixture.Customize<IEventStreamCursor>(composer => composer
                 .FromFactory(() => new EventStreamCursor(
                     Fixture.Create<EventStreamPosition>(),
                     StreamVersion.Start,
