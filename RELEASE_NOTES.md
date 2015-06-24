@@ -1,5 +1,6 @@
 ### 0.6.3
 * [WAZ.Storage][New] Extensions and new methods for CloudBlockBlob.
+* [EventStore][Improvment] Endless consumer session break implemenation.
 
 ### 0.6.2 (2015-06-24)
 * [WAZ.Storage][New] Set of extensions query methods for TableStorageQuery.
