@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Journalist.EventSourced.Entities
 {
-    public interface IAggregatePersistenceState
+    public interface IAggregateState
     {
         void Mutate(object e);
 

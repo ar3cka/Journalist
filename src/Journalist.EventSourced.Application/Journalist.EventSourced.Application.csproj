@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F4DF40BB-1FE9-4415-B437-2A22CBC74C77}</ProjectGuid>
+    <ProjectGuid>{196AF9E5-A131-4EED-90BE-F3117814B669}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Journalist.EventSourced</RootNamespace>
-    <AssemblyName>Journalist.EventSourced</AssemblyName>
+    <RootNamespace>Journalist.EventSourced.Application</RootNamespace>
+    <AssemblyName>Journalist.EventSourced.Application</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,16 +39,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\AbstractAggregateState.cs" />
-    <Compile Include="Entities\AbstractIdentity.cs" />
-    <Compile Include="Entities\IAggregateRoot.cs" />
-    <Compile Include="Entities\IAggregateState.cs" />
-    <Compile Include="Entities\IIdentity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ValueObjects\ValueObject.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\Journalist.EventStore\Journalist.EventStore.csproj">
+      <Project>{152f2338-8806-40e7-ab96-f9b06f705a7f}</Project>
+      <Name>Journalist.EventStore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
       <Project>{74fff4d4-eb88-44d5-b19b-f96f54faae38}</Project>
       <Name>Journalist.LanguageExtensions</Name>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Journalist.EventSourced.Entities
 {
-    public class AbstractAggregateState : IAggregatePersistenceState
+    public class AbstractAggregateState : IAggregateState
     {
         private readonly List<object> m_changes = new List<object>();
         private int m_mutatedStateVersion;

@@ -161,7 +161,7 @@ namespace Journalist.EventSourced.UnitTests.Entities
 
         public IFixture Fixture { get; set; }
 
-        public IAggregatePersistenceState State { get; set; }
+        public IAggregateState State { get; set; }
 
         public object[] Changes { get; set; }
 
