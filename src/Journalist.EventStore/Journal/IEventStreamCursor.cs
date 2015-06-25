@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Journalist.EventStore.Journal.StreamCursor;
 
 namespace Journalist.EventStore.Journal
 {
@@ -7,7 +6,7 @@ namespace Journalist.EventStore.Journal
     {
         Task FetchSlice();
 
-        EventStreamSlice Slice { get; }
+        IEventStreamSlice Slice { get; }
 
         StreamVersion CurrentVersion { get; }
 

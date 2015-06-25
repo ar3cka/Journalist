@@ -39,7 +39,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
             m_state = m_state.NextState;
         }
 
-        public EventStreamSlice Slice
+        public IEventStreamSlice Slice
         {
             get
             {

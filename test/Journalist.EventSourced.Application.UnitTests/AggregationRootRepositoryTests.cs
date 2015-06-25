@@ -1,88 +1,45 @@
-﻿using System;
-using System.Threading.Tasks;
-using Journalist.EventSourced.Entities;
+﻿using System.Threading.Tasks;
+using Journalist.EventSourced.Application.Infrastructure;
 using Journalist.Options;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoMoq;
+using Moq;
 using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
 namespace Journalist.EventSourced.Application.UnitTests
 {
-    public class AutoMoqDataAttribute : AutoDataAttribute
-    {
-        public AutoMoqDataAttribute()
-            : base(new Fixture()
-                .Customize(new AutoConfiguredMoqCustomization()))
-        {
-
-        }
-    }
-
-    public class TodoState : AbstractAggregateState
-    {
-    }
-
-    public sealed class TodoId : AbstractIdentity<Guid>
-    {
-        public TodoId(Guid id)
-        {
-            Require.NotEmpty(id, "id");
-
-            Id = id;
-        }
-
-        public static TodoId Create()
-        {
-            return new TodoId(Guid.NewGuid());
-        }
-
-        public override string GetTag()
-        {
-            return "todo";
-        }
-
-        public override Guid Id
-        {
-            get; protected set;
-        }
-    }
-
     public class AggregationRootRepositoryTests
     {
         [Theory]
-        [AutoMoqData]
-        public async Task LoadAsync_WhenAggregateStateNotFound_ReturnsEmptyAggregate(
+        [TodoAggregateStateStorageData(emptyState: true)]
+        public async Task TryLoadAsync_WhenAggregateStateNotFound_ReturnsNone(
             TodoRepository repository)
         {
             var todo = await repository.TryLoadAsync(TodoId.Create());
 
-            Assert.Equal(0.MayBe(), todo.Select(t => t.State.OriginalStateVersion));
-        }
-    }
-
-    public interface IAggregateStateStorage<TState>
-        where TState : IAggregateState
-    {
-        Task<Option<TState>> RestoreStateAsync(IIdentity identity);
-    }
-
-    public class TodoRepository
-    {
-        private readonly IAggregateStateStorage<TodoState> m_stateStorage;
-
-        public TodoRepository(IAggregateStateStorage<TodoState> stateStorage)
-        {
-            Require.NotNull(stateStorage, "stateStorage");
-
-            m_stateStorage = stateStorage;
+            Assert.Equal(Option.None(), todo);
         }
 
-        public async Task<Option<Todo>> TryLoadAsync(TodoId todoId)
+        [Theory]
+        [TodoAggregateStateStorageData]
+        public async Task TryLoadAsync_WhenAggregateStateFound_ReturnsSome(
+            [Frozen] TodoState state,
+            TodoRepository repository)
         {
-            var state = await m_stateStorage.RestoreStateAsync(todoId);
+            var todo = await repository.TryLoadAsync(TodoId.Create());
 
-            return state.Select(s => new Todo(s));
+            Assert.Equal(state.OriginalStateVersion.MayBe(), todo.Select(t => t.State.OriginalStateVersion));
+        }
+
+        [Theory]
+        [TodoAggregateStateStorageData]
+        public async Task SavesAsync_UseStateStorage(
+            [Frozen] Mock<IAggregateStateStorage<TodoState>> storageMock,
+            Todo todo,
+            TodoRepository repository)
+        {
+            await repository.SaveAsync(todo);
+
+            storageMock.Verify(self => self.PersistAsync(todo.Id, todo.State));
         }
     }
 }

@@ -39,9 +39,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\IAggregateStateStorage.cs" />
+    <Compile Include="Infrastructure\Storage\AbstractAggregateRootRepository.cs" />
+    <Compile Include="Infrastructure\Storage\EventStoreAggregateStateStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Journalist.EventSourced\Journalist.EventSourced.csproj">
+      <Project>{f4df40bb-1fe9-4415-b437-2a22cbc74c77}</Project>
+      <Name>Journalist.EventSourced</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Journalist.EventStore\Journalist.EventStore.csproj">
       <Project>{152f2338-8806-40e7-ab96-f9b06f705a7f}</Project>
       <Name>Journalist.EventStore</Name>
@@ -50,6 +57,9 @@
       <Project>{74fff4d4-eb88-44d5-b19b-f96f54faae38}</Project>
       <Name>Journalist.LanguageExtensions</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Infrastructure\Serialization\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

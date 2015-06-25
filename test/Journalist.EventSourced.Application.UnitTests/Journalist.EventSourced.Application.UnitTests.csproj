@@ -41,10 +41,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregationRootRepositoryTests.cs" />
+    <Compile Include="AutoMoqDataAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Todo.cs" />
+    <Compile Include="TodoAggregateStateStorageDataAttribute.cs" />
+    <Compile Include="TodoId.cs" />
+    <Compile Include="TodoRepository.cs" />
+    <Compile Include="TodoState.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Journalist.EventSourced.Application\Journalist.EventSourced.Application.csproj">
+      <Project>{196AF9E5-A131-4EED-90BE-F3117814B669}</Project>
+      <Name>Journalist.EventSourced.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Journalist.EventSourced\Journalist.EventSourced.csproj">
       <Project>{f4df40bb-1fe9-4415-b437-2a22cbc74c77}</Project>
       <Name>Journalist.EventSourced</Name>
@@ -56,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Infrastructure\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

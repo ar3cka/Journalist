@@ -6,7 +6,13 @@ namespace Journalist.EventSourced.Application.UnitTests
     {
         public Todo(TodoState state)
         {
+            Id = state.Id;
             State = state;
+        }
+
+        public Todo(TodoId id)
+        {
+            Id = id;
         }
 
         public TodoId Id

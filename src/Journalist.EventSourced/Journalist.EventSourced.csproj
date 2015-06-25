@@ -42,6 +42,7 @@
     <Compile Include="Entities\AbstractAggregateState.cs" />
     <Compile Include="Entities\AbstractIdentity.cs" />
     <Compile Include="Entities\IAggregateRoot.cs" />
+    <Compile Include="Entities\IAggregateRootRepository.cs" />
     <Compile Include="Entities\IAggregateState.cs" />
     <Compile Include="Entities\IIdentity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
