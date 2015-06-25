@@ -48,6 +48,7 @@
     <Compile Include="Configuration\IEventStoreConnectionConfiguration.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="EventStoreConnection.cs" />
+    <Compile Include="EventStoreConnectionExtensions.cs" />
     <Compile Include="Events\JournaledEvent.cs" />
     <Compile Include="Events\JournaledEventPropertyNames.cs" />
     <Compile Include="IEventStoreConnection.cs" />

@@ -13,6 +13,6 @@ namespace Journalist.EventStore
 
         Task<IEventStreamProducer> CreateStreamProducer(string streamName);
 
-        Task<IEventStreamConsumer> CreateStreamConsumer(string streamName);
+        Task<IEventStreamConsumer> CreateStreamConsumer(string streamName, string consumerName);
     }
 }

@@ -1,3 +1,6 @@
+### 0.6.4
+* [EventStore][Improvment] Named event stream consumers.
+
 ### 0.6.3 (2015-06-25)
 * [WAZ.Storage][New] Extensions and new methods for CloudBlockBlob.
 * [EventStore][Improvment] Endless consumer session break implemenation.

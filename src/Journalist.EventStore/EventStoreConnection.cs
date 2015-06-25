@@ -62,23 +62,32 @@ namespace Journalist.EventStore
             return new EventStreamProducer(await CreateStreamWriterAsync(streamName), RetryPolicy.Default);
         }
 
-        public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName)
+        public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName, string consumerName)
         {
-            var readerVersion = await m_journal.ReadStreamReaderPositionAsync(
-                streamName,
-                Constants.DEFAULT_STREAM_READER_NAME);
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(consumerName, "consumerName");
 
-            var reader = await CreateStreamReaderAsync(streamName, readerVersion.Increment());
+            var readerVersion = await m_journal.ReadStreamReaderPositionAsync(
+                streamName: streamName,
+                readerName: consumerName);
+
+            var reader = await CreateStreamReaderAsync(
+                streamName: streamName,
+                streamVersion: readerVersion.Increment());
+
+            var session = m_sessionFactory.CreateSession(
+                consumerName: consumerName,
+                streamName: streamName);
 
             return new EventStreamConsumer(
-                Constants.DEFAULT_STREAM_READER_NAME,
+                consumerName,
                 reader,
-                m_sessionFactory.CreateSession(Constants.DEFAULT_STREAM_READER_NAME, streamName),
+                session,
                 readerVersion,
                 currentVersion => m_journal.CommitStreamReaderPositionAsync(
-                    streamName,
-                    Constants.DEFAULT_STREAM_READER_NAME,
-                    currentVersion));
+                    streamName: streamName,
+                    readerName: consumerName,
+                    version: currentVersion));
         }
     }
 }
