@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Journal.StreamCursor;
-using Journalist.EventStore.UnitTests.Infrastructure.Customizations.Customizations;
+using Journalist.EventStore.UnitTests.Infrastructure.Customizations;
 using Journalist.Tasks;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoMoq;
@@ -32,10 +33,10 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                     Fixture.Create("ETag"),
                     StreamVersion.Create(3))));
 
-            Fixture.Customize<EventStreamCursor>(composer => composer
+            Fixture.Customize<IEventStreamCursor>(composer => composer
                 .FromFactory(() => new EventStreamCursor(
                     Fixture.Create<EventStreamPosition>(),
-                    StreamVersion.Zero,
+                    StreamVersion.Start,
                     Fixture.Create<FetchEvents>())));
         }
     }

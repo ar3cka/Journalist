@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Streams
 {
@@ -7,10 +8,20 @@ namespace Journalist.EventStore.Streams
     {
         Task ReadEventsAsync();
 
-        IReadOnlyList<object> Events { get; }
+        Task ContinueAsync();
 
-        bool HasMoreEvents { get; }
+        IReadOnlyList<JournaledEvent> Events { get; }
+
+        bool HasEvents { get; }
 
         string StreamName { get; }
+
+        bool IsInitial { get; }
+
+        bool IsReading { get; }
+
+        bool IsCompleted { get; }
+
+        StreamVersion CurrentStreamVersion { get; }
     }
 }

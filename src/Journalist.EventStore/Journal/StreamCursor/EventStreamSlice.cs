@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Journal.StreamCursor
 {
-    public class EventStreamSlice : IReadOnlyCollection<JournaledEvent>
+    public class EventStreamSlice : IEventStreamSlice
     {
         public static readonly EventStreamSlice Empty = new EventStreamSlice();
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
@@ -17,9 +18,9 @@ namespace Journalist.EventStore.UnitTests.Streams
             [Frozen] EventStreamPosition position,
             [Frozen] Mock<IEventJournal> journalMock,
             EventStreamWriter writer,
-            object[] events)
+            JournaledEvent[] events)
         {
-            await writer.AppendEvents(events);
+            await writer.AppendEventsAsync(events);
 
             journalMock.Verify(journal => journal.AppendEventsAsync(
                 writer.StreamName,
@@ -28,10 +29,19 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public void StreamPosition_ReturnsStreamVersionValue([Frozen] EventStreamPosition position,
+        public async Task MoveToEndOfStreamAsync_ReadsEndOfStreamPositionFormJournal(
+            [Frozen] Mock<IEventJournal> journalMock,
             EventStreamWriter writer)
         {
-            Assert.Equal((int) position.Version, writer.StreamPosition);
+            await writer.MoveToEndOfStreamAsync();
+
+            journalMock.Verify(journal => journal.ReadEndOfStreamPositionAsync(writer.StreamName));
+        }
+
+        [Theory, AutoMoqData]
+        public void StreamPosition_ReturnsStreamVersionValue([Frozen] EventStreamPosition position, EventStreamWriter writer)
+        {
+            Assert.Equal(position.Version, writer.StreamVersion);
         }
 
         [Theory, AutoMoqData]
@@ -39,7 +49,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             [Frozen] Mock<IEventJournal> journalMock,
             EventStreamPosition position,
             EventStreamWriter writer,
-            object[] events)
+            JournaledEvent[] events)
         {
             journalMock
                 .Setup(self => self.AppendEventsAsync(
@@ -48,9 +58,9 @@ namespace Journalist.EventStore.UnitTests.Streams
                     It.IsAny<IReadOnlyCollection<JournaledEvent>>()))
                 .Returns(position.YieldTask());
 
-            await writer.AppendEvents(events);
+            await writer.AppendEventsAsync(events);
 
-            Assert.Equal((int) position.Version, writer.StreamPosition);
+            Assert.Equal(position.Version, writer.StreamVersion);
         }
     }
 }

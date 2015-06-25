@@ -44,12 +44,17 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Blobs\CloudBlobBlockExtensions.cs" />
     <Compile Include="Blobs\ICloudBlobContainer.cs" />
     <Compile Include="Blobs\ICloudBlockBlob.cs" />
     <Compile Include="Blobs\LeaseAlreadyAcquiredException.cs" />
     <Compile Include="IStorageFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queues\CloudQueueExtensions.cs" />
+    <Compile Include="Queues\ICloudQueue.cs" />
+    <Compile Include="Queues\ICloudQueueMessage.cs" />
     <Compile Include="Tables\BatchOperationException.cs" />
+    <Compile Include="Tables\CloudTableExtensions.cs" />
     <Compile Include="Tables\IBatchOperation.cs" />
     <Compile Include="Tables\ICloudTable.cs" />
     <Compile Include="Tables\ICloudTableEntityQuery.cs" />

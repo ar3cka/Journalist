@@ -9,19 +9,22 @@ namespace Journalist.EventStore.UnitTests.Streams
     public class EventStreamReaderTests
     {
         [Theory, EmptyEventStreamCursor]
-        public async Task ReadEventsAsync_WhenCursorIsEmpty_Throw(EventStreamReader reader)
+        public async Task ReadEventsAsync_WhenCursorIsEmpty_Throw(
+            EventStreamReader reader)
         {
             await Assert.ThrowsAsync<InvalidOperationException>(reader.ReadEventsAsync);
         }
 
         [Theory, NotEmptyEventStreamCursor]
-        public async Task ReadEventsAsync_WhenCursorIsNotEmpty_DoesNotThrow(EventStreamReader reader)
+        public async Task ReadEventsAsync_WhenCursorIsNotEmpty_DoesNotThrow(
+            EventStreamReader reader)
         {
             await reader.ReadEventsAsync();
         }
 
         [Theory, NotEmptyEventStreamCursor]
-        public async Task ReadEventsAsync_WhenCursorIsNotEmpty_ReturnsNotEmptyCollectionEvents(EventStreamReader reader)
+        public async Task ReadEventsAsync_WhenCursorIsNotEmpty_ReturnsNotEmptyCollectionEvents(
+            EventStreamReader reader)
         {
             await reader.ReadEventsAsync();
 
@@ -29,15 +32,45 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory, EmptyEventStreamCursor]
-        public void HasMoreEvents_WhenCursorIsEmpty_ReturnsFalse(EventStreamReader reader)
+        public void HasEvents_WhenCursorIsEmpty_ReturnsFalse(
+            EventStreamReader reader)
         {
-            Assert.False(reader.HasMoreEvents);
+            Assert.False(reader.HasEvents);
         }
 
         [Theory, NotEmptyEventStreamCursor]
-        public void HasMoreEvents_WhenCursorIsNotEmpty_ReturnsTrue(EventStreamReader reader)
+        public void HaEvents_WhenCursorIsNotEmpty_ReturnsTrue(
+            EventStreamReader reader)
         {
-            Assert.True(reader.HasMoreEvents);
+            Assert.True(reader.HasEvents);
+        }
+
+        [Theory, NotEmptyEventStreamCursor]
+        public async Task ContinueAsync_WhenCursorIsNotCompleted_Throws(
+            EventStreamReader reader)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(reader.ContinueAsync);
+        }
+
+        [Theory, EmptyEventStreamCursor]
+        public async Task ContinueAsync_WhenCursorIsCompleted_DoesNotThrow(
+            EventStreamReader reader)
+        {
+            await reader.ContinueAsync();
+        }
+
+        [Theory, EmptyEventStreamCursor]
+        public void IsCompleted_WhenCursorIsCompleted_ReturnsTrue(
+            EventStreamReader reader)
+        {
+            Assert.True(reader.IsCompleted);
+        }
+
+        [Theory, NotEmptyEventStreamCursor]
+        public void IsCompleted_WhenCursorIsNotCompleted_ReturnsFalse(
+            EventStreamReader reader)
+        {
+            Assert.False(reader.IsCompleted);
         }
     }
 }

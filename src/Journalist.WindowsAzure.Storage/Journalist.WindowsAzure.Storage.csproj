@@ -46,7 +46,10 @@
     </Compile>
     <Compile Include="Blobs\CloudBlobContainerAdapter.cs" />
     <Compile Include="Blobs\CloudBlockBlobAdapter.cs" />
+    <Compile Include="Internals\CloudEntityAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queues\CloudQueueAdapter.cs" />
+    <Compile Include="Queues\CloudQueueMessageAdapter.cs" />
     <Compile Include="StorageFactory.cs" />
     <Compile Include="Tables\CloudTableAdapter.cs" />
     <Compile Include="Tables\CloudTableFilterSegmentedRangeQuery.cs" />

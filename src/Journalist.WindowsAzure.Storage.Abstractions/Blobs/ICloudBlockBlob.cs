@@ -7,17 +7,21 @@ namespace Journalist.WindowsAzure.Storage.Blobs
 {
     public interface ICloudBlockBlob
     {
-        Task<string> AcquireLeaseAsync(TimeSpan period);
+        Task<string> AcquireLeaseAsync(TimeSpan? period);
 
         Task ReleaseLeaseAsync(string leaseId);
 
         Task RenewLeaseAsync(string leaseId);
+
+        Task BreakLeaseAsync(TimeSpan? breakPeriod);
 
         Task<bool> IsExistsAsync();
 
         Task FetchAttributesAsync();
 
         Task SaveMetadataAsync();
+
+        Task SaveMetadataAsync(string leaseId);
 
         Task UploadAsync(Stream stream);
 

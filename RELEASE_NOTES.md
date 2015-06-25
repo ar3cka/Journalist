@@ -1,5 +1,34 @@
+### 0.6.4
+* [EventStore][Improvment] Named event stream consumers.
+
+### 0.6.3 (2015-06-25)
+* [WAZ.Storage][New] Extensions and new methods for CloudBlockBlob.
+* [EventStore][Improvment] Endless consumer session break implemenation.
+
+### 0.6.2 (2015-06-24)
+* [WAZ.Storage][New] Set of extensions query methods for TableStorageQuery.
+* [EventStore][Breaking] Interfaces for EventStreamCursor and EventStreamSlice.
+
+### 0.6.1 (2015-06-24)
+* [EventStore][BUGFIX] EventStreamConsumer.CloseAsync fail when current has been already commited.
+* [EventStore][IMPROVEMENT] Exclusive stream access for event stream consumer group.
+
+### 0.6.0 (2015-06-23)
+* [EventStore][Breaking] High level API for producing and consuming streams.
+* [EventStore][Breaking] EventStreamReader API was changed.
+* [EventStore][Breaking] EventJournal API was changed.
+
+### 0.5.0 (2015-06-19)
+* [EventStore][Breaking] Rename EventStream to EventStoreConnection.
+* [EventStore][Breaking] Serialization functions were removed.
+* [EventStore][Breaking] Open* methods were renamed to Create*.
+* [EventStore] Json.Net dependency was removed.
+
+### 0.4.0 (2015-06-18)
+* [WAZ.Storage] CloudQueue API.
+
 ### 0.3.1 (2015-06-15)
-* [EventStore] Options type serialization support was added in Journalist.EventStore.Streams.Serializers.Json.JsonEventSerializer.
+* [EventStoe] Options type serialization support was added in Journalist.EventStore.Streams.Serializers.Json.JsonEventSerializer.
 
 ### 0.3.0 (2015-06-11)
 * [LanguageExtensions] Require.Positive and Require.ZeroOrGreater method for int type.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.WindowsAzure.Storage;
 using Ploeh.AutoFixture;
@@ -78,7 +79,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
 
             // act
             var events = await ReadEventsAsync();
-            var eventsPart = await ReadEventsPartialAsync(StreamVersion.Zero, StreamVersion.Create(100), 10);
+            var eventsPart = await ReadEventsPartialAsync(StreamVersion.Start, StreamVersion.Create(100), 10);
 
             // assert
             Assert.Equal(events.Take(100).ToArray(), eventsPart);
@@ -128,7 +129,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
 
         private async Task<List<JournaledEvent>> ReadEventsAsync()
         {
-            var stream = await Journal.OpenEventStreamAsync(StreamName);
+            var stream = await Journal.OpenEventStreamCursorAsync(StreamName);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)
@@ -143,7 +144,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         private async Task<List<JournaledEvent>> ReadEventsPartialAsync(StreamVersion fromVersion,
             StreamVersion toVersion, int sliceSize = 1000)
         {
-            var stream = await Journal.OpenEventStreamAsync(StreamName, fromVersion, toVersion, sliceSize);
+            var stream = await Journal.OpenEventStreamCursorAsync(StreamName, fromVersion, toVersion, sliceSize);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)

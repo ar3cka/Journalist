@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Journalist.Collections;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal.StreamCursor;
 using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
@@ -11,7 +12,6 @@ namespace Journalist.EventStore.Journal
     public class EventJournal : IEventJournal
     {
         private readonly ICloudTable m_table;
-        private const int DEFAULT_SLICE_SIZE = 1000;
 
         public EventJournal(ICloudTable table)
         {
@@ -54,32 +54,24 @@ namespace Journalist.EventStore.Journal
             }
         }
 
-        public async Task<EventStreamCursor> OpenEventStreamAsync(string streamName, int sliceSize)
+        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
 
             var position = await ReadEndOfStreamPositionAsync(streamName);
-            if (EventStreamPosition.IsAtStart(position))
+            if (EventStreamPosition.IsNewStream(position))
             {
                 return EventStreamCursor.Empty;
             }
 
             return new EventStreamCursor(
                 position,
-                StreamVersion.Zero,
+                StreamVersion.Start,
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
 
-        public Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion)
-        {
-            Require.NotEmpty(streamName, "streamName");
-
-            return OpenEventStreamAsync(streamName, fromVersion, DEFAULT_SLICE_SIZE);
-        }
-
-        public async Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion,
-            int sliceSize)
+        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
@@ -91,16 +83,11 @@ namespace Journalist.EventStore.Journal
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
 
-        public Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion,
-            StreamVersion toVersion)
-        {
-            Require.NotEmpty(streamName, "streamName");
-
-            return OpenEventStreamAsync(streamName, fromVersion, toVersion, DEFAULT_SLICE_SIZE);
-        }
-
-        public async Task<EventStreamCursor> OpenEventStreamAsync(string streamName, StreamVersion fromVersion,
-            StreamVersion toVersion, int sliceSize)
+        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(
+            string streamName,
+            StreamVersion fromVersion,
+            StreamVersion toVersion,
+            int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
@@ -117,11 +104,6 @@ namespace Journalist.EventStore.Journal
                 from => FetchEvents(streamName, from, toVersion, sliceSize));
         }
 
-        public Task<EventStreamCursor> OpenEventStreamAsync(string streamName)
-        {
-            return OpenEventStreamAsync(streamName, DEFAULT_SLICE_SIZE);
-        }
-
         public async Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
@@ -132,30 +114,92 @@ namespace Journalist.EventStore.Journal
                 return EventStreamPosition.Start;
             }
 
-            var timestamp = (string) headProperties[EventJournalTableRowPropertyNames.ETag];
-            var version = StreamVersion.Create((int) headProperties[EventJournalTableRowPropertyNames.Version]);
+            var timestamp = (string)headProperties[EventJournalTableRowPropertyNames.ETag];
+            var version = StreamVersion.Create((int)headProperties[EventJournalTableRowPropertyNames.Version]);
 
             return new EventStreamPosition(timestamp, version);
         }
 
-        private async Task<IDictionary<string, object>> ReadHeadAsync(string streamName)
+        public async Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, string readerName)
         {
-            var query = m_table.PrepareEntityPointQuery(streamName, "HEAD",
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(readerName, "readerName");
+
+            var referenceRow = await ReadReferenceRowHeadAsync(
+                streamName,
+                "RDR_" + readerName);
+
+            if (referenceRow == null)
+            {
+                return StreamVersion.Unknown;
+            }
+
+            return StreamVersion.Create((int)referenceRow[EventJournalTableRowPropertyNames.Version]);
+        }
+
+        public async Task CommitStreamReaderPositionAsync(
+            string streamName,
+            string readerName,
+            StreamVersion readerVersion)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(readerName, "readerName");
+
+            var referenceRow = await ReadReferenceRowHeadAsync(
+                streamName,
+                "RDR_" + readerName);
+
+            var operation = m_table.PrepareBatchOperation();
+            if (referenceRow == null)
+            {
+                operation.Insert(
+                    streamName,
+                    "RDR_" + readerName,
+                    new Dictionary<string, object>
+                    {
+                        { EventJournalTableRowPropertyNames.Version, (int)readerVersion }
+                    });
+            }
+            else
+            {
+                operation.Merge(
+                    streamName,
+                    "RDR_" + readerName,
+                    (string)referenceRow[KnownProperties.ETag],
+                    new Dictionary<string, object>
+                    {
+                        { EventJournalTableRowPropertyNames.Version, (int)readerVersion }
+                    });
+            }
+
+            await operation.ExecuteAsync();
+        }
+
+        private Task<IDictionary<string, object>> ReadHeadAsync(string streamName)
+        {
+            return ReadReferenceRowHeadAsync(streamName, "HEAD");
+        }
+
+        private async Task<IDictionary<string, object>> ReadReferenceRowHeadAsync(string streamName, string referenceType)
+        {
+            var query = m_table.PrepareEntityPointQuery(
+                streamName,
+                referenceType,
                 EventJournalTableRowPropertyNames.Version.YieldArray());
+
             var headProperties = await query.ExecuteAsync();
 
             return headProperties;
         }
 
-        private static void WriteHeadProperty(string stream, EventStreamPosition position, int targetVersion,
-            IBatchOperation batch)
+        private static void WriteHeadProperty(string stream, EventStreamPosition position, int targetVersion, IBatchOperation batch)
         {
             var headProperties = new Dictionary<string, object>
             {
                 {EventJournalTableRowPropertyNames.Version, targetVersion}
             };
 
-            if (EventStreamPosition.IsAtStart(position))
+            if (EventStreamPosition.IsNewStream(position))
             {
                 batch.Insert(stream, "HEAD", headProperties);
             }
@@ -165,8 +209,11 @@ namespace Journalist.EventStore.Journal
             }
         }
 
-        private async Task<SortedList<StreamVersion, JournaledEvent>> FetchEvents(string stream,
-            StreamVersion fromVersion, StreamVersion toVersion, int sliceSize)
+        private async Task<SortedList<StreamVersion, JournaledEvent>> FetchEvents(
+            string stream,
+            StreamVersion fromVersion,
+            StreamVersion toVersion,
+            int sliceSize)
         {
             var nextSliceVersion = fromVersion.Increment(sliceSize);
             if (nextSliceVersion >= toVersion)
@@ -191,8 +238,7 @@ namespace Journalist.EventStore.Journal
             return result;
         }
 
-        private static void WriteEvents(string stream, StreamVersion version, IEnumerable<JournaledEvent> events,
-            IBatchOperation batch)
+        private static void WriteEvents(string stream, StreamVersion version, IEnumerable<JournaledEvent> events, IBatchOperation batch)
         {
             var currentVersion = version;
             foreach (var journaledEvent in events)

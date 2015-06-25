@@ -22,7 +22,7 @@ namespace Journalist.WindowsAzure.Storage.Blobs
             m_blob = blob;
         }
 
-        public async Task<string> AcquireLeaseAsync(TimeSpan period)
+        public async Task<string> AcquireLeaseAsync(TimeSpan? period)
         {
             await EnsureBlobExistsAsync();
 
@@ -33,7 +33,7 @@ namespace Journalist.WindowsAzure.Storage.Blobs
             catch (StorageException exception)
             {
                 var blobLeased =
-                    exception.RequestInformation.HttpStatusCode == (int) HttpStatusCode.Conflict
+                    exception.RequestInformation.HttpStatusCode == (int)HttpStatusCode.Conflict
                     &&
                     exception.RequestInformation.ExtendedErrorInformation.ErrorCode ==
                     BlobErrorCodeStrings.LeaseAlreadyPresent;
@@ -63,6 +63,11 @@ namespace Journalist.WindowsAzure.Storage.Blobs
             await m_blob.RenewLeaseAsync(new AccessCondition {LeaseId = leaseId});
         }
 
+        public Task BreakLeaseAsync(TimeSpan? breakPeriod)
+        {
+            return m_blob.BreakLeaseAsync(breakPeriod);
+        }
+
         public Task<bool> IsExistsAsync()
         {
             return m_blob.ExistsAsync();
@@ -76,6 +81,11 @@ namespace Journalist.WindowsAzure.Storage.Blobs
         public Task SaveMetadataAsync()
         {
             return m_blob.SetMetadataAsync();
+        }
+
+        public Task SaveMetadataAsync(string leaseId)
+        {
+            return m_blob.SetMetadataAsync(AccessCondition.GenerateLeaseCondition(leaseId), null, null);
         }
 
         public Task UploadAsync(Stream stream)
@@ -131,12 +141,11 @@ namespace Journalist.WindowsAzure.Storage.Blobs
             catch (StorageException exception)
             {
                 // 412 from trying to modify a blob that's leased
-                var blobLeased = exception.RequestInformation.HttpStatusCode == (int) HttpStatusCode.PreconditionFailed;
+                var blobLeased = exception.RequestInformation.HttpStatusCode == (int)HttpStatusCode.PreconditionFailed;
 
                 var blobExists =
-                    exception.RequestInformation.HttpStatusCode == (int) HttpStatusCode.Conflict &&
-                    exception.RequestInformation.ExtendedErrorInformation.ErrorCode ==
-                    BlobErrorCodeStrings.BlobAlreadyExists;
+                    exception.RequestInformation.HttpStatusCode == (int)HttpStatusCode.Conflict &&
+                    exception.RequestInformation.ExtendedErrorInformation.ErrorCode == BlobErrorCodeStrings.BlobAlreadyExists;
 
                 if (!blobExists && !blobLeased)
                 {

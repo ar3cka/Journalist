@@ -36,6 +36,42 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
             Assert.False(query.HasMore);
         }
 
+        [Fact]
+        public async Task PrepareEntityRangeQueryByPartition_Test()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.Insert(partition, "1", EmptyDictionary.Get<string, object>());
+            operation.Insert(partition, "2", EmptyDictionary.Get<string, object>());
+            operation.Insert(partition, "3", EmptyDictionary.Get<string, object>());
+            await operation.ExecuteAsync();
+
+            var partitionQuery = table.PrepareEntityRangeQueryByPartition(partition);
+            var results = await partitionQuery.ExecuteAsync();
+
+            Assert.Equal(3, results.Count);
+        }
+
+        [Fact]
+        public async Task PrepareEntityRangeQueryByRows_Test()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.Insert(partition, "1", EmptyDictionary.Get<string, object>());
+            operation.Insert(partition, "2", EmptyDictionary.Get<string, object>());
+            operation.Insert(partition, "3", EmptyDictionary.Get<string, object>());
+            await operation.ExecuteAsync();
+
+            var partitionQuery = table.PrepareEntityRangeQueryByRows(partition, "1", "3");
+            var results = await partitionQuery.ExecuteAsync();
+
+            Assert.Equal(3, results.Count);
+        }
+
         private static async Task InsertValues(ICloudTable table, string partition)
         {
             foreach (var i in Enumerable.Range(1, 20))

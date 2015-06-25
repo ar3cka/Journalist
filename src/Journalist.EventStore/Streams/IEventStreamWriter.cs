@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Streams
 {
     public interface IEventStreamWriter
     {
-        int StreamPosition { get; }
+        Task AppendEventsAsync(IReadOnlyCollection<JournaledEvent> events);
 
-        Task AppendEvents(IReadOnlyCollection<object> events);
+        Task MoveToEndOfStreamAsync();
+
+        StreamVersion StreamVersion { get; }
     }
 }

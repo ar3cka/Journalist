@@ -13,7 +13,7 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Blobs
         {
             Factory = new StorageFactory();
             Container = Factory.CreateBlobContainer("UseDevelopmentStorage=true", "cloud-block-blob-tests");
-            Blob = Container.CreateBlockBlob(Guid.NewGuid().ToString("D"));
+            Blob = Container.CreateBlockBlob(Guid.NewGuid().ToString("D") + "/" );
         }
 
         [Fact]
@@ -62,6 +62,16 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Blobs
             await Blob.ReleaseLeaseAsync(leaseId);
 
             Assert.False(await Blob.IsLeaseLocked());
+        }
+
+        [Fact]
+        public async Task BreakedLease_CanBeAcquired()
+        {
+            await Blob.AcquireLeaseAsync();
+
+            await Blob.BreakLeaseAsync();
+
+            Assert.NotNull(await Blob.AcquireLeaseAsync());
         }
 
         public ICloudBlockBlob Blob { get; set; }

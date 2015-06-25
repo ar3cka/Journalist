@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Journalist.Collections;
-using Journalist.EventStore.Journal.StreamCursor;
-using Journalist.EventStore.Streams.Serializers;
+using Journalist.EventStore.Events;
+using Journalist.EventStore.Journal;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Streams
@@ -12,23 +11,23 @@ namespace Journalist.EventStore.Streams
     public class EventStreamReader : IEventStreamReader
     {
         private readonly string m_streamName;
-        private readonly EventStreamCursor m_streamCursor;
-        private readonly IEventSerializer m_serializer;
+        private readonly Func<StreamVersion, Task<IEventStreamCursor>> m_openCursor;
 
-        private List<object> m_readedEvents;
+        private IEventStreamCursor m_streamCursor;
+        private List<JournaledEvent> m_readedEvents;
 
         public EventStreamReader(
             string streamName,
-            EventStreamCursor streamCursor,
-            IEventSerializer serializer)
+            IEventStreamCursor streamCursor,
+            Func<StreamVersion, Task<IEventStreamCursor>> openCursor)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(streamCursor, "streamCursor");
-            Require.NotNull(serializer, "serializer");
+            Require.NotNull(openCursor, "openCursor");
 
             m_streamName = streamName;
             m_streamCursor = streamCursor;
-            m_serializer = serializer;
+            m_openCursor = openCursor;
         }
 
         public async Task ReadEventsAsync()
@@ -40,19 +39,26 @@ namespace Journalist.EventStore.Streams
 
             await m_streamCursor.FetchSlice();
 
-            m_readedEvents = new List<object>(m_streamCursor.Slice.Count);
+            m_readedEvents = new List<JournaledEvent>(m_streamCursor.Slice.Count);
             foreach (var journaledEvent in m_streamCursor.Slice)
             {
-                using (var payloadReader = new StreamReader(journaledEvent.EventPayload))
-                {
-                    m_readedEvents.Add(m_serializer.Deserialize(
-                        payloadReader,
-                        journaledEvent.EventType));
-                }
+                m_readedEvents.Add(journaledEvent);
             }
         }
 
-        public IReadOnlyList<object> Events
+        public async Task ContinueAsync()
+        {
+            if (IsCompleted)
+            {
+                m_streamCursor = await m_openCursor(CurrentStreamVersion.Increment());
+                m_readedEvents = null;
+                return;
+            }
+
+            throw new InvalidOperationException("Reader is not in competed state.");
+        }
+
+        public IReadOnlyList<JournaledEvent> Events
         {
             get
             {
@@ -61,11 +67,16 @@ namespace Journalist.EventStore.Streams
                     return m_readedEvents;
                 }
 
-                return EmptyArray.Get<object>();
+                return EmptyArray.Get<JournaledEvent>();
             }
         }
 
-        public bool HasMoreEvents
+        public StreamVersion CurrentStreamVersion
+        {
+            get { return m_streamCursor.CurrentVersion; }
+        }
+
+        public bool HasEvents
         {
             get { return !m_streamCursor.EndOfStream; }
         }
@@ -73,6 +84,21 @@ namespace Journalist.EventStore.Streams
         public string StreamName
         {
             get { return m_streamName; }
+        }
+
+        public bool IsCompleted
+        {
+            get { return m_streamCursor.EndOfStream; }
+        }
+
+        public bool IsInitial
+        {
+            get { return !m_streamCursor.Fetching && !m_streamCursor.EndOfStream; }
+        }
+
+        public bool IsReading
+        {
+            get { return m_streamCursor.Fetching; }
         }
     }
 }
