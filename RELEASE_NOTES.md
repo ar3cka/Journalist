@@ -1,5 +1,6 @@
-### 0.6.4
+### 0.6.4 (2015-06-25)
 * [EventStore][Improvment] Named event stream consumers.
+* [EventStore][Breaking] IEventStreamCursor.Slice property returns interface IEventStreamSlice.
 
 ### 0.6.3 (2015-06-25)
 * [WAZ.Storage][New] Extensions and new methods for CloudBlockBlob.
