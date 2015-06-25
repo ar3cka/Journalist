@@ -1,3 +1,6 @@
+### 0.6.5
+* [LanguageExtensions] SelectToArray and SelectToList extensions methods.
+
 ### 0.6.4 (2015-06-25)
 * [EventStore][Improvment] Named event stream consumers.
 * [EventStore][Breaking] IEventStreamCursor.Slice property returns interface IEventStreamSlice.
