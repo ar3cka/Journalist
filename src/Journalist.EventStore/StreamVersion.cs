@@ -2,7 +2,7 @@ using System;
 
 namespace Journalist.EventStore
 {
-    public struct StreamVersion : IEquatable<StreamVersion>, IComparable<StreamVersion>
+    public struct StreamVersion : IEquatable<StreamVersion>, IEquatable<int>, IComparable<StreamVersion>
     {
         private readonly int m_value;
 
@@ -80,6 +80,11 @@ namespace Journalist.EventStore
         public override int GetHashCode()
         {
             return m_value;
+        }
+
+        public bool Equals(int other)
+        {
+            return m_value == other;
         }
 
         public override string ToString()

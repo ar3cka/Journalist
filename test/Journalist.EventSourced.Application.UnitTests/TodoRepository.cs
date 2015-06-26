@@ -1,5 +1,4 @@
-using Journalist.EventSourced.Application.Infrastructure;
-using Journalist.EventSourced.Application.Infrastructure.Storage;
+using Journalist.EventSourced.Application.Repositories;
 
 namespace Journalist.EventSourced.Application.UnitTests
 {

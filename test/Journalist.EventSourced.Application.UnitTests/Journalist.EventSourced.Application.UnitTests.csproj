@@ -40,11 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AggregationRootRepositoryTests.cs" />
-    <Compile Include="AutoMoqDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\TodoAggregateStateStorageDataAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\AggregationRootRepositoryTests.cs" />
+    <Compile Include="Repositories\Storage\EventStoreAggregateStateStorageTests.cs" />
     <Compile Include="Todo.cs" />
-    <Compile Include="TodoAggregateStateStorageDataAttribute.cs" />
     <Compile Include="TodoId.cs" />
     <Compile Include="TodoRepository.cs" />
     <Compile Include="TodoState.cs" />
@@ -67,7 +68,8 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Infrastructure\" />
+    <Folder Include="Infrastructure\Customizations\" />
+    <Folder Include="Serialization\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

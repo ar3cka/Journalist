@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
-using Journalist.EventSourced.Application.Infrastructure;
+using System.Threading.Tasks;
+using Journalist.EventSourced.Application.Repositories;
+using Journalist.EventSourced.Application.UnitTests.Infrastructure.TestData;
 using Journalist.Options;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
-namespace Journalist.EventSourced.Application.UnitTests
+namespace Journalist.EventSourced.Application.UnitTests.Repositories
 {
     public class AggregationRootRepositoryTests
     {

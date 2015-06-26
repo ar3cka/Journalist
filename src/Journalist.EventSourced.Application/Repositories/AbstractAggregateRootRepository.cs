@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Journalist.EventSourced.Entities;
 using Journalist.Options;
 
-namespace Journalist.EventSourced.Application.Infrastructure.Storage
+namespace Journalist.EventSourced.Application.Repositories
 {
     public abstract class AbstractAggregateRootRepository<TAggregateRoot, TIdentity, TState> :
         IAggregateRootRepository<TAggregateRoot, TIdentity, TState>

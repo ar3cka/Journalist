@@ -2,7 +2,7 @@ using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoMoq;
 using Ploeh.AutoFixture.Xunit2;
 
-namespace Journalist.EventSourced.Application.UnitTests
+namespace Journalist.EventSourced.Application.UnitTests.Infrastructure.TestData
 {
     public class AutoMoqDataAttribute : AutoDataAttribute
     {

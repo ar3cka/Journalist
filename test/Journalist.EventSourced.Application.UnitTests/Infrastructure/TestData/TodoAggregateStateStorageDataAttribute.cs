@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Journalist.EventSourced.Application.Infrastructure;
+using Journalist.EventSourced.Application.Repositories;
 using Journalist.EventSourced.Entities;
 using Journalist.Options;
 using Journalist.Tasks;
@@ -8,7 +8,7 @@ using Moq;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoMoq;
 
-namespace Journalist.EventSourced.Application.UnitTests
+namespace Journalist.EventSourced.Application.UnitTests.Infrastructure.TestData
 {
     public class TodoAggregateStateStorageDataAttribute : AutoMoqDataAttribute
     {
