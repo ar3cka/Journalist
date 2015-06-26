@@ -39,14 +39,19 @@ namespace Journalist.EventStore.Journal.StreamCursor
             m_state = m_state.NextState;
         }
 
+        private void AssertCursorWasInitialized()
+        {
+            if (CursorState.IsInitialState(m_state))
+            {
+                throw new InvalidOperationException("Stream cursor in initial state.");
+            }
+        }
+
         public IEventStreamSlice Slice
         {
             get
             {
-                if (CursorState.IsInitialState(m_state))
-                {
-                    throw new InvalidOperationException("Stream cursor in initial state.");
-                }
+                AssertCursorWasInitialized();
 
                 return m_slice;
             }
@@ -54,7 +59,12 @@ namespace Journalist.EventStore.Journal.StreamCursor
 
         public StreamVersion CurrentVersion
         {
-            get { return m_slice.SlicePosition.Version; }
+            get
+            {
+                AssertCursorWasInitialized();
+
+                return m_slice.SlicePosition.Version;
+            }
         }
 
         public bool Fetching
