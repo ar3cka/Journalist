@@ -1,4 +1,5 @@
 using Journalist.EventStore.Streams;
+using Journalist.EventStore.TestHarness.Customizations;
 using Journalist.Tasks;
 using Moq;
 using Ploeh.AutoFixture;

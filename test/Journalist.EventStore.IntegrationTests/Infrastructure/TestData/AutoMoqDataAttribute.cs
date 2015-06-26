@@ -1,4 +1,4 @@
-using Journalist.EventStore.IntegrationTests.Infrastructure.Customizations.Customizations;
+using Journalist.EventStore.TestHarness.Customizations;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoMoq;
 using Ploeh.AutoFixture.Xunit2;

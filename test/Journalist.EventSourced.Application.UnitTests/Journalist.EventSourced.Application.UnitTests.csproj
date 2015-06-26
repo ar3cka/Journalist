@@ -40,7 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\Customizations\EventStoreConnectionCustomization.cs" />
+    <Compile Include="Infrastructure\Stubs\EventStreamReaderStub.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\RepositoryTestDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\TodoAggregateStateStorageDataAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AggregationRootRepositoryTests.cs" />
@@ -59,16 +62,23 @@
       <Project>{f4df40bb-1fe9-4415-b437-2a22cbc74c77}</Project>
       <Name>Journalist.EventSourced</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Journalist.EventStore\Journalist.EventStore.csproj">
+      <Project>{152f2338-8806-40e7-ab96-f9b06f705a7f}</Project>
+      <Name>Journalist.EventStore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
       <Project>{74fff4d4-eb88-44d5-b19b-f96f54faae38}</Project>
       <Name>Journalist.LanguageExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Journalist.EventStore.TestHarness\Journalist.EventStore.TestHarness.csproj">
+      <Project>{760a84a0-906f-4e02-b746-1094d9f569fb}</Project>
+      <Name>Journalist.EventStore.TestHarness</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Infrastructure\Customizations\" />
     <Folder Include="Serialization\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

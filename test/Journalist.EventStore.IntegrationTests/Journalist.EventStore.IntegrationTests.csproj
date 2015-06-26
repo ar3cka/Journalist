@@ -43,7 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Infrastructure\Customizations\Customizations\JournaledEventCustomization.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
     <Compile Include="Journal\EventJournalTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,6 +65,13 @@
       <Project>{27467A27-6427-43FB-9FE8-0EDEBE115483}</Project>
       <Name>Journalist.WindowsAzure.Storage</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Journalist.EventStore.TestHarness\Journalist.EventStore.TestHarness.csproj">
+      <Project>{760A84A0-906F-4E02-B746-1094D9F569FB}</Project>
+      <Name>Journalist.EventStore.TestHarness</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Infrastructure\Customizations\Customizations\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

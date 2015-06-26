@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Journal.StreamCursor;
-using Journalist.EventStore.UnitTests.Infrastructure.Customizations;
+using Journalist.EventStore.TestHarness.Customizations;
 using Journalist.Tasks;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoMoq;

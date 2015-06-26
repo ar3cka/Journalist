@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using Journalist.EventStore.Events;
 using Ploeh.AutoFixture;
 
-namespace Journalist.EventStore.IntegrationTests.Infrastructure.Customizations.Customizations
+namespace Journalist.EventStore.TestHarness.Customizations
 {
     public class JournaledEventCustomization : ICustomization
     {
@@ -11,6 +12,9 @@ namespace Journalist.EventStore.IntegrationTests.Infrastructure.Customizations.C
                 .FromFactory(() => JournaledEvent.Create(
                     new object(),
                     (_, type, writer) => writer.WriteLine(fixture.Create("EventPayload")))));
+
+            fixture.Customize<IReadOnlyList<JournaledEvent>>(composer => composer
+                .FromFactory((JournaledEvent[] events) => events));
         }
     }
 }

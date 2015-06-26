@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventSourced.App
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventSourced.Application.UnitTests", "test\Journalist.EventSourced.Application.UnitTests\Journalist.EventSourced.Application.UnitTests.csproj", "{C878CFDD-B835-46C2-896D-704EB5A4842F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventStore.TestHarness", "test\Journalist.EventStore.TestHarness\Journalist.EventStore.TestHarness.csproj", "{760A84A0-906F-4E02-B746-1094D9F569FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +102,10 @@ Global
 		{C878CFDD-B835-46C2-896D-704EB5A4842F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C878CFDD-B835-46C2-896D-704EB5A4842F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C878CFDD-B835-46C2-896D-704EB5A4842F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{760A84A0-906F-4E02-B746-1094D9F569FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{760A84A0-906F-4E02-B746-1094D9F569FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{760A84A0-906F-4E02-B746-1094D9F569FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{760A84A0-906F-4E02-B746-1094D9F569FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
