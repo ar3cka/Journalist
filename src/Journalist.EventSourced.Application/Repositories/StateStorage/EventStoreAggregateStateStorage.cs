@@ -6,7 +6,7 @@ using Journalist.EventStore.Journal;
 using Journalist.Extensions;
 using Journalist.Options;
 
-namespace Journalist.EventSourced.Application.Repositories.Storage
+namespace Journalist.EventSourced.Application.Repositories.StateStorage
 {
     public class EventStoreAggregateStateStorage<TState> : IAggregateStateStorage<TState>
         where TState : IAggregateState, new ()

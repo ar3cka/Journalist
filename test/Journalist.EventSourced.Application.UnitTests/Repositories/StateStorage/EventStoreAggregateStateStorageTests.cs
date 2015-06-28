@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Journalist.EventSourced.Application.Repositories.Storage;
+using Journalist.EventSourced.Application.Repositories.StateStorage;
 using Journalist.EventSourced.Application.Serialization;
 using Journalist.EventSourced.Application.UnitTests.Infrastructure.TestData;
 using Journalist.EventStore.Events;

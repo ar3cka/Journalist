@@ -39,12 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Repositories\StateStorage\EventStoreAggregateStateStorage.cs" />
     <Compile Include="Serialization\IEventSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AbstractAggregateRootRepository.cs" />
     <Compile Include="Repositories\AggregateWasConcurrentlyUpdatedException.cs" />
     <Compile Include="Repositories\IAggregateStateStorage.cs" />
-    <Compile Include="Repositories\Storage\EventStoreAggregateStateStorage.cs" />
     <Compile Include="Repositories\StreamName.cs" />
     <Compile Include="Serialization\Json\JsonEventSerializer.cs" />
     <Compile Include="Serialization\Json\OptionConverter.cs" />
