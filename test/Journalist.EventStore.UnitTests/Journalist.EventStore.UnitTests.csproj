@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventStoreConnectionTests.cs" />
+    <Compile Include="Events\JournaledEventTests.cs" />
     <Compile Include="Infrastructure\Customizations\EventStreamConsumingSessionCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\EventStreamReaderCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\JournaledEventCustomization.cs" />

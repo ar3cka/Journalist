@@ -6,11 +6,11 @@ namespace Journalist.EventStore.Events
 {
     public sealed class JournaledEvent : IEquatable<JournaledEvent>
     {
-        private readonly Stream m_eventPayload;
+        private readonly MemoryStream m_eventPayload;
         private readonly string m_eventTypeName;
         private readonly Guid m_eventId;
 
-        private JournaledEvent(Guid eventId, string eventTypeName, Stream eventPayload)
+        private JournaledEvent(Guid eventId, string eventTypeName, MemoryStream eventPayload)
         {
             m_eventId = eventId;
             m_eventTypeName = eventTypeName;
@@ -34,7 +34,12 @@ namespace Journalist.EventStore.Events
                 serialize(eventObject, eventType, writer);
                 writer.Flush();
 
-                payload = new MemoryStream(stream.GetBuffer(), 0, (int)stream.Length, false);
+                payload = new MemoryStream(
+                    buffer: stream.GetBuffer(),
+                    index: 0,
+                    count: (int)stream.Length,
+                    writable: false,
+                    publiclyVisible: true);
             }
 
             return new JournaledEvent(eventId, eventType.AssemblyQualifiedName, payload);
@@ -52,7 +57,17 @@ namespace Journalist.EventStore.Events
             return new JournaledEvent(
                 (Guid)properties[JournaledEventPropertyNames.EventId],
                 (string)properties[JournaledEventPropertyNames.EventType],
-                (Stream)properties[JournaledEventPropertyNames.EventPayload]);
+                (MemoryStream)properties[JournaledEventPropertyNames.EventPayload]);
+        }
+
+        public MemoryStream GetEventPayload()
+        {
+            return new MemoryStream(
+                buffer: m_eventPayload.GetBuffer(),
+                index: 0,
+                count: (int)m_eventPayload.Length,
+                writable: false,
+                publiclyVisible: false);
         }
 
         public Dictionary<string, object> ToDictionary()
@@ -60,7 +75,7 @@ namespace Journalist.EventStore.Events
             var result = new Dictionary<string, object>();
             result[JournaledEventPropertyNames.EventId] = m_eventId;
             result[JournaledEventPropertyNames.EventType] = m_eventTypeName;
-            result[JournaledEventPropertyNames.EventPayload] = m_eventPayload;
+            result[JournaledEventPropertyNames.EventPayload] = GetEventPayload();
 
             return result;
         }
@@ -113,11 +128,6 @@ namespace Journalist.EventStore.Events
         public string EventTypeName
         {
             get { return m_eventTypeName; }
-        }
-
-        public Stream EventPayload
-        {
-            get { return m_eventPayload; }
         }
     }
 }

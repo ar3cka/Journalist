@@ -1,5 +1,6 @@
-### 0.6.5
+### 0.6.5 (2015-06-29)
 * [LanguageExtensions] SelectToArray and SelectToList extensions methods.
+* [EventStrore][Breaking] JournaledEvent.EventPayload converted to method.
 
 ### 0.6.4 (2015-06-25)
 * [EventStore][Improvment] Named event stream consumers.
