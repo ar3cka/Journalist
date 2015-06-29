@@ -1,3 +1,6 @@
+### 0.6.6 (2015-06-29)
+* [EventStrore][Breaking] Fix bug in JournaledEvent.Create from dicitonary method.
+
 ### 0.6.5 (2015-06-29)
 * [LanguageExtensions] SelectToArray and SelectToList extensions methods.
 * [EventStrore][Breaking] JournaledEvent.EventPayload converted to method.

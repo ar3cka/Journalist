@@ -54,10 +54,13 @@ namespace Journalist.EventStore.Events
         {
             Require.NotNull(properties, "properties");
 
+            var payload  = new MemoryStream();
+            ((MemoryStream)properties[JournaledEventPropertyNames.EventPayload]).CopyTo(payload);
+
             return new JournaledEvent(
                 (Guid)properties[JournaledEventPropertyNames.EventId],
                 (string)properties[JournaledEventPropertyNames.EventType],
-                (MemoryStream)properties[JournaledEventPropertyNames.EventPayload]);
+                payload);
         }
 
         public MemoryStream GetEventPayload()
