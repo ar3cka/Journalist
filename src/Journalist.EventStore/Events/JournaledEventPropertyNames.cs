@@ -1,6 +1,6 @@
 ﻿namespace Journalist.EventStore.Events
 {
-    internal static class JournaledEventPropertyNames
+    public static class JournaledEventPropertyNames
     {
         public static readonly string EventId = "EventId";
         public static readonly string EventType = "EventType";

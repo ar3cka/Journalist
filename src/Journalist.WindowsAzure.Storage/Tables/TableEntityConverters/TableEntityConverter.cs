@@ -42,7 +42,8 @@ namespace Journalist.WindowsAzure.Storage.Tables.TableEntityConverters
                         value = entityProperty.Value.Int64Value;
                         break;
                     default:
-                        throw new InvalidOperationException("Reading property type '{0}' not supported.".FormatString(entityProperty.Value.PropertyType));
+                        throw new InvalidOperationException(
+                            "Reading property type '{0}' not supported.".FormatString(entityProperty.Value.PropertyType));
                 }
 
                 if (value != null)
@@ -68,28 +69,29 @@ namespace Journalist.WindowsAzure.Storage.Tables.TableEntityConverters
                 switch (property.Value.GetType().FullName)
                 {
                     case "System.Int32":
-                        result.Properties.Add(property.Key, new EntityProperty((int) property.Value));
+                        result.Properties.Add(property.Key, new EntityProperty((int)property.Value));
                         break;
 
                     case "System.Int64":
-                        result.Properties.Add(property.Key, new EntityProperty((long) property.Value));
+                        result.Properties.Add(property.Key, new EntityProperty((long)property.Value));
                         break;
 
                     case "System.String":
-                        result.Properties.Add(property.Key, new EntityProperty((string) property.Value));
+                        result.Properties.Add(property.Key, new EntityProperty((string)property.Value));
                         break;
 
                     case "System.Guid":
-                        result.Properties.Add(property.Key, new EntityProperty((Guid) property.Value));
+                        result.Properties.Add(property.Key, new EntityProperty((Guid)property.Value));
                         break;
 
                     case "System.IO.MemoryStream":
-                        var stream = (MemoryStream) property.Value;
+                        var stream = (MemoryStream)property.Value;
                         result.Properties.Add(property.Key, WriteBinaryEntityProperty(stream));
                         break;
 
                     default:
-                        throw new InvalidOperationException("Unsupported property type '{0}'.".FormatString(property.Value.GetType()));
+                        throw new InvalidOperationException(
+                            "Unsupported property type '{0}'.".FormatString(property.Value.GetType()));
                 }
             }
 
