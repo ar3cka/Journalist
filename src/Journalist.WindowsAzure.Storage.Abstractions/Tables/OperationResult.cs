@@ -6,7 +6,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
     {
         public OperationResult(string etag, HttpStatusCode statusCode)
         {
-            Require.NotEmpty(etag, "etag");
+            Require.NotNull(etag, "etag");
 
             ETag = etag;
             StatusCode = statusCode;

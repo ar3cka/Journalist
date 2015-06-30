@@ -5,6 +5,16 @@ namespace Journalist.WindowsAzure.Storage.Tables
 {
     public static class CloudTableExtensions
     {
+        public static ICloudTableEntityQuery PrepareEntityPointQuery(
+            this ICloudTable table,
+            string partitionKey,
+            string rowKey)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityPointQuery(partitionKey, rowKey, EmptyArray.Get<string>());
+        }
+
         public static ICloudTableEntityRangeQuery PrepareEntityRangeQueryByPartition(
             this ICloudTable table,
             string partitionKey,
@@ -49,6 +59,14 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string toRowKey)
         {
             return table.PrepareEntityRangeQueryByRows(partitionKey, fromRowKey, toRowKey, EmptyArray.Get<string>());
+        }
+
+
+        public static ICloudTableEntitySegmentedRangeQuery PrepareEntityFilterSegmentedRangeQuery(this ICloudTable table, string filter)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityFilterSegmentedRangeQuery(filter, EmptyArray.Get<string>());
         }
 
         public static ICloudTableEntitySegmentedRangeQuery PrepareEntitySegmentedRangeQueryByPartition(
