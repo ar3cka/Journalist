@@ -1,6 +1,6 @@
 ### 0.6.7 (2015-06-30)
 * [WAZ.Storage][BugFix] Fix argument exception on batch operation with delete action execution.
-* [WAZ.Storage][New] Extensions for TableBatchOpetion.
+* [WAZ.Storage][New] Extensions methods for TableBatchOperation.
 
 ### 0.6.6 (2015-06-29)
 * [EventStrore][Breaking] Fix bug in JournaledEvent.Create from dicitonary method.
