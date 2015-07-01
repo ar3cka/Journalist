@@ -49,6 +49,7 @@
     <Compile Include="Collections\EmptyDictionary.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\StringFormattingExtensions.cs" />
     <Compile Include="Options\Option.cs" />
     <Compile Include="Options\OptionExtensions.cs" />
     <Compile Include="Options\OptionFactoryExtensions.cs" />
