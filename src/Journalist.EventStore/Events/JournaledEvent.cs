@@ -1,20 +1,29 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using Journalist.Collections;
+using Journalist.Extensions;
 
 namespace Journalist.EventStore.Events
 {
     public sealed class JournaledEvent : IEquatable<JournaledEvent>
     {
         private readonly MemoryStream m_eventPayload;
+        private readonly Dictionary<string, string> m_eventHeaders;
         private readonly string m_eventTypeName;
         private readonly Guid m_eventId;
 
-        private JournaledEvent(Guid eventId, string eventTypeName, MemoryStream eventPayload)
+        private JournaledEvent(
+            Guid eventId,
+            string eventTypeName,
+            Dictionary<string, string> eventHeaders,
+            MemoryStream eventPayload)
         {
             m_eventId = eventId;
             m_eventTypeName = eventTypeName;
             m_eventPayload = eventPayload;
+            m_eventHeaders = eventHeaders;
         }
 
         public static JournaledEvent Create(
@@ -27,14 +36,15 @@ namespace Journalist.EventStore.Events
             Require.NotNull(serialize, "serialize");
 
             var eventType = eventObject.GetType();
-            MemoryStream payload;
+
+            MemoryStream payloadBytes;
             using (var stream = new MemoryStream())
             {
                 var writer = new StreamWriter(stream);
                 serialize(eventObject, eventType, writer);
                 writer.Flush();
 
-                payload = new MemoryStream(
+                payloadBytes = new MemoryStream(
                     buffer: stream.GetBuffer(),
                     index: 0,
                     count: (int)stream.Length,
@@ -42,7 +52,11 @@ namespace Journalist.EventStore.Events
                     publiclyVisible: true);
             }
 
-            return new JournaledEvent(eventId, eventType.AssemblyQualifiedName, payload);
+            return new JournaledEvent(
+                eventId,
+                eventType.AssemblyQualifiedName,
+                new Dictionary<string, string>(),
+                payloadBytes);
         }
 
         public static JournaledEvent Create(object eventObject, Action<object, Type, StreamWriter> serialize)
@@ -55,12 +69,26 @@ namespace Journalist.EventStore.Events
             Require.NotNull(properties, "properties");
 
             var payload  = new MemoryStream();
-            ((MemoryStream)properties[JournaledEventPropertyNames.EventPayload]).CopyTo(payload);
+            ((Stream)properties[JournaledEventPropertyNames.EventPayload]).CopyTo(payload);
 
             return new JournaledEvent(
                 (Guid)properties[JournaledEventPropertyNames.EventId],
                 (string)properties[JournaledEventPropertyNames.EventType],
+                ParseHeaders((string)properties[JournaledEventPropertyNames.EventHeaders]),
                 payload);
+        }
+
+        public void SetHeader(string headerName, string headerValue)
+        {
+            Require.NotEmpty(headerName, "headerName");
+
+            if (headerValue.IsNullOrEmpty() && m_eventHeaders.ContainsKey(headerName))
+            {
+                m_eventHeaders.Remove(headerName);
+                return;
+            }
+
+            m_eventHeaders[headerName] = headerValue;
         }
 
         public MemoryStream GetEventPayload()
@@ -79,6 +107,42 @@ namespace Journalist.EventStore.Events
             result[JournaledEventPropertyNames.EventId] = m_eventId;
             result[JournaledEventPropertyNames.EventType] = m_eventTypeName;
             result[JournaledEventPropertyNames.EventPayload] = GetEventPayload();
+            result[JournaledEventPropertyNames.EventHeaders] = FormatHeaders();
+
+            return result;
+        }
+
+        private string FormatHeaders()
+        {
+            if (m_eventHeaders.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var builder = new StringBuilder();
+            foreach (var eventHeader in m_eventHeaders)
+            {
+                builder.AppendFormat("{0}: {1}", eventHeader.Key, eventHeader.Value);
+                builder.AppendLine();
+            }
+
+            return builder.ToString();
+        }
+
+        private static Dictionary<string, string> ParseHeaders(string formattedHeaders)
+        {
+            if (formattedHeaders.IsNullOrEmpty())
+            {
+                return new Dictionary<string, string>(0);
+            }
+
+            var result = new Dictionary<string, string>();
+            var pairs = formattedHeaders.Split(Environment.NewLine.YieldArray(), StringSplitOptions.RemoveEmptyEntries);
+            foreach (var pair in pairs)
+            {
+                var keyValue = pair.Split(": ".YieldArray(), StringSplitOptions.RemoveEmptyEntries);
+                result.Add(keyValue[0], keyValue[1]);
+            }
 
             return result;
         }
@@ -116,6 +180,11 @@ namespace Journalist.EventStore.Events
         public override int GetHashCode()
         {
             return m_eventId.GetHashCode();
+        }
+
+        public IReadOnlyDictionary<string, string> Headers
+        {
+            get { return m_eventHeaders; }
         }
 
         public Type EventType

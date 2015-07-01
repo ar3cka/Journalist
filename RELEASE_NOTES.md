@@ -2,6 +2,7 @@
 * [LanguageExtensions][Breaking] StringExtensions.JoinStringsWithComma was renamed to ToCsvString.
 * [LanguageExtensions][Breaking] Formatting methods were moved to StringFormattingExtensions class.
 * [LanguageExtensions][New] EqualsCs and EqualsCi string comparison extension methods were added.
+* [EventStrore][New] Add headers support to JournaledEvent.
 
 ### 0.6.7 (2015-06-30)
 * [WAZ.Storage][BugFix] Fix argument exception on batch operation with delete action execution.

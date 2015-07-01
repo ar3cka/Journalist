@@ -22,6 +22,21 @@ namespace Journalist.EventStore.UnitTests.Events
 
         [Theory]
         [AutoMoqData]
+        public void RestoredEvent_ShouldRestoreHeaders(string payload)
+        {
+            var journaledEvent = JournaledEvent.Create(new object(), (evt, type, writer) => writer.Write(payload));
+            journaledEvent.SetHeader("A", "A");
+            journaledEvent.SetHeader("B", "B");
+
+            var eventProperties = journaledEvent.ToDictionary();
+            var restoredEvent = JournaledEvent.Create(eventProperties);
+
+            Assert.Equal("A", restoredEvent.Headers["A"]);
+            Assert.Equal("B", restoredEvent.Headers["B"]);
+        }
+
+        [Theory]
+        [AutoMoqData]
         public void GetEventPayload_ForRestoredEvents_ReturnsStreamWithPayloadContent(string payload)
         {
             var journaledEvent = JournaledEvent.Create(new object(), (evt, type, writer) => writer.Write(payload));
