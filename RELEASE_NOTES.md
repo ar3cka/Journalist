@@ -1,4 +1,4 @@
-### 0.6.8
+### 0.6.8 (2015-07-01)
 * [LanguageExtensions][Breaking] StringExtensions.JoinStringsWithComma was renamed to ToCsvString.
 * [LanguageExtensions][Breaking] Formatting methods were moved to StringFormattingExtensions class.
 * [LanguageExtensions][New] EqualsCs and EqualsCi string comparison extension methods were added.
