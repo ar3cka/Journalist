@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils;
@@ -52,9 +53,10 @@ namespace Journalist.EventStore
             var endOfStream = await m_journal.ReadEndOfStreamPositionAsync(streamName);
 
             return new EventStreamWriter(
-                streamName,
-                endOfStream,
-                m_journal);
+                streamName: streamName,
+                endOfStream: endOfStream,
+                journal: m_journal,
+                mutationPipeline: new EventStreamMutationPipeline());
         }
 
         public async Task<IEventStreamProducer> CreateStreamProducer(string streamName)

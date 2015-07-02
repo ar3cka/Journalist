@@ -51,6 +51,8 @@
     <Compile Include="EventStoreConnectionExtensions.cs" />
     <Compile Include="Events\JournaledEvent.cs" />
     <Compile Include="Events\JournaledEventPropertyNames.cs" />
+    <Compile Include="Events\Mutation\EventStreamMutationPipeline.cs" />
+    <Compile Include="Events\Mutation\IEventMutationPipeline.cs" />
     <Compile Include="IEventStoreConnection.cs" />
     <Compile Include="Journal\EventJournal.cs" />
     <Compile Include="Journal\EventJournalExtensions.cs" />

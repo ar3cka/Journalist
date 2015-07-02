@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams
@@ -9,20 +11,24 @@ namespace Journalist.EventStore.Streams
     {
         private readonly string m_streamName;
         private readonly IEventJournal m_journal;
+        private readonly IEventMutationPipeline m_mutationPipeline;
 
         private EventStreamPosition m_endOfStream;
 
         public EventStreamWriter(
             string streamName,
             EventStreamPosition endOfStream,
-            IEventJournal journal)
+            IEventJournal journal, 
+            IEventMutationPipeline mutationPipeline)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(journal, "journal");
+            Require.NotNull(mutationPipeline, "mutationPipeline");
 
             m_streamName = streamName;
             m_endOfStream = endOfStream;
             m_journal = journal;
+            m_mutationPipeline = mutationPipeline;
         }
 
         public async Task AppendEventsAsync(IReadOnlyCollection<JournaledEvent> events)
@@ -34,7 +40,10 @@ namespace Journalist.EventStore.Streams
                 return;
             }
 
-            m_endOfStream = await m_journal.AppendEventsAsync(m_streamName, m_endOfStream, events);
+            var mutatedEvents = new List<JournaledEvent>(events.Count);
+            mutatedEvents.AddRange(events.Select(journaledEvent => m_mutationPipeline.Mutate(journaledEvent)));
+
+            m_endOfStream = await m_journal.AppendEventsAsync(m_streamName, m_endOfStream, mutatedEvents);
         }
 
         public async Task MoveToEndOfStreamAsync()
