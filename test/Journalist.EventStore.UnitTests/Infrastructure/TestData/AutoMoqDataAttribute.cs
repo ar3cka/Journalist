@@ -12,7 +12,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                 .Customize(new AutoConfiguredMoqCustomization())
                 .Customize(new JournaledEventCustomization()))
         {
-
+            
         }
     }
 }
