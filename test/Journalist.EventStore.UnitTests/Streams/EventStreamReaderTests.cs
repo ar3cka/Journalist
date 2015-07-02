@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
+using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
+using Moq;
+using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
 namespace Journalist.EventStore.UnitTests.Streams
@@ -13,6 +19,35 @@ namespace Journalist.EventStore.UnitTests.Streams
             EventStreamReader reader)
         {
             await Assert.ThrowsAsync<InvalidOperationException>(reader.ReadEventsAsync);
+        }
+
+        [Theory, EventStreamReaderData]
+        public async Task ReadEventsAsync_UseMutationPipelineForEachReceivedEvent(
+            [Frozen] Mock<IEventMutationPipeline> pipelineMock,
+            [Frozen] SortedList<StreamVersion, JournaledEvent> receivedEvents,
+            EventStreamReader reader)
+        {
+            await reader.ReadEventsAsync();
+
+            pipelineMock.Verify(
+                self => self.Mutate(It.Is<JournaledEvent>(e => receivedEvents.ContainsValue(e))),
+                Times.Exactly(receivedEvents.Count));
+        }
+
+        [Theory, EventStreamReaderData]
+        public async Task ReadEventsAsync_ReplaceReceivedEventsWithTheyMutatedVersion(
+            [Frozen] Mock<IEventMutationPipeline> pipelineMock,
+            JournaledEvent[] mutatedEvents,
+            EventStreamReader reader)
+        {
+            var callsCount = 0;
+            pipelineMock
+                .Setup(self => self.Mutate(It.IsAny<JournaledEvent>()))
+                .Returns(() => mutatedEvents[callsCount++]);
+
+            await reader.ReadEventsAsync();
+
+            Assert.Equal(mutatedEvents.Select(e => e.EventId), reader.Events.Select(e => e.EventId));
         }
 
         [Theory, EventStreamReaderData(emptyCursor: false)]

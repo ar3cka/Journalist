@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.Extensions;
 
@@ -12,21 +13,25 @@ namespace Journalist.EventStore.Streams
     {
         private readonly string m_streamName;
         private readonly Func<StreamVersion, Task<IEventStreamCursor>> m_openCursor;
-
-        private IEventStreamCursor m_streamCursor;
+        private readonly IEventMutationPipeline m_mutationPipeline;
+        
         private List<JournaledEvent> m_readedEvents;
+        private IEventStreamCursor m_streamCursor;
 
         public EventStreamReader(
             string streamName,
             IEventStreamCursor streamCursor,
+            IEventMutationPipeline mutationPipeline,
             Func<StreamVersion, Task<IEventStreamCursor>> openCursor)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(streamCursor, "streamCursor");
+            Require.NotNull(mutationPipeline, "mutationPipeline");
             Require.NotNull(openCursor, "openCursor");
 
             m_streamName = streamName;
             m_streamCursor = streamCursor;
+            m_mutationPipeline = mutationPipeline;
             m_openCursor = openCursor;
         }
 
@@ -42,7 +47,7 @@ namespace Journalist.EventStore.Streams
             m_readedEvents = new List<JournaledEvent>(m_streamCursor.Slice.Count);
             foreach (var journaledEvent in m_streamCursor.Slice)
             {
-                m_readedEvents.Add(journaledEvent);
+                m_readedEvents.Add(m_mutationPipeline.Mutate(journaledEvent));
             }
         }
 
@@ -52,6 +57,7 @@ namespace Journalist.EventStore.Streams
             {
                 m_streamCursor = await m_openCursor(CurrentStreamVersion.Increment());
                 m_readedEvents = null;
+
                 return;
             }
 

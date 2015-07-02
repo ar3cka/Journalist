@@ -27,9 +27,10 @@ namespace Journalist.EventStore
             Require.NotEmpty(streamName, "streamName");
 
             var reader = new EventStreamReader(
-                streamName,
-                await m_journal.OpenEventStreamCursorAsync(streamName),
-                version => m_journal.OpenEventStreamCursorAsync(streamName, version));
+                streamName: streamName,
+                streamCursor: await m_journal.OpenEventStreamCursorAsync(streamName),
+                mutationPipeline: new EventStreamMutationPipeline(),
+                openCursor: version => m_journal.OpenEventStreamCursorAsync(streamName, version));
 
             return reader;
         }
@@ -39,9 +40,10 @@ namespace Journalist.EventStore
             Require.NotEmpty(streamName, "streamName");
 
             var reader = new EventStreamReader(
-                streamName,
-                await m_journal.OpenEventStreamCursorAsync(streamName, streamVersion),
-                version => m_journal.OpenEventStreamCursorAsync(streamName, version));
+                streamName: streamName,
+                streamCursor: await m_journal.OpenEventStreamCursorAsync(streamName, streamVersion),
+                mutationPipeline: new EventStreamMutationPipeline(),
+                openCursor: version => m_journal.OpenEventStreamCursorAsync(streamName, version));
 
             return reader;
         }
@@ -61,7 +63,9 @@ namespace Journalist.EventStore
 
         public async Task<IEventStreamProducer> CreateStreamProducer(string streamName)
         {
-            return new EventStreamProducer(await CreateStreamWriterAsync(streamName), RetryPolicy.Default);
+            return new EventStreamProducer(
+                streamWriter: await CreateStreamWriterAsync(streamName),
+                retryPolicy: RetryPolicy.Default);
         }
 
         public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName, string consumerName)
