@@ -10,16 +10,20 @@ namespace Journalist.EventStore
     {
         private readonly IEventJournal m_journal;
         private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
+        private readonly IEventMutationPipelineFactory m_pipelineFactory;
 
         public EventStoreConnection(
             IEventJournal journal,
-            IEventStreamConsumingSessionFactory sessionFactory)
+            IEventStreamConsumingSessionFactory sessionFactory,
+            IEventMutationPipelineFactory pipelineFactory)
         {
             Require.NotNull(journal, "journal");
             Require.NotNull(sessionFactory, "sessionFactory");
+            Require.NotNull(pipelineFactory, "pipelineFactory");
 
             m_journal = journal;
             m_sessionFactory = sessionFactory;
+            m_pipelineFactory = pipelineFactory;
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
@@ -29,7 +33,7 @@ namespace Journalist.EventStore
             var reader = new EventStreamReader(
                 streamName: streamName,
                 streamCursor: await m_journal.OpenEventStreamCursorAsync(streamName),
-                mutationPipeline: new EventStreamMutationPipeline(),
+                mutationPipeline: m_pipelineFactory.CreateIncomingPipeline(),
                 openCursor: version => m_journal.OpenEventStreamCursorAsync(streamName, version));
 
             return reader;
@@ -42,7 +46,7 @@ namespace Journalist.EventStore
             var reader = new EventStreamReader(
                 streamName: streamName,
                 streamCursor: await m_journal.OpenEventStreamCursorAsync(streamName, streamVersion),
-                mutationPipeline: new EventStreamMutationPipeline(),
+                mutationPipeline: m_pipelineFactory.CreateIncomingPipeline(),
                 openCursor: version => m_journal.OpenEventStreamCursorAsync(streamName, version));
 
             return reader;
@@ -58,7 +62,7 @@ namespace Journalist.EventStore
                 streamName: streamName,
                 endOfStream: endOfStream,
                 journal: m_journal,
-                mutationPipeline: new EventStreamMutationPipeline());
+                mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline());
         }
 
         public async Task<IEventStreamProducer> CreateStreamProducer(string streamName)

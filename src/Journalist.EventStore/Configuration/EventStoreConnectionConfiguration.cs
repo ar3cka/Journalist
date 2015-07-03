@@ -1,10 +1,27 @@
 using System;
+using System.Collections.Generic;
+using Journalist.EventStore.Events.Mutation;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Configuration
 {
     public class EventStoreConnectionConfiguration : IEventStoreConnectionConfiguration
     {
+        private readonly IEventMutationPipelineConfiguration m_mutationPipelineConfiguration;
+        private readonly List<IEventMutator> m_incomingMessageMutators;
+        private readonly List<IEventMutator> m_outgoingMessageMutators;
+
+        public EventStoreConnectionConfiguration()
+        {
+            m_incomingMessageMutators = new List<IEventMutator>();
+            m_outgoingMessageMutators = new List<IEventMutator>();
+
+            m_mutationPipelineConfiguration = new EventMutationPipelineConfiguration(
+                this,
+                m_incomingMessageMutators,
+                m_outgoingMessageMutators);
+        }
+
         public void AssertConfigurationCompleted()
         {
             if (StorageConnectionString.IsNullOrEmpty())
@@ -39,10 +56,37 @@ namespace Journalist.EventStore.Configuration
             return this;
         }
 
-        public string StorageConnectionString { get; private set; }
+        public IEventMutationPipelineConfiguration Mutate
+        {
+            get { return m_mutationPipelineConfiguration; }
+        }
 
-        public string JournalTableName { get; private set; }
+        public string StorageConnectionString
+        {
+            get;
+            private set;
+        }
 
-        public string StreamConsumerSessionsBlobName { get; private set; }
+        public string JournalTableName
+        {
+            get;
+            private set;
+        }
+
+        public string StreamConsumerSessionsBlobName
+        {
+            get;
+            private set;
+        }
+
+        public IReadOnlyCollection<IEventMutator> IncomingMessageMutators
+        {
+            get { return m_incomingMessageMutators; }
+        }
+
+        public IReadOnlyCollection<IEventMutator> OutgoingMessageMutators
+        {
+            get { return m_outgoingMessageMutators; }
+        }
     }
 }

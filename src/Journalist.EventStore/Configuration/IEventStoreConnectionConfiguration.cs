@@ -6,5 +6,7 @@ namespace Journalist.EventStore.Configuration
             string storageConnectionString,
             string journalTableName = Constants.StorageEntities.EVENT_JOURNAL_TABLE_NAME,
             string streamConsumerSessionsBlobName = Constants.StorageEntities.EVENT_STREAM_CONSUMER_SESSIONS_BLOB_NAME);
+
+        IEventMutationPipelineConfiguration Mutate { get; }
     }
 }

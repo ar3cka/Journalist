@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Journalist.EventStore.Configuration;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
@@ -11,11 +10,16 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 {
     public class EventStreamsTests
     {
+        private const string INCOMING_HEADER_NAME = "incoming-header";
+        private const string OUTGOING_HEADER_NAME = "outgoing-header";
+
         public EventStreamsTests()
         {
             Connection = EventStoreConnectionBuilder
                 .Create(config => config
-                    .UseStorage("UseDevelopmentStorage=true", "TestEventJournal"))
+                    .UseStorage("UseDevelopmentStorage=true", "TestEventJournal")
+                    .Mutate.IncomingEventsWith(new MessageMutator(INCOMING_HEADER_NAME))
+                    .Mutate.OutgoingEventsWith(new MessageMutator(OUTGOING_HEADER_NAME)))
                 .Build();
 
             StreamName = "stream-" + Guid.NewGuid().ToString("N");
@@ -182,6 +186,23 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await consumer2.CloseAsync();
 
             Assert.Equal(dummyEvents.Skip(1), receivedEvents);
+        }
+
+        [Theory, AutoMoqData]
+        public async Task WriterAndReader_UseMutationPipelines(JournaledEvent[] dummyEvents)
+        {
+            var writer = await Connection.CreateStreamWriterAsync(StreamName);
+            await writer.AppendEventsAsync(dummyEvents);
+
+            var reader = await Connection.CreateStreamReaderAsync(StreamName);
+            await reader.ReadEventsAsync();
+
+            var events = reader.Events.ToList();
+            for (var i = 0; i < events.Count; i++)
+            {
+                Assert.NotNull(events[i].Headers[INCOMING_HEADER_NAME]);
+                Assert.NotNull(events[i].Headers[OUTGOING_HEADER_NAME]);
+            }
         }
 
         public string StreamName

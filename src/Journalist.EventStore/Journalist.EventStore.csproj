@@ -43,16 +43,21 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\EventStoreConnectionBuilder.cs" />
+    <Compile Include="Configuration\EventMutationPipelineConfiguration.cs" />
     <Compile Include="Configuration\EventStoreConnectionConfiguration.cs" />
+    <Compile Include="Configuration\IEventMutationPipelineConfiguration.cs" />
     <Compile Include="Configuration\IEventStoreConnectionConfiguration.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="EventStoreConnection.cs" />
+    <Compile Include="EventStoreConnectionBuilder.cs" />
     <Compile Include="EventStoreConnectionExtensions.cs" />
     <Compile Include="Events\JournaledEvent.cs" />
     <Compile Include="Events\JournaledEventPropertyNames.cs" />
+    <Compile Include="Events\Mutation\EventMutationPipelineFactory.cs" />
     <Compile Include="Events\Mutation\EventStreamMutationPipeline.cs" />
     <Compile Include="Events\Mutation\IEventMutationPipeline.cs" />
+    <Compile Include="Events\Mutation\IEventMutationPipelineFactory.cs" />
+    <Compile Include="Events\Mutation\IEventMutator.cs" />
     <Compile Include="IEventStoreConnection.cs" />
     <Compile Include="Journal\EventJournal.cs" />
     <Compile Include="Journal\EventJournalExtensions.cs" />

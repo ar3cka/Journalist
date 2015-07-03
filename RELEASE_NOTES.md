@@ -1,3 +1,6 @@
+### 0.7.0
+* [EventStrore][Breaking] EventStoreConnectionBuilder was moved from EventStore.Configuration to EventStore namespace.
+
 ### 0.6.8 (2015-07-01)
 * [LanguageExtensions][Breaking] StringExtensions.JoinStringsWithComma was renamed to ToCsvString.
 * [LanguageExtensions][Breaking] Formatting methods were moved to StringFormattingExtensions class.

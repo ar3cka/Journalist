@@ -122,8 +122,7 @@ namespace Journalist.EventStore.Events
             var builder = new StringBuilder();
             foreach (var eventHeader in m_eventHeaders)
             {
-                builder.AppendFormat("{0}: {1}", eventHeader.Key, eventHeader.Value);
-                builder.AppendLine();
+                builder.AppendFormat("{0}: {1}\r\n", eventHeader.Key, eventHeader.Value);
             }
 
             return builder.ToString();
@@ -137,7 +136,8 @@ namespace Journalist.EventStore.Events
             }
 
             var result = new Dictionary<string, string>();
-            var pairs = formattedHeaders.Split(Environment.NewLine.YieldArray(), StringSplitOptions.RemoveEmptyEntries);
+            var newline = "\r\n";
+            var pairs = formattedHeaders.Split(newline.YieldArray(), StringSplitOptions.RemoveEmptyEntries);
             foreach (var pair in pairs)
             {
                 var keyValue = pair.Split(": ".YieldArray(), StringSplitOptions.RemoveEmptyEntries);

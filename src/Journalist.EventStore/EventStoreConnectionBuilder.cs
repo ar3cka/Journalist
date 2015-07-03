@@ -1,9 +1,12 @@
 using System;
+using Journalist.EventStore.Configuration;
+using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.WindowsAzure.Storage;
+using Journalist.WindowsAzure.Storage.Blobs;
 
-namespace Journalist.EventStore.Configuration
+namespace Journalist.EventStore
 {
     public class EventStoreConnectionBuilder
     {
@@ -39,13 +42,19 @@ namespace Journalist.EventStore.Configuration
                 m_configuration.StorageConnectionString,
                 m_configuration.JournalTableName);
 
-            var sessionsBlob = m_factory.CreateBlobContainer(
-                m_configuration.StorageConnectionString,
-                m_configuration.StreamConsumerSessionsBlobName);
+            var sessionFactory = new EventStreamConsumingSessionFactory(
+                m_factory.CreateBlobContainer(
+                    m_configuration.StorageConnectionString,
+                    m_configuration.StreamConsumerSessionsBlobName));
+
+            var pipelineFactory = new EventMutationPipelineFactory(
+                m_configuration.IncomingMessageMutators,
+                m_configuration.OutgoingMessageMutators);
 
             return new EventStoreConnection(
                 new EventJournal(journalTable),
-                new EventStreamConsumingSessionFactory(sessionsBlob));
+                sessionFactory,
+                pipelineFactory);
         }
     }
 }
