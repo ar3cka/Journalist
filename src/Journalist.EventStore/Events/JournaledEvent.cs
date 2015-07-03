@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Journalist.Collections;
 using Journalist.Extensions;
 
@@ -71,10 +70,17 @@ namespace Journalist.EventStore.Events
             var payload  = new MemoryStream();
             ((Stream)properties[JournaledEventPropertyNames.EventPayload]).CopyTo(payload);
 
+
+            var headers = new Dictionary<string, string>();
+            if (properties.ContainsKey(JournaledEventPropertyNames.EventHeaders))
+            {
+                headers = ParseHeaders((MemoryStream)properties[JournaledEventPropertyNames.EventHeaders]);
+            }
+
             return new JournaledEvent(
                 (Guid)properties[JournaledEventPropertyNames.EventId],
                 (string)properties[JournaledEventPropertyNames.EventType],
-                ParseHeaders((string)properties[JournaledEventPropertyNames.EventHeaders]),
+                headers,
                 payload);
         }
 
@@ -112,36 +118,38 @@ namespace Journalist.EventStore.Events
             return result;
         }
 
-        private string FormatHeaders()
+        private MemoryStream FormatHeaders()
         {
             if (m_eventHeaders.Count == 0)
             {
-                return string.Empty;
+                return new MemoryStream(EmptyArray.Get<byte>());
             }
 
-            var builder = new StringBuilder();
-            foreach (var eventHeader in m_eventHeaders)
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream))
             {
-                builder.AppendFormat("{0}: {1}\r\n", eventHeader.Key, eventHeader.Value);
+                foreach (var eventHeader in m_eventHeaders)
+                {
+                    writer.Write("{0}: {1}\r\n", eventHeader.Key, eventHeader.Value);
+                }
+
+                writer.Flush();
+
+                return new MemoryStream(stream.GetBuffer(), 0, (int)stream.Length, false);
             }
+         }
 
-            return builder.ToString();
-        }
-
-        private static Dictionary<string, string> ParseHeaders(string formattedHeaders)
+        private static Dictionary<string, string> ParseHeaders(MemoryStream headers)
         {
-            if (formattedHeaders.IsNullOrEmpty())
-            {
-                return new Dictionary<string, string>(0);
-            }
-
             var result = new Dictionary<string, string>();
-            var newline = "\r\n";
-            var pairs = formattedHeaders.Split(newline.YieldArray(), StringSplitOptions.RemoveEmptyEntries);
-            foreach (var pair in pairs)
+            using (var reader = new StreamReader(headers))
             {
-                var keyValue = pair.Split(": ".YieldArray(), StringSplitOptions.RemoveEmptyEntries);
-                result.Add(keyValue[0], keyValue[1]);
+                string pair;
+                while ((pair = reader.ReadLine()) != null)
+                {
+                    var keyValue = pair.Split(": ".YieldArray(), StringSplitOptions.RemoveEmptyEntries);
+                    result.Add(keyValue[0], keyValue[1]);
+                }
             }
 
             return result;

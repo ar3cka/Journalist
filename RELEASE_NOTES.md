@@ -1,5 +1,6 @@
 ### 0.7.0
 * [EventStrore][Breaking] EventStoreConnectionBuilder was moved from EventStore.Configuration to EventStore namespace.
+* [EventStrore][Breaking] Save event headers as byte array.
 
 ### 0.6.8 (2015-07-01)
 * [LanguageExtensions][Breaking] StringExtensions.JoinStringsWithComma was renamed to ToCsvString.
