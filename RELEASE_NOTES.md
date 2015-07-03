@@ -1,14 +1,15 @@
 ### 0.7.0
-* [EventStrore][New] Event stream events mutation pipelines.
-* [EventStrore][Breaking] EventStoreConnectionBuilder was moved from EventStore.Configuration to EventStore namespace.
-* [EventStrore][Breaking] Save event headers as byte array.
-* [EventStrore][Breaking] Suffix Async was added to EventStoreConnection.CreateStreamProducer and CreateStreamConsumer.
+* [EventStore][Breaking] EventStoreConnectionBuilder was moved from EventStore.Configuration to EventStore namespace.
+* [EventStore][Breaking] Save event headers as byte array.
+* [EventStore][Breaking] Suffix Async was added to EventStoreConnection.CreateStreamProducer and CreateStreamConsumer.
+* [EventStore][New] Event stream events mutation pipelines.
+* [LanguageExtensions][New] EmptyMemoryStream class.
 
 ### 0.6.8 (2015-07-01)
 * [LanguageExtensions][Breaking] StringExtensions.JoinStringsWithComma was renamed to ToCsvString.
 * [LanguageExtensions][Breaking] Formatting methods were moved to StringFormattingExtensions class.
 * [LanguageExtensions][New] EqualsCs and EqualsCi string comparison extension methods were added.
-* [EventStrore][New] Add headers support to JournaledEvent.
+* [EventStore][New] Add headers support to JournaledEvent.
 
 ### 0.6.7 (2015-06-30)
 * [WAZ.Storage][BugFix] Fix argument exception on batch operation with delete action execution.
@@ -19,7 +20,7 @@
 
 ### 0.6.5 (2015-06-29)
 * [LanguageExtensions] SelectToArray and SelectToList extensions methods.
-* [EventStrore][Breaking] JournaledEvent.EventPayload converted to method.
+* [EventStore][Breaking] JournaledEvent.EventPayload converted to method.
 
 ### 0.6.4 (2015-06-25)
 * [EventStore][Improvment] Named event stream consumers.

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Journalist.Collections;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Events
@@ -74,7 +73,8 @@ namespace Journalist.EventStore.Events
             var headers = new Dictionary<string, string>();
             if (properties.ContainsKey(JournaledEventPropertyNames.EventHeaders))
             {
-                headers = ParseHeaders((MemoryStream)properties[JournaledEventPropertyNames.EventHeaders]);
+                headers = JournaledEventHeadersSerializer.Deserialize(
+                    (Stream)properties[JournaledEventPropertyNames.EventHeaders]);
             }
 
             return new JournaledEvent(
@@ -109,48 +109,11 @@ namespace Journalist.EventStore.Events
 
         public Dictionary<string, object> ToDictionary()
         {
-            var result = new Dictionary<string, object>();
+            var result = new Dictionary<string, object>(JournaledEventPropertyNames.All.Length);
             result[JournaledEventPropertyNames.EventId] = m_eventId;
             result[JournaledEventPropertyNames.EventType] = m_eventTypeName;
             result[JournaledEventPropertyNames.EventPayload] = GetEventPayload();
-            result[JournaledEventPropertyNames.EventHeaders] = FormatHeaders();
-
-            return result;
-        }
-
-        private MemoryStream FormatHeaders()
-        {
-            if (m_eventHeaders.Count == 0)
-            {
-                return new MemoryStream(EmptyArray.Get<byte>());
-            }
-
-            using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream))
-            {
-                foreach (var eventHeader in m_eventHeaders)
-                {
-                    writer.Write("{0}: {1}\r\n", eventHeader.Key, eventHeader.Value);
-                }
-
-                writer.Flush();
-
-                return new MemoryStream(stream.GetBuffer(), 0, (int)stream.Length, false);
-            }
-         }
-
-        private static Dictionary<string, string> ParseHeaders(MemoryStream headers)
-        {
-            var result = new Dictionary<string, string>();
-            using (var reader = new StreamReader(headers))
-            {
-                string pair;
-                while ((pair = reader.ReadLine()) != null)
-                {
-                    var keyValue = pair.Split(": ".YieldArray(), StringSplitOptions.RemoveEmptyEntries);
-                    result.Add(keyValue[0], keyValue[1]);
-                }
-            }
+            result[JournaledEventPropertyNames.EventHeaders] = JournaledEventHeadersSerializer.Serialize(m_eventHeaders);
 
             return result;
         }
