@@ -91,6 +91,7 @@ namespace Journalist.EventStore.Events
             if (headerValue.IsNullOrEmpty() && m_eventHeaders.ContainsKey(headerName))
             {
                 m_eventHeaders.Remove(headerName);
+
                 return;
             }
 

@@ -50,5 +50,31 @@ namespace Journalist.EventStore.UnitTests.Events
                 Assert.Equal(payload, reader.ReadToEnd());
             }
         }
+
+        [Theory]
+        [AutoMoqData]
+        public void SetHeaders_AddValueToHeadersDictionary(
+            JournaledEvent journaledEvent,
+            string headerName,
+            string headerValue)
+        {
+            journaledEvent.SetHeader(headerName, headerValue);
+
+            Assert.Equal(journaledEvent.Headers[headerName], headerValue);
+        }
+
+        [Theory]
+        [AutoMoqData]
+        public void SetHeaders_WhenValueIsNull_RemovesHeader(
+            JournaledEvent journaledEvent,
+            string headerName,
+            string headerValue)
+        {
+            journaledEvent.SetHeader(headerName, headerValue);
+
+            journaledEvent.SetHeader(headerName, null);
+
+            Assert.False(journaledEvent.Headers.ContainsKey(headerName));
+        }
     }
 }
