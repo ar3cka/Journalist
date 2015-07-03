@@ -1,9 +1,9 @@
 ### 0.7.0
 * [EventStore][Breaking] EventStoreConnectionBuilder was moved from EventStore.Configuration to EventStore namespace.
-* [EventStore][Breaking] Save event headers as byte array.
+* [EventStore][Breaking] EventJournal saves event headers as byte array.
 * [EventStore][Breaking] Suffix Async was added to EventStoreConnection.CreateStreamProducer and CreateStreamConsumer.
-* [EventStore][New] Event stream events mutation pipelines.
-* [LanguageExtensions][New] EmptyMemoryStream class.
+* [EventStore][New] Event stream events mutation pipelines implemented.
+* [LanguageExtensions][New] EmptyMemoryStream helper class was added.
 
 ### 0.6.8 (2015-07-01)
 * [LanguageExtensions][Breaking] StringExtensions.JoinStringsWithComma was renamed to ToCsvString.
