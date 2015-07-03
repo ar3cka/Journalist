@@ -5,7 +5,7 @@ namespace Journalist.EventStore
 {
     public static class EventStoreConnectionExtensions
     {
-        public static Task<IEventStreamConsumer> CreateStreamConsumer(this IEventStoreConnection connection, string streamName)
+        public static Task<IEventStreamConsumer> CreateStreamConsumerAsync(this IEventStoreConnection connection, string streamName)
         {
             Require.NotNull(connection, "connection");
 

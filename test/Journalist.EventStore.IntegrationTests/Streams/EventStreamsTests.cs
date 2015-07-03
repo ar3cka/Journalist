@@ -95,7 +95,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents);
 
-            var consumer = await Connection.CreateStreamConsumer(StreamName);
+            var consumer = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer.ReceiveEventsAsync();
             var receivedEvents = consumer.EnumerateEvents().ToList();
 
@@ -108,7 +108,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents1);
 
-            var consumer = await Connection.CreateStreamConsumer(StreamName);
+            var consumer = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer.ReceiveEventsAsync();
             var receivedEvents1 = consumer.EnumerateEvents().ToList();
 
@@ -126,7 +126,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents1);
 
-            var consumer1 = await Connection.CreateStreamConsumer(StreamName);
+            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer1.ReceiveEventsAsync();
 
             await producer.PublishAsync(dummyEvents2);
@@ -134,7 +134,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await consumer1.ReceiveEventsAsync(); // saves position and stops reading.
             await consumer1.CloseAsync(); // frees session
 
-            var consumer2 = await Connection.CreateStreamConsumer(StreamName);
+            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer2.ReceiveEventsAsync();
             var receivedEvents2 = consumer2.EnumerateEvents().ToList();
 
@@ -148,14 +148,14 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents1);
 
-            var consumer1 = await Connection.CreateStreamConsumer(StreamName);
+            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer1.ReceiveEventsAsync();
 
             await producer.PublishAsync(dummyEvents2);
             var receivedEvents1 = consumer1.EnumerateEvents().ToList();
             await consumer1.CloseAsync(); // saves position and stops reading.
 
-            var consumer2 = await Connection.CreateStreamConsumer(StreamName);
+            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer2.ReceiveEventsAsync();
             var receivedEvents2 = consumer2.EnumerateEvents().ToList();
             await consumer2.CloseAsync();
@@ -170,7 +170,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents);
 
-            var consumer1 = await Connection.CreateStreamConsumer(StreamName);
+            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer1.ReceiveEventsAsync();
             foreach (var e in consumer1.EnumerateEvents())
             {
@@ -180,7 +180,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await consumer1.CloseAsync(); // frees session
 
 
-            var consumer2 = await Connection.CreateStreamConsumer(StreamName);
+            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer2.ReceiveEventsAsync();
             var receivedEvents = consumer2.EnumerateEvents().ToList();
             await consumer2.CloseAsync();
@@ -211,7 +211,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents);
 
-            var consumer = await Connection.CreateStreamConsumer(StreamName);
+            var consumer = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer.ReceiveEventsAsync();
 
             foreach (var journaledEvent in consumer.EnumerateEvents())
