@@ -9,7 +9,7 @@ namespace Journalist.EventStore
         {
             Require.NotNull(connection, "connection");
 
-            return connection.CreateStreamConsumer(streamName, Constants.DEFAULT_STREAM_READER_NAME);
+            return connection.CreateStreamConsumerAsync(streamName, Constants.DEFAULT_STREAM_READER_NAME);
         }
     }
 }

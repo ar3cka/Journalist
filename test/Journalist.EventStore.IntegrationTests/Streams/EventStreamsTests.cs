@@ -74,7 +74,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task CreatedProducer_CanPublishEvents(JournaledEvent[] dummyEvents)
         {
-            var producer = await Connection.CreateStreamProducer(StreamName);
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents);
         }
 
@@ -82,8 +82,8 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         public async Task CreatedProducer_WhenUnderlyingStreamWasMovedAheadCanPublishEvents(JournaledEvent[] dummyEvents)
         {
             // both producer are staying on the one stream version
-            var producer1 = await Connection.CreateStreamProducer(StreamName);
-            var producer2 = await Connection.CreateStreamProducer(StreamName);
+            var producer1 = await Connection.CreateStreamProducerAsync(StreamName);
+            var producer2 = await Connection.CreateStreamProducerAsync(StreamName);
 
             await producer1.PublishAsync(dummyEvents);
             await producer2.PublishAsync(dummyEvents);
@@ -92,7 +92,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task CreatedConsumer_CanReadPublishedEvents(JournaledEvent[] dummyEvents)
         {
-            var producer = await Connection.CreateStreamProducer(StreamName);
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents);
 
             var consumer = await Connection.CreateStreamConsumer(StreamName);
@@ -105,7 +105,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task CreatedConsumer_CanReadPublishedEvents(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
         {
-            var producer = await Connection.CreateStreamProducer(StreamName);
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents1);
 
             var consumer = await Connection.CreateStreamConsumer(StreamName);
@@ -123,7 +123,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task CreatedConsumer_SavesConsumedPositionPosition(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
         {
-            var producer = await Connection.CreateStreamProducer(StreamName);
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents1);
 
             var consumer1 = await Connection.CreateStreamConsumer(StreamName);
@@ -145,7 +145,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task CreatedConsumer_SavesConsumedPositionPositionOnClose(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
         {
-            var producer = await Connection.CreateStreamProducer(StreamName);
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents1);
 
             var consumer1 = await Connection.CreateStreamConsumer(StreamName);
@@ -167,7 +167,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         [Theory, AutoMoqData]
         public async Task CreatedConsumer_RememberConsumedVersion(JournaledEvent[] dummyEvents)
         {
-            var producer = await Connection.CreateStreamProducer(StreamName);
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents);
 
             var consumer1 = await Connection.CreateStreamConsumer(StreamName);
@@ -203,6 +203,24 @@ namespace Journalist.EventStore.IntegrationTests.Streams
                 Assert.NotNull(events[i].Headers[INCOMING_HEADER_NAME]);
                 Assert.NotNull(events[i].Headers[OUTGOING_HEADER_NAME]);
             }
+        }
+
+        [Theory, AutoMoqData]
+        public async Task ConsumerAndProducers_UseMutationPipelines(JournaledEvent[] dummyEvents)
+        {
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
+            await producer.PublishAsync(dummyEvents);
+
+            var consumer = await Connection.CreateStreamConsumer(StreamName);
+            await consumer.ReceiveEventsAsync();
+
+            foreach (var journaledEvent in consumer.EnumerateEvents())
+            {
+                Assert.NotNull(journaledEvent.Headers[INCOMING_HEADER_NAME]);
+                Assert.NotNull(journaledEvent.Headers[OUTGOING_HEADER_NAME]);
+            }
+
+            await consumer.CloseAsync();
         }
 
         public string StreamName

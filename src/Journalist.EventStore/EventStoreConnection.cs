@@ -65,14 +65,14 @@ namespace Journalist.EventStore
                 mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline());
         }
 
-        public async Task<IEventStreamProducer> CreateStreamProducer(string streamName)
+        public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)
         {
             return new EventStreamProducer(
                 streamWriter: await CreateStreamWriterAsync(streamName),
                 retryPolicy: RetryPolicy.Default);
         }
 
-        public async Task<IEventStreamConsumer> CreateStreamConsumer(string streamName, string consumerName)
+        public async Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(consumerName, "consumerName");
