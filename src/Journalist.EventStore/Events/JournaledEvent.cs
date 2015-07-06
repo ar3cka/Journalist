@@ -71,10 +71,16 @@ namespace Journalist.EventStore.Events
             var payload  = new MemoryStream();
             ((Stream)properties[JournaledEventPropertyNames.EventPayload]).CopyTo(payload);
 
+            var headers = new Dictionary<string, string>();
+            if (properties.ContainsKey(JournaledEventPropertyNames.EventHeaders))
+            {
+                headers = ParseHeaders((string)properties[JournaledEventPropertyNames.EventHeaders]);
+            }
+
             return new JournaledEvent(
                 (Guid)properties[JournaledEventPropertyNames.EventId],
                 (string)properties[JournaledEventPropertyNames.EventType],
-                ParseHeaders((string)properties[JournaledEventPropertyNames.EventHeaders]),
+                headers,
                 payload);
         }
 

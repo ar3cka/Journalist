@@ -1,3 +1,6 @@
+### 0.6.9 (2015-07-06)
+* [EventStore][BugFix] Event headers value is optional property for journaled event.
+
 ### 0.6.8 (2015-07-01)
 * [LanguageExtensions][Breaking] StringExtensions.JoinStringsWithComma was renamed to ToCsvString.
 * [LanguageExtensions][Breaking] Formatting methods were moved to StringFormattingExtensions class.
