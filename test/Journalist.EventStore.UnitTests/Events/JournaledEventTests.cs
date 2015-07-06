@@ -50,5 +50,22 @@ namespace Journalist.EventStore.UnitTests.Events
                 Assert.Equal(payload, reader.ReadToEnd());
             }
         }
+
+        [Theory]
+        [AutoMoqData]
+        public void GetEventPayload_ForRestoredEventsWithoutHeaderProperty_ReturnsStreamWithPayloadContent(string payload)
+        {
+            var journaledEvent = JournaledEvent.Create(new object(), (evt, type, writer) => writer.Write(payload));
+
+            var eventProperties = journaledEvent.ToDictionary();
+            eventProperties.Remove(JournaledEventPropertyNames.EventHeaders);
+            var restoredEvent = JournaledEvent.Create(eventProperties);
+
+            using (var payloadStream = restoredEvent.GetEventPayload())
+            using (var reader = new StreamReader(payloadStream))
+            {
+                Assert.Equal(payload, reader.ReadToEnd());
+            }
+        }
     }
 }
