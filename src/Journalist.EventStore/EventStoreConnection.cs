@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
+using Journalist.EventStore.Streams.Notifications;
 using Journalist.EventStore.Utils;
 
 namespace Journalist.EventStore
@@ -62,7 +63,8 @@ namespace Journalist.EventStore
                 streamName: streamName,
                 endOfStream: endOfStream,
                 journal: m_journal,
-                mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline());
+                mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(),
+                notificationHub: new NotificationHub());
         }
 
         public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)

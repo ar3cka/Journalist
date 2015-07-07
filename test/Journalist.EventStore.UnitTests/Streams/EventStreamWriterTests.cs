@@ -5,6 +5,7 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
+using Journalist.EventStore.Streams.Notifications;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Journalist.Tasks;
 using Moq;
@@ -28,6 +29,23 @@ namespace Journalist.EventStore.UnitTests.Streams
                 writer.StreamName,
                 position,
                 It.Is<IReadOnlyCollection<JournaledEvent>>(e => e.Count == events.Length)));
+        }
+
+        [Theory, EventStreamWriterData]
+        public async Task AppendEvents_NotifyAboutStreamUpdates(
+            [Frozen] Mock<INotificationHub> hubMock,
+            EventStreamWriter writer,
+            JournaledEvent[] events)
+        {
+            var fromVersion = writer.StreamVersion;
+            await writer.AppendEventsAsync(events);
+            var toVersion = writer.StreamVersion;
+
+            hubMock.Verify(journal => journal.NotifyAsync(
+                It.Is<EventStreamUpdated>(notification =>
+                    notification.StreamName == writer.StreamName &&
+                    notification.FromVersion == fromVersion &&
+                    notification.ToVersion == toVersion)));
         }
 
         [Theory, EventStreamWriterData]
