@@ -1,4 +1,4 @@
-### 0.7.0
+### 0.7.0 (2015-07-07)
 * [EventStore][Breaking] EventStoreConnectionBuilder was moved from EventStore.Configuration to EventStore namespace.
 * [EventStore][Breaking] EventJournal saves event headers as byte array.
 * [EventStore][Breaking] Suffix Async was added to EventStoreConnection.CreateStreamProducer and CreateStreamConsumer.
