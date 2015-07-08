@@ -64,6 +64,7 @@
     <Compile Include="Streams\EventStreamProducerTests.cs" />
     <Compile Include="Streams\EventStreamReaderTests.cs" />
     <Compile Include="Streams\EventStreamWriterTests.cs" />
+    <Compile Include="Streams\Notifications\NotificationHubTests.cs" />
     <Compile Include="Utils\RetryPolicyTests.cs" />
   </ItemGroup>
   <ItemGroup>

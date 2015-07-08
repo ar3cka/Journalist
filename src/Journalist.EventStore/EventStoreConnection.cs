@@ -12,6 +12,7 @@ namespace Journalist.EventStore
         private readonly IEventJournal m_journal;
         private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
         private readonly IEventMutationPipelineFactory m_pipelineFactory;
+        private readonly INotificationHub m_notificationHub;
 
         public EventStoreConnection(
             IEventJournal journal,
@@ -25,6 +26,7 @@ namespace Journalist.EventStore
             m_journal = journal;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
+            m_notificationHub = new NotificationHub();
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
@@ -64,7 +66,7 @@ namespace Journalist.EventStore
                 endOfStream: endOfStream,
                 journal: m_journal,
                 mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(),
-                notificationHub: new NotificationHub());
+                notificationHub: m_notificationHub);
         }
 
         public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)
