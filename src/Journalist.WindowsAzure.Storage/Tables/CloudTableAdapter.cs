@@ -24,6 +24,33 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 m_tableEntityConverter);
         }
 
+        public ICloudTableEntityQuery PrepareEntityPointQuery(string partitionKey, string rowKey, string[] properties)
+        {
+            Require.NotNull(partitionKey, "partitionKey");
+            Require.NotNull(rowKey, "rowKey");
+            Require.NotNull(properties, "properties");
+
+            return new CloudTablePointQuery(
+                partitionKey: partitionKey,
+                rowKey: rowKey,
+                properties: properties,
+                fetchEntities: ExecuteQueryAsync,
+                tableEntityConverter: m_tableEntityConverter);
+        }
+
+        public ICloudTableEntityQuery PrepareEntityPointQuery(string partitionKey, string[] properties)
+        {
+            Require.NotNull(partitionKey, "partitionKey");
+            Require.NotNull(properties, "properties");
+
+            return new CloudTablePointQuery(
+                partitionKey: partitionKey,
+                rowKey: string.Empty,
+                properties: properties,
+                fetchEntities: ExecuteQueryAsync,
+                tableEntityConverter: m_tableEntityConverter);
+        }
+
         public ICloudTableEntityRangeQuery PrepareEntityFilterRangeQuery(string filter, string[] properties)
         {
             Require.NotNull(filter, "filter");
@@ -45,20 +72,6 @@ namespace Journalist.WindowsAzure.Storage.Tables
             return new CloudTableFilterSegmentedRangeQuery(
                 filter: filter,
                 take: null,
-                properties: properties,
-                fetchEntities: ExecuteQueryAsync,
-                tableEntityConverter: m_tableEntityConverter);
-        }
-
-        public ICloudTableEntityQuery PrepareEntityPointQuery(string partitionKey, string rowKey, string[] properties)
-        {
-            Require.NotNull(partitionKey, "partitionKey");
-            Require.NotNull(rowKey, "rowKey");
-            Require.NotNull(properties, "properties");
-
-            return new CloudTablePointQuery(
-                partitionKey: partitionKey,
-                rowKey: rowKey,
                 properties: properties,
                 fetchEntities: ExecuteQueryAsync,
                 tableEntityConverter: m_tableEntityConverter);

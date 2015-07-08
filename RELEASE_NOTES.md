@@ -1,3 +1,7 @@
+### 0.7.1
+* [LanguageExtensions][New] SelectToArray and SelectToList for enumerables of KeyValuePair<,>
+* [WAZ.Storage][New] Batch operation methods with partition key only.
+
 ### 0.7.0 (2015-07-07)
 * [EventStore][Breaking] EventStoreConnectionBuilder was moved from EventStore.Configuration to EventStore namespace.
 * [EventStore][Breaking] EventJournal saves event headers as byte array.

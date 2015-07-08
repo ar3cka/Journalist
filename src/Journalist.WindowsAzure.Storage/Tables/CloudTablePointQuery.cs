@@ -14,13 +14,12 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string partitionKey,
             string rowKey,
             string[] properties,
-            Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>>
-                fetchEntities,
+            Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> fetchEntities,
             ITableEntityConverter tableEntityConverter)
             : base(1, properties, fetchEntities, tableEntityConverter)
         {
             Require.NotEmpty(partitionKey, "partitionKey");
-            Require.NotEmpty(rowKey, "rowKey");
+            Require.NotNull(rowKey, "rowKey");
 
             m_partitionKey = partitionKey;
             m_rowKey = rowKey;

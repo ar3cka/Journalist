@@ -15,6 +15,15 @@ namespace Journalist.WindowsAzure.Storage.Tables
             return table.PrepareEntityPointQuery(partitionKey, rowKey, EmptyArray.Get<string>());
         }
 
+        public static ICloudTableEntityQuery PrepareEntityPointQuery(
+            this ICloudTable table,
+            string partitionKey)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityPointQuery(partitionKey, EmptyArray.Get<string>());
+        }
+
         public static ICloudTableEntityRangeQuery PrepareEntityRangeQueryByPartition(
             this ICloudTable table,
             string partitionKey,
