@@ -34,7 +34,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_continuationToken = null;
         }
 
-        protected async Task<IList<IDictionary<string, object>>> FetchEntities(string filter)
+        protected async Task<List<Dictionary<string, object>>> FetchEntities(string filter)
         {
             Require.NotEmpty(filter, "filter");
 
@@ -42,15 +42,15 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 .Select(m_properties)
                 .Where(filter);
 
-            List<IDictionary<string, object>> result;
+            List<Dictionary<string, object>> result;
             if (m_take.HasValue)
             {
                 query = query.Take(m_take.Value);
-                result = new List<IDictionary<string, object>>(m_take.Value);
+                result = new List<Dictionary<string, object>>(m_take.Value);
             }
             else
             {
-                result = new List<IDictionary<string, object>>();
+                result = new List<Dictionary<string, object>>();
             }
 
             var queryResult = await m_fetchEntities(query, m_continuationToken);

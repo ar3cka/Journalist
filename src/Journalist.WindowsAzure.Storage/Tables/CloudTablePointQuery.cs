@@ -25,7 +25,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_rowKey = rowKey;
         }
 
-        public async Task<IDictionary<string, object>> ExecuteAsync()
+        public async Task<Dictionary<string, object>> ExecuteAsync()
         {
             var entities = await FetchEntities(
                 TableQuery.CombineFilters(

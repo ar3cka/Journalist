@@ -23,9 +23,9 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_filter = filter;
         }
 
-        public async Task<IList<IDictionary<string, object>>> ExecuteAsync()
+        public async Task<List<Dictionary<string, object>>> ExecuteAsync()
         {
-            var result = new List<IDictionary<string, object>>();
+            var result = new List<Dictionary<string, object>>();
 
             do
             {

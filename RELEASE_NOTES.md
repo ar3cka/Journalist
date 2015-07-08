@@ -1,3 +1,6 @@
+### 0.7.2 (2015-07-08)
+* [WAZ.Storage][Breaking] TableEntity queries return specific types instead of interfaces.
+
 ### 0.7.1 (2015-07-08)
 * [LanguageExtensions][New] SelectToArray and SelectToList for enumerables of KeyValuePair<,>.
 * [WAZ.Storage][New] Batch operation methods and table queries with partition key only.
