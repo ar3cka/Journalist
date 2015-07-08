@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\EmptyArrayTests.cs" />
+    <Compile Include="IO\EmptyMemoryStreamTests.cs" />
     <Compile Include="Options\OptionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

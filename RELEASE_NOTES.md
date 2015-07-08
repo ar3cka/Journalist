@@ -1,3 +1,13 @@
+### 0.7.3 (2015-07-08)
+* [LanguageExtensions][BugFix] EmptyMemoryStream.Get() returns reusable (non disposable) stream instance.
+
+### 0.7.2 (2015-07-08)
+* [WAZ.Storage][Breaking] TableEntity queries return specific types instead of interfaces.
+
+### 0.7.1 (2015-07-08)
+* [LanguageExtensions][New] SelectToArray and SelectToList for enumerables of KeyValuePair<,>.
+* [WAZ.Storage][New] Batch operation methods and table queries with partition key only.
+
 ### 0.7.0 (2015-07-07)
 * [EventStore][Breaking] EventStoreConnectionBuilder was moved from EventStore.Configuration to EventStore namespace.
 * [EventStore][Breaking] EventJournal saves event headers as byte array.

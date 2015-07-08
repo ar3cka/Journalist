@@ -87,6 +87,103 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
         }
 
         [Fact]
+        public async Task Insert_WithPartitionKeyOnly_Test()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.Insert(partition);
+            await operation.ExecuteAsync();
+
+            var query = table.PrepareEntityPointQuery(partition);
+
+            Assert.NotNull(await query.ExecuteAsync());
+        }
+
+        [Fact]
+        public async Task Delete_WithPartitionKeyOnly_Test()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.Insert(partition);
+            var result = await operation.ExecuteAsync();
+
+            operation = table.PrepareBatchOperation();
+            operation.Delete(partition, result[0].ETag);
+            await operation.ExecuteAsync();
+
+            var query = table.PrepareEntityPointQuery(partition);
+            Assert.Null(await query.ExecuteAsync());
+        }
+
+        [Fact]
+        public async Task Merge_WithPartitionKeyOnly_Test()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.Insert(partition);
+            var result = await operation.ExecuteAsync();
+
+            operation = table.PrepareBatchOperation();
+            operation.Merge(partition, result[0].ETag);
+            await operation.ExecuteAsync();
+
+            var query = table.PrepareEntityPointQuery(partition);
+            Assert.NotNull(await query.ExecuteAsync());
+        }
+
+        [Fact]
+        public async Task Replace_WithPartitionKeyOnly_Test()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.Insert(partition);
+            var result = await operation.ExecuteAsync();
+
+            operation = table.PrepareBatchOperation();
+            operation.Replace(partition, result[0].ETag);
+            await operation.ExecuteAsync();
+
+            var query = table.PrepareEntityPointQuery(partition);
+            Assert.NotNull(await query.ExecuteAsync());
+        }
+
+        [Fact]
+        public async Task InsertOrMerge_WithPartitionKeyOnly_Test()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.InsertOrMerge(partition);
+            await operation.ExecuteAsync();
+
+            var query = table.PrepareEntityPointQuery(partition);
+            Assert.NotNull(await query.ExecuteAsync());
+        }
+
+        [Fact]
+        public async Task InsertOrReplace_WithPartitionKeyOnly_Test()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.InsertOrReplace(partition);
+            await operation.ExecuteAsync();
+
+            var query = table.PrepareEntityPointQuery(partition);
+            Assert.NotNull(await query.ExecuteAsync());
+        }
+
+        [Fact]
         public async Task Delete_Test()
         {
             var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");

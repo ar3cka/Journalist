@@ -84,6 +84,7 @@ namespace Journalist.WindowsAzure.Storage.Tables.TableEntityConverters
                         result.Properties.Add(property.Key, new EntityProperty((Guid)property.Value));
                         break;
 
+                    case "Journalist.IO.EmptyMemoryStream+NotDisposableEmptyMemoryStream":
                     case "System.IO.MemoryStream":
                         var stream = (MemoryStream)property.Value;
                         result.Properties.Add(property.Key, WriteBinaryEntityProperty(stream));

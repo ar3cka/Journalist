@@ -7,6 +7,6 @@ namespace Journalist.WindowsAzure.Storage.Tables
     {
         bool HasMore { get; }
 
-        Task<IList<IDictionary<string, object>>> ExecuteAsync();
+        Task<List<Dictionary<string, object>>> ExecuteAsync();
     }
 }

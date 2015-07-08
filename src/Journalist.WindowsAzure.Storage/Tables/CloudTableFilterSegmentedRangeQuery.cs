@@ -28,7 +28,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             get { return ReadNextSegment; }
         }
 
-        public async Task<IList<IDictionary<string, object>>> ExecuteAsync()
+        public async Task<List<Dictionary<string, object>>> ExecuteAsync()
         {
             return await FetchEntities(m_filter);
         }
