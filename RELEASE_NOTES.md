@@ -1,3 +1,6 @@
+### 0.7.3 (2015-07-08)
+* [LanguageExtensions][BugFix] EmptyMemoryStream.Get() returns reusable (non disposable) stream instance.
+
 ### 0.7.2 (2015-07-08)
 * [WAZ.Storage][Breaking] TableEntity queries return specific types instead of interfaces.
 

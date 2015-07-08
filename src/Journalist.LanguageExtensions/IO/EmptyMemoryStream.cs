@@ -5,9 +5,18 @@ namespace Journalist.IO
 {
     public static class EmptyMemoryStream
     {
-        private static readonly MemoryStream s_instance = new MemoryStream(
-            EmptyArray.Get<byte>(),
-            false);
+        private class NotDisposableEmptyMemoryStream : MemoryStream
+        {
+            public NotDisposableEmptyMemoryStream() : base(EmptyArray.Get<byte>(), false)
+            {
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+            }
+        }
+
+        private static readonly MemoryStream s_instance = new NotDisposableEmptyMemoryStream();
 
         public static MemoryStream Get()
         {
