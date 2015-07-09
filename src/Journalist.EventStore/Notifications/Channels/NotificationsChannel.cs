@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Journalist.Collections;
 using Journalist.Tasks;
 
-namespace Journalist.EventStore.Streams.Notifications
+namespace Journalist.EventStore.Notifications.Channels
 {
     public class NotificationsChannel : INotificationsChannel
     {
@@ -12,9 +12,9 @@ namespace Journalist.EventStore.Streams.Notifications
             return TaskDone.Done;
         }
 
-        public Task<List<Stream>> ReceiveNotificationsAsync()
+        public Task<Stream[]> ReceiveNotificationsAsync()
         {
-            return Task.FromResult(new List<Stream>(0));
+            return Task.FromResult(EmptyArray.Get<Stream>());
         }
     }
 }

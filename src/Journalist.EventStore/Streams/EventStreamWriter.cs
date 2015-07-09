@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
-using Journalist.EventStore.Streams.Notifications;
+using Journalist.EventStore.Notifications;
+using Journalist.EventStore.Notifications.Listeners;
+using Journalist.EventStore.Notifications.Streams;
 
 namespace Journalist.EventStore.Streams
 {

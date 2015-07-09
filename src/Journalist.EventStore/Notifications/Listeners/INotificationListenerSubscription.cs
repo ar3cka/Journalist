@@ -1,4 +1,4 @@
-namespace Journalist.EventStore.Streams.Notifications
+namespace Journalist.EventStore.Notifications.Listeners
 {
     public interface INotificationListenerSubscription
     {

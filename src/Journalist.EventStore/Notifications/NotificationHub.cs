@@ -1,9 +1,14 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Journalist.EventStore.Notifications.Channels;
+using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Listeners;
+using Journalist.EventStore.Notifications.Streams;
+using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.Extensions;
 
-namespace Journalist.EventStore.Streams.Notifications
+namespace Journalist.EventStore.Notifications
 {
     public class NotificationHub : INotificationHub
     {
@@ -70,7 +75,7 @@ namespace Journalist.EventStore.Streams.Notifications
 
         private async Task ProcessNotificationFromChannel(CancellationToken token)
         {
-            // switch to the background processing
+            // switch to the background task
             await Task.Yield();
 
             while (!token.IsCancellationRequested)

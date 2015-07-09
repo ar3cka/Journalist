@@ -1,13 +1,12 @@
-using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Journalist.EventStore.Streams.Notifications;
+using Journalist.EventStore.Notifications.Listeners;
+using Journalist.EventStore.Notifications.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
-namespace Journalist.EventStore.UnitTests.Streams.Notifications
+namespace Journalist.EventStore.UnitTests.Notifications.Listeners
 {
     public class NotificationListenerSubscriptionTest
     {

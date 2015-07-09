@@ -1,8 +1,9 @@
 using System;
 using System.IO;
+using Journalist.EventStore.Notifications.Streams;
 using Journalist.IO;
 
-namespace Journalist.EventStore.Streams.Notifications
+namespace Journalist.EventStore.Notifications.Formatters
 {
     public class NotificationFormatter : INotificationFormatter
     {

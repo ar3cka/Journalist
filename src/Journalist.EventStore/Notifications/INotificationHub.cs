@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Notifications.Streams;
 
-namespace Journalist.EventStore.Streams.Notifications
+namespace Journalist.EventStore.Notifications
 {
     public interface INotificationHub
     {

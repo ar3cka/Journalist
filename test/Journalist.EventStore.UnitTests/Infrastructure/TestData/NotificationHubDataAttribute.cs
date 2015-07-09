@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Journalist.EventStore.Streams.Notifications;
+using Journalist.Collections;
+using Journalist.EventStore.Notifications;
+using Journalist.EventStore.Notifications.Channels;
+using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Streams;
+using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.Tasks;
 using Moq;
 using Ploeh.AutoFixture;
@@ -18,7 +23,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
             Fixture.Customize<Mock<INotificationsChannel>>(composer => composer
                 .Do(mock => mock
                     .Setup(self => self.ReceiveNotificationsAsync())
-                    .Returns(() => emptyChannel ? new List<Stream>(0).YieldTask() : Fixture.Create<List<Stream>>().YieldTask()))
+                    .Returns(() => emptyChannel ? EmptyArray.Get<Stream>().YieldTask() : Fixture.Create<Stream[]>().YieldTask()))
                 .Do(mock => mock
                     .Setup(self => self.SendAsync(It.IsAny<Stream>()))
                     .Returns(TaskDone.Done)));

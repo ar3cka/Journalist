@@ -1,8 +1,12 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
+using Journalist.EventStore.Notifications;
+using Journalist.EventStore.Notifications.Channels;
+using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Listeners;
+using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.EventStore.Streams;
-using Journalist.EventStore.Streams.Notifications;
 using Journalist.EventStore.Utils;
 
 namespace Journalist.EventStore

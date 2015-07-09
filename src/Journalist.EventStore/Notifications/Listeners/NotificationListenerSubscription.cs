@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Journalist.Tasks;
 
-namespace Journalist.EventStore.Streams.Notifications
+namespace Journalist.EventStore.Notifications.Listeners
 {
     public class NotificationListenerSubscription : INotificationListenerSubscription
     {

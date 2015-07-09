@@ -2,13 +2,18 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Journalist.EventStore.Streams.Notifications;
+using Journalist.EventStore.Notifications;
+using Journalist.EventStore.Notifications.Channels;
+using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Listeners;
+using Journalist.EventStore.Notifications.Streams;
+using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
-namespace Journalist.EventStore.UnitTests.Streams.Notifications
+namespace Journalist.EventStore.UnitTests.Notifications
 {
     public class NotificationHubTests
     {
