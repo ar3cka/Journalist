@@ -1,6 +1,6 @@
 namespace Journalist.EventStore.Streams.Notifications
 {
-    public interface ISubscription
+    public interface INotificationListenerSubscription
     {
         void Start();
 

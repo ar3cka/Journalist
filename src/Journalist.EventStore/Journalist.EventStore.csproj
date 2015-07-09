@@ -92,8 +92,9 @@
     <Compile Include="Streams\Notifications\EventStreamUpdated.cs" />
     <Compile Include="Streams\Notifications\INotificationHub.cs" />
     <Compile Include="Streams\Notifications\INotificationListener.cs" />
-    <Compile Include="Streams\Notifications\ISubscription.cs" />
+    <Compile Include="Streams\Notifications\INotificationListenerSubscription.cs" />
     <Compile Include="Streams\Notifications\NotificationHub.cs" />
+    <Compile Include="Streams\Notifications\NotificationListenerSubscription.cs" />
     <Compile Include="StreamVersion.cs" />
     <Compile Include="Utils\IRetryPolicy.cs" />
     <Compile Include="Utils\RetryPolicy.cs" />
