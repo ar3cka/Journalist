@@ -1,3 +1,6 @@
+### 0.8.0
+* [LanguageExtensions][New] IsEmpty extensions methods for collections.
+
 ### 0.7.3 (2015-07-08)
 * [LanguageExtensions][BugFix] EmptyMemoryStream.Get() returns reusable (non disposable) stream instance.
 

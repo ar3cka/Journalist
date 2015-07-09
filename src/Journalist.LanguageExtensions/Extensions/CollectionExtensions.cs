@@ -45,5 +45,12 @@ namespace Journalist.Extensions
                 .Select(pair => select(pair.Key, pair.Value))
                 .ToArray();
         }
+
+        public static bool IsEmpty<T>(this IEnumerable<T> collection)
+        {
+            Require.NotNull(collection, "collection");
+
+            return !collection.Any();
+        }
     }
 }
