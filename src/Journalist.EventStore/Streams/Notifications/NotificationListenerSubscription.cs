@@ -13,11 +13,11 @@ namespace Journalist.EventStore.Streams.Notifications
             m_listener = listener;
         }
 
-        public Task HandleNotificationAsync(EventStreamUpdated notification)
+        public Task HandleNotificationAsync(dynamic notification)
         {
             if (m_active)
             {
-                return m_listener.OnEventStreamUpdatedAsync(notification);
+                return m_listener.OnAsync(notification);
             }
 
             return TaskDone.Done;

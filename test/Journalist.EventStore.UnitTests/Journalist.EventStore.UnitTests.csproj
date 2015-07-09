@@ -59,6 +59,7 @@
     <Compile Include="Infrastructure\TestData\EventStreamProducerDataCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamReaderDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamWriterDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\NotificationHubDataAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\EventStreamConsumerTests.cs" />
     <Compile Include="Streams\EventStreamConsumingSessionTests.cs" />

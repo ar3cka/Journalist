@@ -44,7 +44,7 @@ namespace Journalist.EventStore.UnitTests.Streams.Notifications
             await subscription.HandleNotificationAsync(notification);
 
             listenerMock.Verify(
-                self => self.OnEventStreamUpdatedAsync(notification),
+                self => self.OnAsync(notification),
                 Times.Once());
         }
 
@@ -57,7 +57,7 @@ namespace Journalist.EventStore.UnitTests.Streams.Notifications
             await subscription.HandleNotificationAsync(notification);
 
             listenerMock.Verify(
-                self => self.OnEventStreamUpdatedAsync(notification),
+                self => self.OnAsync(notification),
                 Times.Never());
         }
 
@@ -74,7 +74,7 @@ namespace Journalist.EventStore.UnitTests.Streams.Notifications
             await subscription.HandleNotificationAsync(notification);
 
             listenerMock.Verify(
-                self => self.OnEventStreamUpdatedAsync(notification),
+                self => self.OnAsync(notification),
                 Times.Once());
         }
     }

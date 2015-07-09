@@ -8,6 +8,6 @@ namespace Journalist.EventStore.Streams.Notifications
 
         Task OnSubscriptionStopped();
 
-        Task OnEventStreamUpdatedAsync(EventStreamUpdated notification);
+        Task OnAsync(EventStreamUpdated notification);
     }
 }

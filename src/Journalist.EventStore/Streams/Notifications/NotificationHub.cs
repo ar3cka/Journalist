@@ -83,6 +83,16 @@ namespace Journalist.EventStore.Streams.Notifications
                 else
                 {
                     m_timeout.Reset();
+
+                    foreach (var notificationBytes in notifications)
+                    {
+                        var notification = m_formatter.FromBytes(notificationBytes);
+
+                        foreach (var subscription in m_subscriptions)
+                        {
+                            await subscription.HandleNotificationAsync(notification);
+                        }
+                    }
                 }
             }
         }
