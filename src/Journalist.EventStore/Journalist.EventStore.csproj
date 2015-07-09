@@ -95,10 +95,12 @@
     <Compile Include="Streams\Notifications\INotificationListener.cs" />
     <Compile Include="Streams\Notifications\INotificationListenerSubscription.cs" />
     <Compile Include="Streams\Notifications\INotificationsChannel.cs" />
+    <Compile Include="Streams\Notifications\IPollingTimeout.cs" />
     <Compile Include="Streams\Notifications\NotificationFormatter.cs" />
     <Compile Include="Streams\Notifications\NotificationHub.cs" />
     <Compile Include="Streams\Notifications\NotificationListenerSubscription.cs" />
     <Compile Include="Streams\Notifications\NotificationsChannel.cs" />
+    <Compile Include="Streams\Notifications\PollingTimeout.cs" />
     <Compile Include="StreamVersion.cs" />
     <Compile Include="Utils\IRetryPolicy.cs" />
     <Compile Include="Utils\RetryPolicy.cs" />
