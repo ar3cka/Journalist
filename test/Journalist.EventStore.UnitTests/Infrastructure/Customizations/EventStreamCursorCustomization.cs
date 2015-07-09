@@ -31,7 +31,8 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                         { StreamVersion.Create(1), fixture.Create<JournaledEvent>() },
                         { StreamVersion.Create(2), fixture.Create<JournaledEvent>() },
                         { StreamVersion.Create(3), fixture.Create<JournaledEvent>() }
-                    }));
+                    })
+                    .OmitAutoProperties());
 
                 fixture.Customize<FetchEvents>(composer => composer
                     .FromFactory(

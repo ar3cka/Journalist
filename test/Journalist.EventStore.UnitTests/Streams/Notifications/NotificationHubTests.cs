@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 using Journalist.EventStore.Streams.Notifications;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Moq;
+using Ploeh.AutoFixture.Xunit2;
 using Xunit;
 
 namespace Journalist.EventStore.UnitTests.Streams.Notifications
@@ -9,52 +11,36 @@ namespace Journalist.EventStore.UnitTests.Streams.Notifications
     public class NotificationHubTests
     {
         [Theory, AutoMoqData]
-        public async Task NotifyAsync_WhenSubscriptionHasNotStarted_NotPropagateNotificationToTheListener(
+        public async Task NotifyAsync_SendsNotificationBytesToChannel(
+            [Frozen] Mock<INotificationFormatter> formatterMock,
+            [Frozen] Mock<INotificationsChannel> channelMock,
             NotificationHub hub,
-            Mock<INotificationListener> listenerMock,
-            EventStreamUpdated notification)
+            EventStreamUpdated notification,
+            Stream notificationBytes)
+        {
+            formatterMock
+                .Setup(self => self.ToBytes(notification))
+                .Returns(notificationBytes);
+
+            await hub.NotifyAsync(notification);
+
+            channelMock.Verify(self => self.SendAsync(notificationBytes), Times.Once());
+        }
+
+        [Theory, AutoMoqData]
+        public void StopNotificationProcessing_NotifiesListener(
+            [Frozen] Mock<INotificationListener> listenerMock,
+            NotificationHub hub,
+            EventStreamUpdated notification,
+            Stream notificationBytes)
         {
             hub.Subscribe(listenerMock.Object);
 
-            await hub.NotifyAsync(notification);
+            hub.StartNotificationProcessing();
+            hub.StopNotificationProcessing();
 
-            listenerMock.Verify(
-                self => self.OnEventStreamUpdatedAsync(notification),
-                Times.Never());
-        }
-
-        [Theory, AutoMoqData]
-        public async Task NotifyAsync_WhenSubscriptionHasStarted_PropagateNotificationToTheListener(
-            NotificationHub hub,
-            Mock<INotificationListener> listenerMock,
-            EventStreamUpdated notification)
-        {
-            hub.Subscribe(listenerMock.Object).Start();
-
-            await hub.NotifyAsync(notification);
-
-            listenerMock.Verify(
-                self => self.OnEventStreamUpdatedAsync(notification),
-                Times.Once());
-        }
-
-        [Theory, AutoMoqData]
-        public async Task NotifyAsync_WhenSubscriptionHasStoped_PropagateNotificationToTheListener(
-            NotificationHub hub,
-            Mock<INotificationListener> listenerMock,
-            EventStreamUpdated notification)
-        {
-            var subscription = hub.Subscribe(listenerMock.Object);
-
-            subscription.Start();
-            await hub.NotifyAsync(notification);
-
-            subscription.Stop();
-            await hub.NotifyAsync(notification);
-
-            listenerMock.Verify(
-                self => self.OnEventStreamUpdatedAsync(notification),
-                Times.Once());
+            listenerMock.Verify(self => self.OnSubscriptionStopped(), Times.Once());
+            listenerMock.Verify(self => self.OnSubscriptionStopped(), Times.Once());
         }
     }
 }

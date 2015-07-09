@@ -26,7 +26,10 @@ namespace Journalist.EventStore
             m_journal = journal;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
-            m_notificationHub = new NotificationHub();
+            m_notificationHub = new NotificationHub(
+                new NotificationsChannel(),
+                new NotificationFormatter(),
+                new PollingTimeout());
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
