@@ -84,6 +84,8 @@ namespace Journalist.EventStore.Notifications
                 if (notifications.IsEmpty())
                 {
                     await m_timeout.WaitAsync(token);
+
+                    m_timeout.Increase();
                 }
                 else
                 {

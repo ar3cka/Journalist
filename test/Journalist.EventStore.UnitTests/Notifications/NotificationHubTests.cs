@@ -64,6 +64,21 @@ namespace Journalist.EventStore.UnitTests.Notifications
             timeoutMock.Verify(self => self.WaitAsync(It.IsAny<CancellationToken>()), Times.Once());
         }
 
+        [Theory, NotificationHubData(emptyChannel: true)]
+        public async Task StopNotificationProcessing_WhenChannelIsEmpty_IncreaseTimeout(
+            [Frozen] Mock<INotificationListener> listenerMock,
+            [Frozen] Mock<IPollingTimeout> timeoutMock,
+            NotificationHub hub,
+            EventStreamUpdated notification,
+            Stream notificationBytes)
+        {
+            hub.Subscribe(listenerMock.Object);
+
+            await RunNotificationProcessingTest(hub);
+
+            timeoutMock.Verify(self => self.Increase(), Times.Once());
+        }
+
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_WhenChannelIsNotEmpty_DoesNotWaitTimeout(
             [Frozen] Mock<INotificationListener> listenerMock,
