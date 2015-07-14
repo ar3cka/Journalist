@@ -12,6 +12,7 @@ namespace Journalist.EventStore
         {
             public const string EVENT_JOURNAL_TABLE_NAME = "EventJournal";
             public const string EVENT_STREAM_CONSUMER_SESSIONS_BLOB_NAME = "event-stream-consumer-session";
+            public const string NOTIFICATION_QUEUE_NAME = "event-journal-notifications";
         }
 
         public const string DEFAULT_STREAM_READER_NAME = "DEFAULT";

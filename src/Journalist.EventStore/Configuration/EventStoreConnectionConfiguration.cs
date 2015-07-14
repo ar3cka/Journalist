@@ -34,7 +34,12 @@ namespace Journalist.EventStore.Configuration
                 throw new InvalidOperationException("JournalTableName is not specified.");
             }
 
-            if (JournalTableName.IsNullOrEmpty())
+            if (NotificationQueueName.IsNullOrEmpty())
+            {
+                throw new InvalidOperationException("NotificationQueueName is not specified.");
+            }
+
+            if (StreamConsumerSessionsBlobName.IsNullOrEmpty())
             {
                 throw new InvalidOperationException("StreamConsumerSessionsBlobName is not specified.");
             }
@@ -43,14 +48,17 @@ namespace Journalist.EventStore.Configuration
         public IEventStoreConnectionConfiguration UseStorage(
             string storageConnectionString,
             string journalTableName,
+            string notificationQueueName,
             string streamConsumerSessionsBlobName)
         {
             Require.NotEmpty(storageConnectionString, "storageConnectionString");
             Require.NotEmpty(journalTableName, "journalTableName");
+            Require.NotEmpty(notificationQueueName, "notificationQueueName");
             Require.NotEmpty(streamConsumerSessionsBlobName, "streamConsumerSessionsBlobName");
 
             StorageConnectionString = storageConnectionString;
             JournalTableName = journalTableName;
+            NotificationQueueName = notificationQueueName;
             StreamConsumerSessionsBlobName = streamConsumerSessionsBlobName;
 
             return this;
@@ -68,6 +76,12 @@ namespace Journalist.EventStore.Configuration
         }
 
         public string JournalTableName
+        {
+            get;
+            private set;
+        }
+
+        public string NotificationQueueName
         {
             get;
             private set;

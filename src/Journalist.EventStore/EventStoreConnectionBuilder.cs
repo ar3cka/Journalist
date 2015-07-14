@@ -2,9 +2,9 @@ using System;
 using Journalist.EventStore.Configuration;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
+using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Streams;
 using Journalist.WindowsAzure.Storage;
-using Journalist.WindowsAzure.Storage.Blobs;
 
 namespace Journalist.EventStore
 {
@@ -51,8 +51,13 @@ namespace Journalist.EventStore
                 m_configuration.IncomingMessageMutators,
                 m_configuration.OutgoingMessageMutators);
 
+            var notificationQueue = m_factory.CreateQueue(
+                m_configuration.StorageConnectionString,
+                m_configuration.NotificationQueueName);
+
             return new EventStoreConnection(
                 new EventJournal(journalTable),
+                new NotificationsChannel(notificationQueue),
                 sessionFactory,
                 pipelineFactory);
         }

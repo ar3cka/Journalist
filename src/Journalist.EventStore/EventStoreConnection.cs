@@ -20,10 +20,12 @@ namespace Journalist.EventStore
 
         public EventStoreConnection(
             IEventJournal journal,
+            INotificationsChannel notificationsChannel,
             IEventStreamConsumingSessionFactory sessionFactory,
             IEventMutationPipelineFactory pipelineFactory)
         {
             Require.NotNull(journal, "journal");
+            Require.NotNull(notificationsChannel, "notificationsChannel");
             Require.NotNull(sessionFactory, "sessionFactory");
             Require.NotNull(pipelineFactory, "pipelineFactory");
 
@@ -31,7 +33,7 @@ namespace Journalist.EventStore
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
             m_notificationHub = new NotificationHub(
-                new NotificationsChannel(),
+                notificationsChannel,
                 new NotificationFormatter(),
                 new PollingTimeout());
         }
