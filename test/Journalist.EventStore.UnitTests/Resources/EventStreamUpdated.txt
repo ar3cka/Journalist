@@ -1,4 +1,4 @@
-NotificationType: EventStreamUpdated
+NotificationType: Journalist.EventStore.Notifications.Types.EventStreamUpdated
 Stream: {0}
 FromVersion: {1}
 ToVersion: {2}

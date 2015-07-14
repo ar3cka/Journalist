@@ -21,6 +21,18 @@ namespace Journalist.EventStore.UnitTests.Notifications.Formatters
                 ReadBytes(bytes));
         }
 
+        [Theory]
+        [AutoMoqData]
+        public void FromBytes_ForEventStreamUpdatedTest(NotificationFormatter formatter, EventStreamUpdated notification)
+        {
+            var bytes = formatter.ToBytes(notification);
+            var restoredNotification = (EventStreamUpdated)formatter.FromBytes(bytes);
+
+            Assert.Equal(notification.StreamName, restoredNotification.StreamName);
+            Assert.Equal(notification.FromVersion, restoredNotification.FromVersion);
+            Assert.Equal(notification.ToVersion, restoredNotification.ToVersion);
+        }
+
         private static string ReadBytes(Stream stream)
         {
             using (var reader = new StreamReader(stream))
