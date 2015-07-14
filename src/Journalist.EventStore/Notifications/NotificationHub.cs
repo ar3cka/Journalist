@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
 using Journalist.EventStore.Notifications.Listeners;
-using Journalist.EventStore.Notifications.Streams;
 using Journalist.EventStore.Notifications.Timeouts;
+using Journalist.EventStore.Notifications.Types;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Notifications

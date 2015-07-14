@@ -84,7 +84,7 @@
     <Compile Include="Notifications\Listeners\INotificationListenerSubscription.cs" />
     <Compile Include="Notifications\Listeners\NotificationListenerSubscription.cs" />
     <Compile Include="Notifications\NotificationHub.cs" />
-    <Compile Include="Notifications\Streams\EventStreamUpdated.cs" />
+    <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Timeouts\IPollingTimeout.cs" />
     <Compile Include="Notifications\Timeouts\PollingTimeout.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

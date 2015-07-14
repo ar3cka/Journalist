@@ -1,5 +1,5 @@
 using System.IO;
-using Journalist.EventStore.Notifications.Streams;
+using Journalist.EventStore.Notifications.Types;
 
 namespace Journalist.EventStore.Notifications.Formatters
 {

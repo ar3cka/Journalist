@@ -6,7 +6,7 @@ using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Listeners;
-using Journalist.EventStore.Notifications.Streams;
+using Journalist.EventStore.Notifications.Types;
 
 namespace Journalist.EventStore.Streams
 {

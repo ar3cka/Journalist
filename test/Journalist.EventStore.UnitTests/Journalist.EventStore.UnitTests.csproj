@@ -60,6 +60,12 @@
     <Compile Include="Infrastructure\TestData\EventStreamReaderDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamWriterDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\NotificationHubDataAttribute.cs" />
+    <Compile Include="Notifications\Formatters\NotificationFormatterTests.cs" />
+    <Compile Include="Notifications\Formatters\Templates\TemplatesRes.Designer.cs">
+      <DependentUpon>TemplatesRes.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="Notifications\Listeners\NotificationListenerSubscriptionTest.cs" />
     <Compile Include="Notifications\NotificationHubTests.cs" />
     <Compile Include="Notifications\Timeouts\PollingTimeoutTests.cs" />
@@ -90,6 +96,18 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Events\Mutation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EventStreamUpdatedTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Notifications\Formatters\Templates\TemplatesRes.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TemplatesRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EventStreamUpdated.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

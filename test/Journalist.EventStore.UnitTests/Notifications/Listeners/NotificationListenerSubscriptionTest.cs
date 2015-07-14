@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Notifications.Listeners;
-using Journalist.EventStore.Notifications.Streams;
+using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;

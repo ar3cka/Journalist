@@ -1,4 +1,4 @@
-namespace Journalist.EventStore.Notifications.Streams
+namespace Journalist.EventStore.Notifications.Types
 {
     public class EventStreamUpdated
     {

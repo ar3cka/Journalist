@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using Journalist.EventStore.Notifications.Streams;
+using Journalist.EventStore.Notifications.Types;
 using Journalist.IO;
 
 namespace Journalist.EventStore.Notifications.Formatters
