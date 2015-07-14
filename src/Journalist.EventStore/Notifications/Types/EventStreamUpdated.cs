@@ -1,6 +1,8 @@
+using System.Collections.Generic;
+
 namespace Journalist.EventStore.Notifications.Types
 {
-    public class EventStreamUpdated
+    public class EventStreamUpdated : AbstractNotification
     {
         public EventStreamUpdated(string streamName, StreamVersion fromVersion, StreamVersion toVersion)
         {
@@ -9,6 +11,20 @@ namespace Journalist.EventStore.Notifications.Types
             StreamName = streamName;
             FromVersion = fromVersion;
             ToVersion = toVersion;
+        }
+
+        protected override void SavePropertiesTo(Dictionary<string, string> properties)
+        {
+            properties.Add(NotificationPropertyKeys.Common.STREAM, StreamName);
+            properties.Add(NotificationPropertyKeys.EventStreamUpdated.FROM_VERSION, ((int)FromVersion).ToString());
+            properties.Add(NotificationPropertyKeys.EventStreamUpdated.TO_VERSION, ((int)ToVersion).ToString());
+        }
+
+        protected override void RestoreFromProperties(Dictionary<string, string> properties)
+        {
+            StreamName = properties[NotificationPropertyKeys.Common.STREAM];
+            FromVersion = StreamVersion.Parse(properties[NotificationPropertyKeys.EventStreamUpdated.FROM_VERSION]);
+            ToVersion = StreamVersion.Parse(properties[NotificationPropertyKeys.EventStreamUpdated.TO_VERSION]);
         }
 
         public string StreamName { get; private set; }

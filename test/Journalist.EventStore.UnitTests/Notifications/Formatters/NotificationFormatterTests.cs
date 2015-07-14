@@ -17,7 +17,11 @@ namespace Journalist.EventStore.UnitTests.Notifications.Formatters
             var bytes = formatter.ToBytes(notification);
 
             Assert.Equal(
-                TemplatesRes.EventStreamUpdated.FormatString(notification.StreamName, (int)notification.FromVersion, (int)notification.ToVersion),
+                TemplatesRes.EventStreamUpdated.FormatString(
+                    notification.NotificationId.ToString("D"),
+                    notification.StreamName,
+                    (int)notification.FromVersion,
+                    (int)notification.ToVersion),
                 ReadBytes(bytes));
         }
 
@@ -28,6 +32,8 @@ namespace Journalist.EventStore.UnitTests.Notifications.Formatters
             var bytes = formatter.ToBytes(notification);
             var restoredNotification = (EventStreamUpdated)formatter.FromBytes(bytes);
 
+            Assert.Equal(notification.NotificationId, restoredNotification.NotificationId);
+            Assert.Equal(notification.NotificationType, restoredNotification.NotificationType);
             Assert.Equal(notification.StreamName, restoredNotification.StreamName);
             Assert.Equal(notification.FromVersion, restoredNotification.FromVersion);
             Assert.Equal(notification.ToVersion, restoredNotification.ToVersion);
