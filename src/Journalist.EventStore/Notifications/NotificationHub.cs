@@ -61,15 +61,15 @@ namespace Journalist.EventStore.Notifications
 
         public void StopNotificationProcessing()
         {
-            foreach (var subscriptions in m_subscriptions)
-            {
-                subscriptions.Stop();
-            }
-
             if (m_token != null)
             {
                 m_token.Cancel();
                 m_processingTask.Wait();
+            }
+
+            foreach (var subscriptions in m_subscriptions)
+            {
+                subscriptions.Stop();
             }
         }
 
