@@ -47,6 +47,8 @@
     <Compile Include="Configuration\EventStoreConnectionConfiguration.cs" />
     <Compile Include="Configuration\IEventMutationPipelineConfiguration.cs" />
     <Compile Include="Configuration\IEventStoreConnectionConfiguration.cs" />
+    <Compile Include="Configuration\INotificationProcessingConfiguration.cs" />
+    <Compile Include="Configuration\NotificationProcessingConfiguration.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="EventStoreConnection.cs" />
     <Compile Include="EventStoreConnectionBuilder.cs" />
@@ -80,10 +82,14 @@
     <Compile Include="Notifications\Formatters\INotificationFormatter.cs" />
     <Compile Include="Notifications\Formatters\NotificationFormatter.cs" />
     <Compile Include="Notifications\INotificationHub.cs" />
+    <Compile Include="Notifications\INotificationHubController.cs" />
+    <Compile Include="Notifications\INotificationPipelineFactory.cs" />
     <Compile Include="Notifications\Listeners\INotificationListener.cs" />
     <Compile Include="Notifications\Listeners\INotificationListenerSubscription.cs" />
     <Compile Include="Notifications\Listeners\NotificationListenerSubscription.cs" />
     <Compile Include="Notifications\NotificationHub.cs" />
+    <Compile Include="Notifications\NotificationHubController.cs" />
+    <Compile Include="Notifications\NotificationPipelineFactory.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Timeouts\IPollingTimeout.cs" />

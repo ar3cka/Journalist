@@ -126,6 +126,20 @@ namespace Journalist.EventStore.UnitTests.Notifications
                 Times.AtLeastOnce());
         }
 
+        [Theory, NotificationHubData]
+        public async Task StartNotificationProcessing_WhenNoSubscribeListenerListIsEmpty_DoesNoStartListenerCycle(
+            [Frozen] Mock<INotificationsChannel> channelMock,
+            NotificationHub hub,
+            EventStreamUpdated notification,
+            Stream notificationBytes)
+        {
+            await RunNotificationProcessingTest(hub);
+
+            channelMock.Verify(
+                self => self.ReceiveNotificationsAsync(),
+                Times.Never());
+        }
+
         private static async Task RunNotificationProcessingTest(NotificationHub hub)
         {
             hub.StartNotificationProcessing();

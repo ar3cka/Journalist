@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Notifications.Channels;
@@ -50,26 +51,32 @@ namespace Journalist.EventStore.Notifications
 
         public void StartNotificationProcessing()
         {
-            foreach (var subscriptions in m_subscriptions)
+            if (m_subscriptions.Any())
             {
-                subscriptions.Start();
-            }
+                foreach (var subscriptions in m_subscriptions)
+                {
+                    subscriptions.Start();
+                }
 
-            m_token = new CancellationTokenSource();
-            m_processingTask = ProcessNotificationFromChannel(m_token.Token);
+                m_token = new CancellationTokenSource();
+                m_processingTask = ProcessNotificationFromChannel(m_token.Token);
+            }
         }
 
         public void StopNotificationProcessing()
         {
-            if (m_token != null)
+            if (m_subscriptions.Any())
             {
-                m_token.Cancel();
-                m_processingTask.Wait();
-            }
+                if (m_token != null)
+                {
+                    m_token.Cancel();
+                    m_processingTask.Wait();
+                }
 
-            foreach (var subscriptions in m_subscriptions)
-            {
-                subscriptions.Stop();
+                foreach (var subscriptions in m_subscriptions)
+                {
+                    subscriptions.Stop();
+                }
             }
         }
 

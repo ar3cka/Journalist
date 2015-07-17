@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Journalist.EventStore.Events.Mutation;
+using Journalist.EventStore.Notifications.Listeners;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Configuration
@@ -8,18 +9,25 @@ namespace Journalist.EventStore.Configuration
     public class EventStoreConnectionConfiguration : IEventStoreConnectionConfiguration
     {
         private readonly IEventMutationPipelineConfiguration m_mutationPipelineConfiguration;
+        private readonly INotificationProcessingConfiguration m_notificationProcessingConfiguration;
         private readonly List<IEventMutator> m_incomingMessageMutators;
         private readonly List<IEventMutator> m_outgoingMessageMutators;
+        private readonly List<INotificationListener> m_notificationListeners;
 
         public EventStoreConnectionConfiguration()
         {
             m_incomingMessageMutators = new List<IEventMutator>();
             m_outgoingMessageMutators = new List<IEventMutator>();
+            m_notificationListeners = new List<INotificationListener>();
 
             m_mutationPipelineConfiguration = new EventMutationPipelineConfiguration(
                 this,
                 m_incomingMessageMutators,
                 m_outgoingMessageMutators);
+
+            m_notificationProcessingConfiguration = new NotificationProcessingConfiguration(
+                this,
+                m_notificationListeners);
         }
 
         public void AssertConfigurationCompleted()
@@ -69,6 +77,11 @@ namespace Journalist.EventStore.Configuration
             get { return m_mutationPipelineConfiguration; }
         }
 
+        public INotificationProcessingConfiguration Notifications
+        {
+            get { return m_notificationProcessingConfiguration; }
+        }
+
         public string StorageConnectionString
         {
             get;
@@ -101,6 +114,11 @@ namespace Journalist.EventStore.Configuration
         public IReadOnlyCollection<IEventMutator> OutgoingMessageMutators
         {
             get { return m_outgoingMessageMutators; }
+        }
+
+        public IReadOnlyCollection<INotificationListener> NotificationListeners
+        {
+            get { return m_notificationListeners; }
         }
     }
 }

@@ -48,8 +48,10 @@
     <Compile Include="Journal\EventJournalTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\DummyEvent.cs" />
+    <Compile Include="Streams\EventStreamNotificationsTests.cs" />
     <Compile Include="Streams\EventStreamsTests.cs" />
     <Compile Include="Streams\MessageMutator.cs" />
+    <Compile Include="Streams\NotificationListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -58,6 +60,10 @@
     <ProjectReference Include="..\..\src\Journalist.EventStore\Journalist.EventStore.csproj">
       <Project>{152F2338-8806-40E7-AB96-F9B06F705A7F}</Project>
       <Name>Journalist.EventStore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">
+      <Project>{74FFF4D4-EB88-44D5-B19B-F96F54FAAE38}</Project>
+      <Name>Journalist.LanguageExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Journalist.WindowsAzure.Storage.Abstractions\Journalist.WindowsAzure.Storage.Abstractions.csproj">
       <Project>{02DE3364-1504-4936-934B-52DA4B8A2092}</Project>

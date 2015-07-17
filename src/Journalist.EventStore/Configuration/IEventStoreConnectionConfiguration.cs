@@ -9,5 +9,7 @@ namespace Journalist.EventStore.Configuration
             string streamConsumerSessionsBlobName = Constants.StorageEntities.EVENT_STREAM_CONSUMER_SESSIONS_BLOB_NAME);
 
         IEventMutationPipelineConfiguration Mutate { get; }
+
+        INotificationProcessingConfiguration Notifications { get; }
     }
 }

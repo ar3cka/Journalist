@@ -225,10 +225,12 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
         public string StreamName
         {
-            get;
-            private set;
+            get; private set;
         }
 
-        public IEventStoreConnection Connection { get; set; }
+        public IEventStoreConnection Connection
+        {
+            get; set;
+        }
     }
 }

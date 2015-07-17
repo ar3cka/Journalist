@@ -2,10 +2,6 @@ using System.Threading.Tasks;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
-using Journalist.EventStore.Notifications.Channels;
-using Journalist.EventStore.Notifications.Formatters;
-using Journalist.EventStore.Notifications.Listeners;
-using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils;
 
@@ -17,25 +13,26 @@ namespace Journalist.EventStore
         private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
         private readonly IEventMutationPipelineFactory m_pipelineFactory;
         private readonly INotificationHub m_notificationHub;
+        private readonly INotificationHubController m_notificationHubController;
 
         public EventStoreConnection(
             IEventJournal journal,
-            INotificationsChannel notificationsChannel,
+            INotificationPipelineFactory notificationPipelineFactory,
             IEventStreamConsumingSessionFactory sessionFactory,
             IEventMutationPipelineFactory pipelineFactory)
         {
             Require.NotNull(journal, "journal");
-            Require.NotNull(notificationsChannel, "notificationsChannel");
+            Require.NotNull(notificationPipelineFactory, "notificationPipelineFactory");
             Require.NotNull(sessionFactory, "sessionFactory");
             Require.NotNull(pipelineFactory, "pipelineFactory");
 
             m_journal = journal;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
-            m_notificationHub = new NotificationHub(
-                notificationsChannel,
-                new NotificationFormatter(),
-                new PollingTimeout());
+
+            m_notificationHubController = notificationPipelineFactory.CreateHubController();
+            m_notificationHub = notificationPipelineFactory.CreateHub();
+            m_notificationHubController.StartHub(m_notificationHub);
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
@@ -111,6 +108,11 @@ namespace Journalist.EventStore
                     streamName: streamName,
                     readerName: consumerName,
                     version: currentVersion));
+        }
+
+        public void Close()
+        {
+            m_notificationHubController.StopHub(m_notificationHub);
         }
     }
 }
