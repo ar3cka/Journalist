@@ -11,7 +11,6 @@ namespace Journalist.EventStore.Notifications
         private readonly INotificationsChannel m_channel;
         private readonly IEnumerable<INotificationListener> m_listeners;
         private readonly List<NotificationHub> m_hubs;
-        private readonly PollingTimeout m_pollingTimeout;
         private readonly NotificationFormatter m_notificationFormatter;
 
         public NotificationPipelineFactory(
@@ -25,7 +24,6 @@ namespace Journalist.EventStore.Notifications
             m_listeners = listeners;
 
             m_hubs = new List<NotificationHub>();
-            m_pollingTimeout = new PollingTimeout();
             m_notificationFormatter = new NotificationFormatter();
         }
 
@@ -34,7 +32,7 @@ namespace Journalist.EventStore.Notifications
             var hub = new NotificationHub(
                 m_channel,
                 m_notificationFormatter,
-                m_pollingTimeout);
+                new PollingTimeout());
 
             foreach (var notificationListener in m_listeners)
             {
