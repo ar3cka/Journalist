@@ -114,7 +114,7 @@ namespace Journalist.EventStore.UnitTests.Notifications
         }
 
         [Theory, NotificationHubData]
-        public async Task StartNotificationProcessing_WhenNoSubscribeListenerListIsEmpty_DoesNoStartListenerCycle(
+        public async Task StartNotificationProcessing_WhenListenerListIsEmpty_NeverCallsChannelReceiveNotificationsAsync(
             [Frozen] Mock<INotificationsChannel> channelMock,
             NotificationHub hub)
         {

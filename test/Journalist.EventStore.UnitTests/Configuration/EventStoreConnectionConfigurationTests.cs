@@ -1,5 +1,6 @@
 ﻿using Journalist.EventStore.Configuration;
 using Journalist.EventStore.Events.Mutation;
+using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Xunit;
 
@@ -41,6 +42,36 @@ namespace Journalist.EventStore.UnitTests.Configuration
             EventStoreConnectionConfiguration connectionConfiguration)
         {
             Assert.Same(connectionConfiguration, connectionConfiguration.Mutate.OutgoingEventsWith(mutator));
+        }
+
+        [Theory, AutoMoqData]
+        public void NotificationsSubscribe_ReturnsInstanceOfConnectionConfiguration(
+            INotificationListener listener,
+            EventStoreConnectionConfiguration connectionConfiguration)
+        {
+            Assert.Same(connectionConfiguration, connectionConfiguration.Notifications.Subscribe(listener));
+        }
+
+        [Theory, AutoMoqData]
+        public void NotificationsSubscribe_WhenProcessingIsEnabled_AddsListenerToCollection(
+            INotificationListener listener,
+            EventStoreConnectionConfiguration connectionConfiguration)
+        {
+            connectionConfiguration.Notifications.EnableProcessing();
+
+            connectionConfiguration.Notifications.Subscribe(listener);
+
+            Assert.Contains(listener, connectionConfiguration.NotificationListeners);
+        }
+
+        [Theory, AutoMoqData]
+        public void NotificationsSubscribe_WhenProcessingIsNotEnabled_AddsListenerToCollection(
+            INotificationListener listener,
+            EventStoreConnectionConfiguration connectionConfiguration)
+        {
+            connectionConfiguration.Notifications.Subscribe(listener);
+
+            Assert.DoesNotContain(listener, connectionConfiguration.NotificationListeners);
         }
     }
 }
