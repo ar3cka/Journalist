@@ -1,4 +1,5 @@
 ### 0.8.0
+* [EventStore][Breaking] EventStoreConnection related were moved to separate namespace.
 * [LanguageExtensions][New] IsEmpty extensions methods for collections.
 
 ### 0.7.3 (2015-07-08)

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
 using Journalist.EventStore.Notifications.Types;

@@ -5,7 +5,7 @@ using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils;
 
-namespace Journalist.EventStore
+namespace Journalist.EventStore.Connection
 {
     public class EventStoreConnection : IEventStoreConnection
     {

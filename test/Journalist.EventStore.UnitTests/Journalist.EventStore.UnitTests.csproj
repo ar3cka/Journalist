@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\EventStoreConnectionConfigurationTests.cs" />
-    <Compile Include="EventStoreConnectionTests.cs" />
+    <Compile Include="Connection\EventStoreConnectionTests.cs" />
     <Compile Include="Events\JournaledEventTests.cs" />
     <Compile Include="Infrastructure\Customizations\IOStreamCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\EventStreamConsumingSessionCustomization.cs" />

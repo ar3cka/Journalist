@@ -50,9 +50,9 @@
     <Compile Include="Configuration\INotificationProcessingConfiguration.cs" />
     <Compile Include="Configuration\NotificationProcessingConfiguration.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="EventStoreConnection.cs" />
-    <Compile Include="EventStoreConnectionBuilder.cs" />
-    <Compile Include="EventStoreConnectionExtensions.cs" />
+    <Compile Include="Connection\EventStoreConnection.cs" />
+    <Compile Include="Connection\EventStoreConnectionBuilder.cs" />
+    <Compile Include="Connection\EventStoreConnectionExtensions.cs" />
     <Compile Include="Events\JournaledEvent.cs" />
     <Compile Include="Events\JournaledEventHeadersSerializer.cs" />
     <Compile Include="Events\JournaledEventPropertyNames.cs" />
@@ -61,7 +61,7 @@
     <Compile Include="Events\Mutation\IEventMutationPipeline.cs" />
     <Compile Include="Events\Mutation\IEventMutationPipelineFactory.cs" />
     <Compile Include="Events\Mutation\IEventMutator.cs" />
-    <Compile Include="IEventStoreConnection.cs" />
+    <Compile Include="Connection\IEventStoreConnection.cs" />
     <Compile Include="Journal\EventJournal.cs" />
     <Compile Include="Journal\EventJournalExtensions.cs" />
     <Compile Include="Journal\EventJournalTableRowPropertyNames.cs" />

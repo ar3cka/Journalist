@@ -7,7 +7,7 @@ using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Streams;
 using Journalist.WindowsAzure.Storage;
 
-namespace Journalist.EventStore
+namespace Journalist.EventStore.Connection
 {
     public class EventStoreConnectionBuilder
     {

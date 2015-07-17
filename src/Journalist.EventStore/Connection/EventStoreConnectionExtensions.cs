@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Streams;
 
-namespace Journalist.EventStore
+namespace Journalist.EventStore.Connection
 {
     public static class EventStoreConnectionExtensions
     {
