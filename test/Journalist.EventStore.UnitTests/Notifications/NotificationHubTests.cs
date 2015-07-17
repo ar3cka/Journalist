@@ -37,9 +37,7 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_NotifiesListener(
             [Frozen] Mock<INotificationListener> listenerMock,
-            NotificationHub hub,
-            EventStreamUpdated notification,
-            Stream notificationBytes)
+            NotificationHub hub)
         {
             hub.Subscribe(listenerMock.Object);
 
@@ -51,13 +49,11 @@ namespace Journalist.EventStore.UnitTests.Notifications
 
         [Theory, NotificationHubData(emptyChannel: true)]
         public async Task StopNotificationProcessing_WhenChannelIsEmpty_WaitsTimeout(
-            [Frozen] Mock<INotificationListener> listenerMock,
             [Frozen] Mock<IPollingTimeout> timeoutMock,
-            NotificationHub hub,
-            EventStreamUpdated notification,
-            Stream notificationBytes)
+            INotificationListener listener,
+            NotificationHub hub)
         {
-            hub.Subscribe(listenerMock.Object);
+            hub.Subscribe(listener);
 
             await RunNotificationProcessingTest(hub);
 
@@ -66,13 +62,11 @@ namespace Journalist.EventStore.UnitTests.Notifications
 
         [Theory, NotificationHubData(emptyChannel: true)]
         public async Task StopNotificationProcessing_WhenChannelIsEmpty_IncreaseTimeout(
-            [Frozen] Mock<INotificationListener> listenerMock,
             [Frozen] Mock<IPollingTimeout> timeoutMock,
-            NotificationHub hub,
-            EventStreamUpdated notification,
-            Stream notificationBytes)
+            INotificationListener listener,
+            NotificationHub hub)
         {
-            hub.Subscribe(listenerMock.Object);
+            hub.Subscribe(listener);
 
             await RunNotificationProcessingTest(hub);
 
@@ -81,13 +75,11 @@ namespace Journalist.EventStore.UnitTests.Notifications
 
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_WhenChannelIsNotEmpty_DoesNotWaitTimeout(
-            [Frozen] Mock<INotificationListener> listenerMock,
             [Frozen] Mock<IPollingTimeout> timeoutMock,
-            NotificationHub hub,
-            EventStreamUpdated notification,
-            Stream notificationBytes)
+            INotificationListener listener,
+            NotificationHub hub)
         {
-            hub.Subscribe(listenerMock.Object);
+            hub.Subscribe(listener);
 
             await RunNotificationProcessingTest(hub);
 
@@ -96,13 +88,11 @@ namespace Journalist.EventStore.UnitTests.Notifications
 
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_WhenChannelIsNotEmpty_ResetsTimout(
-            [Frozen] Mock<INotificationListener> listenerMock,
             [Frozen] Mock<IPollingTimeout> timeoutMock,
-            NotificationHub hub,
-            EventStreamUpdated notification,
-            Stream notificationBytes)
+            INotificationListener listener,
+            NotificationHub hub)
         {
-            hub.Subscribe(listenerMock.Object);
+            hub.Subscribe(listener);
 
             await RunNotificationProcessingTest(hub);
 
@@ -112,10 +102,7 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_WhenChannelIsNotEmpty_PropagatesNotificationsToListeners(
             [Frozen] Mock<INotificationListener> listenerMock,
-            [Frozen] Mock<IPollingTimeout> timeoutMock,
-            NotificationHub hub,
-            EventStreamUpdated notification,
-            Stream notificationBytes)
+            NotificationHub hub)
         {
             hub.Subscribe(listenerMock.Object);
 
@@ -129,9 +116,7 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData]
         public async Task StartNotificationProcessing_WhenNoSubscribeListenerListIsEmpty_DoesNoStartListenerCycle(
             [Frozen] Mock<INotificationsChannel> channelMock,
-            NotificationHub hub,
-            EventStreamUpdated notification,
-            Stream notificationBytes)
+            NotificationHub hub)
         {
             await RunNotificationProcessingTest(hub);
 
