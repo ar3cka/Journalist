@@ -15,23 +15,27 @@ namespace Journalist.EventStore.Streams
         private readonly IEventJournal m_journal;
         private readonly IEventMutationPipeline m_mutationPipeline;
         private readonly INotificationHub m_notificationHub;
+        private readonly IEventStreamConnectivityState m_connectivityState;
 
         private EventStreamPosition m_endOfStream;
 
         public EventStreamWriter(
             string streamName,
             EventStreamPosition endOfStream,
+            IEventStreamConnectivityState connectivityState,
             IEventJournal journal,
             IEventMutationPipeline mutationPipeline,
             INotificationHub notificationHub)
         {
             Require.NotEmpty(streamName, "streamName");
+            Require.NotNull(connectivityState, "connectivityState");
             Require.NotNull(journal, "journal");
             Require.NotNull(mutationPipeline, "mutationPipeline");
             Require.NotNull(notificationHub, "notificationHub");
 
             m_streamName = streamName;
             m_endOfStream = endOfStream;
+            m_connectivityState = connectivityState;
             m_journal = journal;
             m_mutationPipeline = mutationPipeline;
             m_notificationHub = notificationHub;
@@ -40,6 +44,8 @@ namespace Journalist.EventStore.Streams
         public async Task AppendEventsAsync(IReadOnlyCollection<JournaledEvent> events)
         {
             Require.NotNull(events, "events");
+
+            m_connectivityState.EnsureConnectionIsActive();
 
             if (events.Count == 0)
             {
@@ -60,6 +66,8 @@ namespace Journalist.EventStore.Streams
 
         public async Task MoveToEndOfStreamAsync()
         {
+            m_connectivityState.EnsureConnectionIsActive();
+
             m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(m_streamName);
         }
 

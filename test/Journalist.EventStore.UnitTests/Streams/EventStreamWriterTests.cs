@@ -5,7 +5,6 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
-using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
@@ -31,6 +30,17 @@ namespace Journalist.EventStore.UnitTests.Streams
                 writer.StreamName,
                 position,
                 It.Is<IReadOnlyCollection<JournaledEvent>>(e => e.Count == events.Length)));
+        }
+
+        [Theory, EventStreamWriterData]
+        public async Task AppendEvents_EnsureConnectivityStateIsActive(
+            [Frozen] Mock<IEventStreamConnectivityState> stateMock,
+            EventStreamWriter writer,
+            JournaledEvent[] events)
+        {
+            await writer.AppendEventsAsync(events);
+
+            stateMock.Verify(journal => journal.EnsureConnectionIsActive());
         }
 
         [Theory, EventStreamWriterData]
@@ -93,6 +103,16 @@ namespace Journalist.EventStore.UnitTests.Streams
             await writer.MoveToEndOfStreamAsync();
 
             journalMock.Verify(journal => journal.ReadEndOfStreamPositionAsync(writer.StreamName));
+        }
+
+        [Theory, EventStreamWriterData]
+        public async Task MoveToEndOfStreamAsync_EnsureConnectivityStateIsActive(
+            [Frozen] Mock<IEventStreamConnectivityState> stateMock,
+            EventStreamWriter writer)
+        {
+            await writer.MoveToEndOfStreamAsync();
+
+            stateMock.Verify(journal => journal.EnsureConnectionIsActive());
         }
 
         [Theory, EventStreamWriterData]

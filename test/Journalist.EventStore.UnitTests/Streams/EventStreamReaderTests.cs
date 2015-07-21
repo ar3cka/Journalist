@@ -22,6 +22,16 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory, EventStreamReaderData]
+        public async Task ReadEventsAsync_EnsureConnectivityStateIsActive(
+            [Frozen] Mock<IEventStreamConnectivityState> stateMock,
+            EventStreamReader reader)
+        {
+            await reader.ReadEventsAsync();
+
+            stateMock.Verify(self => self.EnsureConnectionIsActive());
+        }
+
+        [Theory, EventStreamReaderData]
         public async Task ReadEventsAsync_UseMutationPipelineForEachReceivedEvent(
             [Frozen] Mock<IEventMutationPipeline> pipelineMock,
             [Frozen] SortedList<StreamVersion, JournaledEvent> receivedEvents,
@@ -85,6 +95,16 @@ namespace Journalist.EventStore.UnitTests.Streams
             EventStreamReader reader)
         {
             await Assert.ThrowsAsync<InvalidOperationException>(reader.ContinueAsync);
+        }
+
+        [Theory, EventStreamReaderData(emptyCursor: true)]
+        public async Task ContinueAsync_EnsureConnectivityStateIsActive(
+            [Frozen] Mock<IEventStreamConnectivityState> stateMock,
+            EventStreamReader reader)
+        {
+            await reader.ContinueAsync();
+
+            stateMock.Verify(self => self.EnsureConnectionIsActive());
         }
 
         [Theory, EventStreamReaderData(emptyCursor: true)]

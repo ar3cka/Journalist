@@ -33,7 +33,7 @@ namespace Journalist.EventStore.UnitTests.Connection
         }
 
         [Theory, AutoMoqData]
-        public void Constructor_StopsNotificationHub(
+        public void Close_StopsNotificationHub(
             [Frozen] Mock<INotificationHubController> controllerMock,
             [Frozen] INotificationHub hub,
             EventStoreConnection eventStoreConnection)
