@@ -3,7 +3,7 @@
 * [LanguageExtensions][New] IsEmpty extensions methods for collections.
 
 ### 0.7.4 (2015-07-21)
-* [[WAZ.Storage][Improvment] Log storage request information from StorageException in TableBatchOperationAdapter.
+* [WAZ.Storage][Improvment] Log storage request information from StorageException in TableBatchOperationAdapter.
 
 ### 0.7.3 (2015-07-08)
 * [LanguageExtensions][BugFix] EmptyMemoryStream.Get() returns reusable (non disposable) stream instance.
