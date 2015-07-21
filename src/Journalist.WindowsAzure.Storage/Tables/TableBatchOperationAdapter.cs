@@ -234,7 +234,10 @@ namespace Journalist.WindowsAzure.Storage.Tables
             }
             catch (StorageException exception)
             {
-                s_logger.Verbose(exception, "Execution of batch operation failed.");
+                s_logger.Verbose(
+                    exception,
+                    "Execution of batch operation failed. Request information: {@RequestInformation}.",
+                    exception.RequestInformation);
 
                 if (exception.RequestInformation.ExtendedErrorInformation == null)
                 {
