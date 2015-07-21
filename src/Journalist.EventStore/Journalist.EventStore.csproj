@@ -98,6 +98,7 @@
     <Compile Include="Notifications\Types\NotificationPropertyKeys.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Streams\EventStreamConnectionWasClosedException.cs" />
     <Compile Include="Streams\EventStreamConnectivityState.cs" />
     <Compile Include="Streams\EventStreamConsumer.cs" />
     <Compile Include="Streams\EventStreamConsumerExtensions.cs" />
