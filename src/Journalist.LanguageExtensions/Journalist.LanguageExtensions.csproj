@@ -47,6 +47,7 @@
     <Compile Include="Collections\ArrayFactoryExtensions.cs" />
     <Compile Include="Collections\EmptyArray.cs" />
     <Compile Include="Collections\EmptyDictionary.cs" />
+    <Compile Include="Ensure.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\StringFormattingExtensions.cs" />
