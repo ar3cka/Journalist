@@ -122,12 +122,15 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task CreatedConsumer_SavesConsumedPositionPosition(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
+        public async Task CreatedConsumer_SavesConsumedPositionPosition(
+            JournaledEvent[] dummyEvents1,
+            JournaledEvent[] dummyEvents2,
+            string consumerName)
         {
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents1);
 
-            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName);
+            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
             await consumer1.ReceiveEventsAsync();
 
             await producer.PublishAsync(dummyEvents2);
@@ -135,7 +138,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await consumer1.ReceiveEventsAsync(); // saves position and stops reading.
             await consumer1.CloseAsync(); // frees session
 
-            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName);
+            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
             await consumer2.ReceiveEventsAsync();
             var receivedEvents2 = consumer2.EnumerateEvents().ToList();
 
@@ -144,19 +147,22 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task CreatedConsumer_SavesConsumedPositionPositionOnClose(JournaledEvent[] dummyEvents1, JournaledEvent[] dummyEvents2)
+        public async Task CreatedConsumer_SavesConsumedPositionPositionOnClose(
+            JournaledEvent[] dummyEvents1,
+            JournaledEvent[] dummyEvents2,
+            string consumerName)
         {
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents1);
 
-            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName);
+            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
             await consumer1.ReceiveEventsAsync();
 
             await producer.PublishAsync(dummyEvents2);
             var receivedEvents1 = consumer1.EnumerateEvents().ToList();
             await consumer1.CloseAsync(); // saves position and stops reading.
 
-            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName);
+            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
             await consumer2.ReceiveEventsAsync();
             var receivedEvents2 = consumer2.EnumerateEvents().ToList();
             await consumer2.CloseAsync();
@@ -166,12 +172,14 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task CreatedConsumer_RememberConsumedVersion(JournaledEvent[] dummyEvents)
+        public async Task CreatedConsumer_RememberConsumedVersion(
+            JournaledEvent[] dummyEvents,
+            string consumerName)
         {
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
             await producer.PublishAsync(dummyEvents);
 
-            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName);
+            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
             await consumer1.ReceiveEventsAsync();
             foreach (var e in consumer1.EnumerateEvents())
             {
@@ -181,7 +189,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await consumer1.CloseAsync(); // frees session
 
 
-            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName);
+            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
             await consumer2.ReceiveEventsAsync();
             var receivedEvents = consumer2.EnumerateEvents().ToList();
             await consumer2.CloseAsync();

@@ -22,7 +22,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         {
             await session.PromoteToLeaderAsync();
 
-            containerMock.Verify(self => self.CreateBlockBlob(session.ConsumerName + "/" + session.StreamName));
+            containerMock.Verify(self => self.CreateBlockBlob(session.ConsumerId + "/" + session.StreamName));
         }
 
         [Theory]

@@ -10,6 +10,7 @@ namespace Journalist.EventStore.Connection
     public class EventStoreConnection : IEventStoreConnection
     {
         private readonly IEventJournal m_journal;
+        private readonly IEventStreamConsumersRegistry m_consumersRegistry;
         private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
         private readonly IEventMutationPipelineFactory m_pipelineFactory;
         private readonly INotificationHub m_notificationHub;
@@ -18,16 +19,19 @@ namespace Journalist.EventStore.Connection
 
         public EventStoreConnection(
             IEventJournal journal,
+            IEventStreamConsumersRegistry consumersRegistry,
             INotificationPipelineFactory notificationPipelineFactory,
             IEventStreamConsumingSessionFactory sessionFactory,
             IEventMutationPipelineFactory pipelineFactory)
         {
             Require.NotNull(journal, "journal");
+            Require.NotNull(consumersRegistry, "consumersRegistry");
             Require.NotNull(notificationPipelineFactory, "notificationPipelineFactory");
             Require.NotNull(sessionFactory, "sessionFactory");
             Require.NotNull(pipelineFactory, "pipelineFactory");
 
             m_journal = journal;
+            m_consumersRegistry = consumersRegistry;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
 
@@ -82,7 +86,8 @@ namespace Journalist.EventStore.Connection
                 connectivityState: m_connectivityState,
                 endOfStream: endOfStream,
                 journal: m_journal,
-                mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(), notificationHub: m_notificationHub);
+                mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(),
+                notificationHub: m_notificationHub);
         }
 
         public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)
@@ -101,26 +106,29 @@ namespace Journalist.EventStore.Connection
 
             m_connectivityState.EnsureConnectionIsActive();
 
+            var consumerId = await m_consumersRegistry.RegisterAsync(consumerName);
+
             var readerVersion = await m_journal.ReadStreamReaderPositionAsync(
                 streamName: streamName,
-                readerName: consumerName);
+                readerName: consumerId.ToString());
 
             var reader = await CreateStreamReaderAsync(
                 streamName: streamName,
                 streamVersion: readerVersion.Increment());
 
             var session = m_sessionFactory.CreateSession(
-                consumerName: consumerName,
+                consumerId: consumerId,
                 streamName: streamName);
 
             return new EventStreamConsumer(
-                consumerName,
-                reader,
-                session,
-                readerVersion,
-                currentVersion => m_journal.CommitStreamReaderPositionAsync(
+                consumerName: consumerName,
+                consumerId: consumerId,
+                streamReader: reader,
+                session: session,
+                commitedStreamVersion: readerVersion,
+                commitConsumedVersion: currentVersion => m_journal.CommitStreamReaderPositionAsync(
                     streamName: streamName,
-                    readerName: consumerName,
+                    readerName: consumerId.ToString(),
                     version: currentVersion));
         }
 

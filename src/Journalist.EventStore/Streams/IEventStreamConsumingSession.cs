@@ -8,6 +8,6 @@ namespace Journalist.EventStore.Streams
 
         Task FreeAsync();
 
-        string StreamName { get; }
+        EventStreamConsumerId ConsumerId { get; }
     }
 }

@@ -1,6 +1,7 @@
 ### 0.8.0
 * [EventStore][Breaking] EventStoreConnection related were moved to separate namespace.
 * [EventStore][Breaking] IEventStreamReader.CurrentStreamVersion was renamed to StreamVersion.
+* [EventStore][Breaking] EventStream cosnumers name reader cursor based on its unqiue identifier.
 * [LanguageExtensions][New] IsEmpty extensions methods for collections.
 * [LanguageExtensions][New] Ensure helper methods.
 

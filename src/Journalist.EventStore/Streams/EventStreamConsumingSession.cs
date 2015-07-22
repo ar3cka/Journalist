@@ -7,7 +7,7 @@ namespace Journalist.EventStore.Streams
     public class EventStreamConsumingSession : IEventStreamConsumingSession
     {
         private readonly string m_streamName;
-        private readonly string m_consumerId;
+        private readonly EventStreamConsumerId m_consumerId;
         private readonly TimeSpan m_leaseTimeout;
         private readonly ICloudBlobContainer m_blobContainer;
 
@@ -17,12 +17,12 @@ namespace Journalist.EventStore.Streams
 
         public EventStreamConsumingSession(
             string streamName,
-            string consumerId,
+            EventStreamConsumerId consumerId,
             TimeSpan leaseTimeout,
             ICloudBlobContainer blobContainer)
         {
             Require.NotEmpty(streamName, "streamName");
-            Require.NotEmpty(consumerId, "consumerId");
+            Require.NotNull(consumerId, "consumerId");
             Require.NotNull(blobContainer, "blobContainer");
 
             m_streamName = streamName;
@@ -106,7 +106,7 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public string ConsumerName
+        public EventStreamConsumerId ConsumerId
         {
             get { return m_consumerId; }
         }

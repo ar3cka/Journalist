@@ -22,12 +22,14 @@ namespace Journalist.EventStore.Streams
 
         public EventStreamConsumer(
             string consumerName,
+            EventStreamConsumerId consumerId,
             IEventStreamReader streamReader,
             IEventStreamConsumingSession session,
             StreamVersion commitedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
             Require.NotEmpty(consumerName, "consumerName");
+            Require.NotNull(consumerId, "consumerId");
             Require.NotNull(streamReader, "streamReader");
             Require.NotNull(session, "session");
             Require.NotNull(commitConsumedVersion, "commitConsumedVersion");

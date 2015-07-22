@@ -43,6 +43,10 @@ namespace Journalist.EventStore.Connection
                 m_configuration.StorageConnectionString,
                 m_configuration.JournalTableName);
 
+            var journalMetadataTable = m_factory.CreateTable(
+                m_configuration.StorageConnectionString,
+                m_configuration.JournalMetadataTableName);
+
             var sessionFactory = new EventStreamConsumingSessionFactory(
                 m_factory.CreateBlobContainer(
                     m_configuration.StorageConnectionString,
@@ -62,6 +66,7 @@ namespace Journalist.EventStore.Connection
 
             return new EventStoreConnection(
                 new EventJournal(journalTable),
+                new EventStreamConsumersRegistry(journalMetadataTable),
                 notificationPipelineFactory,
                 sessionFactory,
                 pipelineFactory);

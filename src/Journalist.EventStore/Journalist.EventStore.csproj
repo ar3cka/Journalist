@@ -102,6 +102,8 @@
     <Compile Include="Streams\EventStreamConnectivityState.cs" />
     <Compile Include="Streams\EventStreamConsumer.cs" />
     <Compile Include="Streams\EventStreamConsumerExtensions.cs" />
+    <Compile Include="Streams\EventStreamConsumerId.cs" />
+    <Compile Include="Streams\EventStreamConsumersRegistry.cs" />
     <Compile Include="Streams\EventStreamConsumingSession.cs" />
     <Compile Include="Streams\EventStreamConsumingSessionFactory.cs" />
     <Compile Include="Streams\EventStreamInteractionEntity.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="Streams\EventStreamWriter.cs" />
     <Compile Include="Streams\IEventStreamConnectivityState.cs" />
     <Compile Include="Streams\IEventStreamConsumer.cs" />
+    <Compile Include="Streams\IEventStreamConsumersRegistry.cs" />
     <Compile Include="Streams\IEventStreamConsumingSession.cs" />
     <Compile Include="Streams\IEventStreamConsumingSessionFactory.cs" />
     <Compile Include="Streams\IEventStreamInteractionEntity.cs" />
