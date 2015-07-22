@@ -103,7 +103,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             await consumer.ReceiveEventsAsync(); // continues receiving
 
             Assert.Equal(1, commitStreamVersionMock.CallsCount);
-            Assert.Equal(reader.CurrentStreamVersion, commitStreamVersionMock.CommitedVersion);
+            Assert.Equal(reader.StreamVersion, commitStreamVersionMock.CommitedVersion);
         }
 
         [Theory]
@@ -210,7 +210,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             await consumer.CloseAsync();
 
             Assert.Equal(1, commitStreamVersionMock.CallsCount);
-            Assert.Equal(reader.CurrentStreamVersion, commitStreamVersionMock.CommitedVersion);
+            Assert.Equal(reader.StreamVersion, commitStreamVersionMock.CommitedVersion);
         }
 
         [Theory]
@@ -267,7 +267,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             var streamVersion = version.Increment(events.Length);
 
             readerMock
-                .Setup(self => self.CurrentStreamVersion)
+                .Setup(self => self.StreamVersion)
                 .Returns(streamVersion);
 
             await consumer.ReceiveEventsAsync();
@@ -295,7 +295,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             var streamVersion = version.Increment(events.Length);
 
             readerMock
-                .Setup(self => self.CurrentStreamVersion)
+                .Setup(self => self.StreamVersion)
                 .Returns(streamVersion);
 
             await consumer.ReceiveEventsAsync();

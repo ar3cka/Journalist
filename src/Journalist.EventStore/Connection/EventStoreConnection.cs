@@ -79,11 +79,10 @@ namespace Journalist.EventStore.Connection
 
             return new EventStreamWriter(
                 streamName: streamName,
-                endOfStream: endOfStream,
                 connectivityState: m_connectivityState,
+                endOfStream: endOfStream,
                 journal: m_journal,
-                mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(),
-                notificationHub: m_notificationHub);
+                mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(), notificationHub: m_notificationHub);
         }
 
         public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)

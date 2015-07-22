@@ -9,33 +9,28 @@ using Journalist.EventStore.Notifications.Types;
 
 namespace Journalist.EventStore.Streams
 {
-    public class EventStreamWriter : IEventStreamWriter
+    public class EventStreamWriter : EventStreamInteractionEntity, IEventStreamWriter
     {
-        private readonly string m_streamName;
         private readonly IEventJournal m_journal;
         private readonly IEventMutationPipeline m_mutationPipeline;
         private readonly INotificationHub m_notificationHub;
-        private readonly IEventStreamConnectivityState m_connectivityState;
 
         private EventStreamPosition m_endOfStream;
 
         public EventStreamWriter(
             string streamName,
-            EventStreamPosition endOfStream,
             IEventStreamConnectivityState connectivityState,
+            EventStreamPosition endOfStream,
             IEventJournal journal,
             IEventMutationPipeline mutationPipeline,
-            INotificationHub notificationHub)
+            INotificationHub notificationHub) : base(streamName, connectivityState)
         {
             Require.NotEmpty(streamName, "streamName");
-            Require.NotNull(connectivityState, "connectivityState");
             Require.NotNull(journal, "journal");
             Require.NotNull(mutationPipeline, "mutationPipeline");
             Require.NotNull(notificationHub, "notificationHub");
 
-            m_streamName = streamName;
             m_endOfStream = endOfStream;
-            m_connectivityState = connectivityState;
             m_journal = journal;
             m_mutationPipeline = mutationPipeline;
             m_notificationHub = notificationHub;
@@ -45,7 +40,7 @@ namespace Journalist.EventStore.Streams
         {
             Require.NotNull(events, "events");
 
-            m_connectivityState.EnsureConnectionIsActive();
+            ConnectivityState.EnsureConnectionIsActive();
 
             if (events.Count == 0)
             {
@@ -56,29 +51,24 @@ namespace Journalist.EventStore.Streams
             mutatedEvents.AddRange(events.Select(journaledEvent => m_mutationPipeline.Mutate(journaledEvent)));
 
             var fromVersion = m_endOfStream.Version;
-            m_endOfStream = await m_journal.AppendEventsAsync(m_streamName, m_endOfStream, mutatedEvents);
+            m_endOfStream = await m_journal.AppendEventsAsync(StreamName, m_endOfStream, mutatedEvents);
 
             await m_notificationHub.NotifyAsync(new EventStreamUpdated(
-                m_streamName,
+                StreamName,
                 fromVersion,
                 m_endOfStream.Version));
         }
 
         public async Task MoveToEndOfStreamAsync()
         {
-            m_connectivityState.EnsureConnectionIsActive();
+            ConnectivityState.EnsureConnectionIsActive();
 
-            m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(m_streamName);
+            m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(StreamName);
         }
 
-        public StreamVersion StreamVersion
+        public override StreamVersion StreamVersion
         {
             get { return m_endOfStream.Version; }
-        }
-
-        public string StreamName
-        {
-            get { return m_streamName; }
         }
     }
 }

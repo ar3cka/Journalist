@@ -4,12 +4,10 @@ using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Streams
 {
-    public interface IEventStreamWriter
+    public interface IEventStreamWriter : IEventStreamInteractionEntity
     {
         Task AppendEventsAsync(IReadOnlyCollection<JournaledEvent> events);
 
         Task MoveToEndOfStreamAsync();
-
-        StreamVersion StreamVersion { get; }
     }
 }

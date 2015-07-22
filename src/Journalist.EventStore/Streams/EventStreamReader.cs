@@ -9,10 +9,8 @@ using Journalist.Extensions;
 
 namespace Journalist.EventStore.Streams
 {
-    public class EventStreamReader : IEventStreamReader
+    public class EventStreamReader : EventStreamInteractionEntity, IEventStreamReader
     {
-        private readonly string m_streamName;
-        private readonly IEventStreamConnectivityState m_connectivityState;
         private readonly Func<StreamVersion, Task<IEventStreamCursor>> m_openCursor;
         private readonly IEventMutationPipeline m_mutationPipeline;
 
@@ -24,16 +22,12 @@ namespace Journalist.EventStore.Streams
             IEventStreamConnectivityState connectivityState,
             IEventStreamCursor streamCursor,
             IEventMutationPipeline mutationPipeline,
-            Func<StreamVersion, Task<IEventStreamCursor>> openCursor)
+            Func<StreamVersion, Task<IEventStreamCursor>> openCursor) : base(streamName, connectivityState)
         {
-            Require.NotEmpty(streamName, "streamName");
-            Require.NotNull(connectivityState, "connectivityState");
             Require.NotNull(streamCursor, "streamCursor");
             Require.NotNull(mutationPipeline, "mutationPipeline");
             Require.NotNull(openCursor, "openCursor");
 
-            m_streamName = streamName;
-            m_connectivityState = connectivityState;
             m_streamCursor = streamCursor;
             m_mutationPipeline = mutationPipeline;
             m_openCursor = openCursor;
@@ -41,11 +35,11 @@ namespace Journalist.EventStore.Streams
 
         public async Task ReadEventsAsync()
         {
-            m_connectivityState.EnsureConnectionIsActive();
+            ConnectivityState.EnsureConnectionIsActive();
 
             if (m_streamCursor.EndOfStream)
             {
-                throw new InvalidOperationException("Stream \"{0}\" is empty.".FormatString(m_streamName));
+                throw new InvalidOperationException("Stream \"{0}\" is empty.".FormatString(StreamName));
             }
 
             await m_streamCursor.FetchSlice();
@@ -59,11 +53,11 @@ namespace Journalist.EventStore.Streams
 
         public async Task ContinueAsync()
         {
-            m_connectivityState.EnsureConnectionIsActive();
+            ConnectivityState.EnsureConnectionIsActive();
 
             if (IsCompleted)
             {
-                m_streamCursor = await m_openCursor(CurrentStreamVersion.Increment());
+                m_streamCursor = await m_openCursor(StreamVersion.Increment());
                 m_readedEvents = null;
 
                 return;
@@ -85,7 +79,7 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public StreamVersion CurrentStreamVersion
+        public override StreamVersion StreamVersion
         {
             get { return m_streamCursor.CurrentVersion; }
         }
@@ -93,11 +87,6 @@ namespace Journalist.EventStore.Streams
         public bool HasEvents
         {
             get { return !m_streamCursor.EndOfStream; }
-        }
-
-        public string StreamName
-        {
-            get { return m_streamName; }
         }
 
         public bool IsCompleted

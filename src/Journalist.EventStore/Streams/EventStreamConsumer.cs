@@ -49,10 +49,10 @@ namespace Journalist.EventStore.Streams
                 return false;
             }
 
-            if (m_receiving && m_commitedStreamVersion != m_reader.CurrentStreamVersion)
+            if (m_receiving && m_commitedStreamVersion != m_reader.StreamVersion)
             {
-                await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
-                m_commitedStreamVersion = m_reader.CurrentStreamVersion;
+                await m_commitConsumedVersion(m_reader.StreamVersion);
+                m_commitedStreamVersion = m_reader.StreamVersion;
                 m_eventSliceOffset = 0;
             }
 
@@ -103,8 +103,8 @@ namespace Journalist.EventStore.Streams
             }
             else
             {
-                await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
-                m_commitedStreamVersion = m_reader.CurrentStreamVersion;
+                await m_commitConsumedVersion(m_reader.StreamVersion);
+                m_commitedStreamVersion = m_reader.StreamVersion;
                 m_eventSliceOffset = 0;
             }
         }
