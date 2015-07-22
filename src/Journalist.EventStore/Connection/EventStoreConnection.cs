@@ -14,42 +14,42 @@ namespace Journalist.EventStore.Connection
         private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
         private readonly IEventMutationPipelineFactory m_pipelineFactory;
         private readonly INotificationHub m_notificationHub;
-        private readonly INotificationHubController m_notificationHubController;
-        private readonly EventStreamConnectivityState m_connectivityState;
+        private readonly IEventStoreConnectionState m_connectionState;
 
         public EventStoreConnection(
+            IEventStoreConnectionState connectionState,
             IEventJournal journal,
+            INotificationHub notificationHub,
             IEventStreamConsumersRegistry consumersRegistry,
-            INotificationPipelineFactory notificationPipelineFactory,
             IEventStreamConsumingSessionFactory sessionFactory,
             IEventMutationPipelineFactory pipelineFactory)
         {
+            Require.NotNull(connectionState, "connectionState");
             Require.NotNull(journal, "journal");
+            Require.NotNull(notificationHub, "notificationHub");
             Require.NotNull(consumersRegistry, "consumersRegistry");
-            Require.NotNull(notificationPipelineFactory, "notificationPipelineFactory");
             Require.NotNull(sessionFactory, "sessionFactory");
             Require.NotNull(pipelineFactory, "pipelineFactory");
 
+            m_connectionState = connectionState;
             m_journal = journal;
+            m_notificationHub = notificationHub;
             m_consumersRegistry = consumersRegistry;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
 
-            m_notificationHubController = notificationPipelineFactory.CreateHubController();
-            m_notificationHub = notificationPipelineFactory.CreateHub();
-            m_notificationHubController.StartHub(m_notificationHub);
-            m_connectivityState = new EventStreamConnectivityState();
+            m_connectionState.ChangeToCreated();
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 
-            m_connectivityState.EnsureConnectionIsActive();
+            m_connectionState.EnsureConnectionIsActive();
 
             var reader = new EventStreamReader(
                 streamName: streamName,
-                connectivityState: m_connectivityState,
+                connectionState: m_connectionState,
                 streamCursor: await m_journal.OpenEventStreamCursorAsync(streamName),
                 mutationPipeline: m_pipelineFactory.CreateIncomingPipeline(),
                 openCursor: version => m_journal.OpenEventStreamCursorAsync(streamName, version));
@@ -61,11 +61,11 @@ namespace Journalist.EventStore.Connection
         {
             Require.NotEmpty(streamName, "streamName");
 
-            m_connectivityState.EnsureConnectionIsActive();
+            m_connectionState.EnsureConnectionIsActive();
 
             var reader = new EventStreamReader(
                 streamName: streamName,
-                connectivityState: m_connectivityState,
+                connectionState: m_connectionState,
                 streamCursor: await m_journal.OpenEventStreamCursorAsync(streamName, streamVersion),
                 mutationPipeline: m_pipelineFactory.CreateIncomingPipeline(),
                 openCursor: version => m_journal.OpenEventStreamCursorAsync(streamName, version));
@@ -77,13 +77,13 @@ namespace Journalist.EventStore.Connection
         {
             Require.NotEmpty(streamName, "streamName");
 
-            m_connectivityState.EnsureConnectionIsActive();
+            m_connectionState.EnsureConnectionIsActive();
 
             var endOfStream = await m_journal.ReadEndOfStreamPositionAsync(streamName);
 
             return new EventStreamWriter(
                 streamName: streamName,
-                connectivityState: m_connectivityState,
+                connectionState: m_connectionState,
                 endOfStream: endOfStream,
                 journal: m_journal,
                 mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(),
@@ -92,7 +92,7 @@ namespace Journalist.EventStore.Connection
 
         public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)
         {
-            m_connectivityState.EnsureConnectionIsActive();
+            m_connectionState.EnsureConnectionIsActive();
 
             return new EventStreamProducer(
                 streamWriter: await CreateStreamWriterAsync(streamName),
@@ -104,7 +104,7 @@ namespace Journalist.EventStore.Connection
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(consumerName, "consumerName");
 
-            m_connectivityState.EnsureConnectionIsActive();
+            m_connectionState.EnsureConnectionIsActive();
 
             var consumerId = await m_consumersRegistry.RegisterAsync(consumerName);
 
@@ -134,9 +134,8 @@ namespace Journalist.EventStore.Connection
 
         public void Close()
         {
-            m_connectivityState.ChangeToClosing();
-            m_notificationHubController.StopHub(m_notificationHub);
-            m_connectivityState.ChangeToClosed();
+            m_connectionState.ChangeToClosing();
+            m_connectionState.ChangeToClosed();
         }
     }
 }

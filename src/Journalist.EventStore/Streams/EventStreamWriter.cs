@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
@@ -19,11 +20,11 @@ namespace Journalist.EventStore.Streams
 
         public EventStreamWriter(
             string streamName,
-            IEventStreamConnectivityState connectivityState,
+            IEventStoreConnectionState connectionState,
             EventStreamPosition endOfStream,
             IEventJournal journal,
             IEventMutationPipeline mutationPipeline,
-            INotificationHub notificationHub) : base(streamName, connectivityState)
+            INotificationHub notificationHub) : base(streamName, connectionState)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(journal, "journal");
@@ -40,7 +41,7 @@ namespace Journalist.EventStore.Streams
         {
             Require.NotNull(events, "events");
 
-            ConnectivityState.EnsureConnectionIsActive();
+            ConnectionState.EnsureConnectionIsActive();
 
             if (events.Count == 0)
             {
@@ -61,7 +62,7 @@ namespace Journalist.EventStore.Streams
 
         public async Task MoveToEndOfStreamAsync()
         {
-            ConnectivityState.EnsureConnectionIsActive();
+            ConnectionState.EnsureConnectionIsActive();
 
             m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(StreamName);
         }

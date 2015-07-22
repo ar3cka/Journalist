@@ -49,6 +49,8 @@
     <Compile Include="Configuration\IEventStoreConnectionConfiguration.cs" />
     <Compile Include="Configuration\INotificationProcessingConfiguration.cs" />
     <Compile Include="Configuration\NotificationProcessingConfiguration.cs" />
+    <Compile Include="Connection\EventStoreConnectionState.cs" />
+    <Compile Include="Connection\IEventStoreConnectionState.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Connection\EventStoreConnection.cs" />
     <Compile Include="Connection\EventStoreConnectionBuilder.cs" />
@@ -82,14 +84,10 @@
     <Compile Include="Notifications\Formatters\INotificationFormatter.cs" />
     <Compile Include="Notifications\Formatters\NotificationFormatter.cs" />
     <Compile Include="Notifications\INotificationHub.cs" />
-    <Compile Include="Notifications\INotificationHubController.cs" />
-    <Compile Include="Notifications\INotificationPipelineFactory.cs" />
     <Compile Include="Notifications\Listeners\INotificationListener.cs" />
     <Compile Include="Notifications\Listeners\INotificationListenerSubscription.cs" />
     <Compile Include="Notifications\Listeners\NotificationListenerSubscription.cs" />
     <Compile Include="Notifications\NotificationHub.cs" />
-    <Compile Include="Notifications\NotificationHubController.cs" />
-    <Compile Include="Notifications\NotificationPipelineFactory.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Timeouts\IPollingTimeout.cs" />
@@ -98,8 +96,8 @@
     <Compile Include="Notifications\Types\NotificationPropertyKeys.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Streams\EventStoreConnectivityStateEventArgs.cs" />
     <Compile Include="Streams\EventStreamConnectionWasClosedException.cs" />
-    <Compile Include="Streams\EventStreamConnectivityState.cs" />
     <Compile Include="Streams\EventStreamConsumer.cs" />
     <Compile Include="Streams\EventStreamConsumerExtensions.cs" />
     <Compile Include="Streams\EventStreamConsumerId.cs" />
@@ -110,7 +108,6 @@
     <Compile Include="Streams\EventStreamProducer.cs" />
     <Compile Include="Streams\EventStreamReader.cs" />
     <Compile Include="Streams\EventStreamWriter.cs" />
-    <Compile Include="Streams\IEventStreamConnectivityState.cs" />
     <Compile Include="Streams\IEventStreamConsumer.cs" />
     <Compile Include="Streams\IEventStreamConsumersRegistry.cs" />
     <Compile Include="Streams\IEventStreamConsumingSession.cs" />

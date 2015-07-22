@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.Collections;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
@@ -19,10 +20,10 @@ namespace Journalist.EventStore.Streams
 
         public EventStreamReader(
             string streamName,
-            IEventStreamConnectivityState connectivityState,
+            IEventStoreConnectionState connectionState,
             IEventStreamCursor streamCursor,
             IEventMutationPipeline mutationPipeline,
-            Func<StreamVersion, Task<IEventStreamCursor>> openCursor) : base(streamName, connectivityState)
+            Func<StreamVersion, Task<IEventStreamCursor>> openCursor) : base(streamName, connectionState)
         {
             Require.NotNull(streamCursor, "streamCursor");
             Require.NotNull(mutationPipeline, "mutationPipeline");
@@ -35,7 +36,7 @@ namespace Journalist.EventStore.Streams
 
         public async Task ReadEventsAsync()
         {
-            ConnectivityState.EnsureConnectionIsActive();
+            ConnectionState.EnsureConnectionIsActive();
 
             if (m_streamCursor.EndOfStream)
             {
@@ -53,7 +54,7 @@ namespace Journalist.EventStore.Streams
 
         public async Task ContinueAsync()
         {
-            ConnectivityState.EnsureConnectionIsActive();
+            ConnectionState.EnsureConnectionIsActive();
 
             if (IsCompleted)
             {

@@ -1,17 +1,19 @@
+using Journalist.EventStore.Connection;
+
 namespace Journalist.EventStore.Streams
 {
     public abstract class EventStreamInteractionEntity : IEventStreamInteractionEntity
     {
         private readonly string m_streamName;
-        private readonly IEventStreamConnectivityState m_connectivityState;
+        private readonly IEventStoreConnectionState m_connectionState;
 
-        protected EventStreamInteractionEntity(string streamName, IEventStreamConnectivityState connectivityState)
+        protected EventStreamInteractionEntity(string streamName, IEventStoreConnectionState connectionState)
         {
             Require.NotEmpty(streamName, "streamName");
-            Require.NotNull(connectivityState, "connectivityState");
+            Require.NotNull(connectionState, "connectionState");
 
             m_streamName = streamName;
-            m_connectivityState = connectivityState;
+            m_connectionState = connectionState;
         }
 
         public abstract StreamVersion StreamVersion
@@ -26,12 +28,12 @@ namespace Journalist.EventStore.Streams
 
         public bool IsClosed
         {
-            get { return !m_connectivityState.IsActive; }
+            get { return !m_connectionState.IsActive; }
         }
 
-        protected IEventStreamConnectivityState ConnectivityState
+        protected IEventStoreConnectionState ConnectionState
         {
-            get { return m_connectivityState; }
+            get { return m_connectionState; }
         }
     }
 }

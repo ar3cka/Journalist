@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Streams;
@@ -23,7 +24,7 @@ namespace Journalist.EventStore.UnitTests.Streams
 
         [Theory, EventStreamReaderData]
         public async Task ReadEventsAsync_EnsureConnectivityStateIsActive(
-            [Frozen] Mock<IEventStreamConnectivityState> stateMock,
+            [Frozen] Mock<IEventStoreConnectionState> stateMock,
             EventStreamReader reader)
         {
             await reader.ReadEventsAsync();
@@ -99,7 +100,7 @@ namespace Journalist.EventStore.UnitTests.Streams
 
         [Theory, EventStreamReaderData(emptyCursor: true)]
         public async Task ContinueAsync_EnsureConnectivityStateIsActive(
-            [Frozen] Mock<IEventStreamConnectivityState> stateMock,
+            [Frozen] Mock<IEventStoreConnectionState> stateMock,
             EventStreamReader reader)
         {
             await reader.ContinueAsync();

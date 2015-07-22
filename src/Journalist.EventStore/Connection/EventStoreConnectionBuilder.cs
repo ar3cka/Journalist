@@ -4,6 +4,8 @@ using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
+using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.EventStore.Streams;
 using Journalist.WindowsAzure.Storage;
 
@@ -39,6 +41,8 @@ namespace Journalist.EventStore.Connection
                 m_factory = new StorageFactory();
             }
 
+            var connectivityState = new EventStoreConnectionState();
+
             var journalTable = m_factory.CreateTable(
                 m_configuration.StorageConnectionString,
                 m_configuration.JournalTableName);
@@ -60,14 +64,39 @@ namespace Journalist.EventStore.Connection
                 m_configuration.StorageConnectionString,
                 m_configuration.NotificationQueueName);
 
-            var notificationPipelineFactory = new NotificationPipelineFactory(
+            var notificationHub = new NotificationHub(
                 new NotificationsChannel(notificationQueue),
-                m_configuration.NotificationListeners);
+                new NotificationFormatter(),
+                new PollingTimeout());
+
+            connectivityState.ConnectionCreated += (sender, args) =>
+            {
+                foreach (var notificationListener in m_configuration.NotificationListeners)
+                {
+                    notificationHub.Subscribe(notificationListener);
+                }
+
+                notificationHub.StartNotificationProcessing();
+            };
+
+            connectivityState.ConnectionClosing += (sender, args) =>
+            {
+                notificationHub.StopNotificationProcessing();
+            };
+
+            connectivityState.ConnectionClosing += (sender, args) =>
+            {
+                foreach (var notificationListener in m_configuration.NotificationListeners)
+                {
+                    notificationHub.Unsubscribe(notificationListener);
+                }
+            };
 
             return new EventStoreConnection(
+                connectivityState,
                 new EventJournal(journalTable),
+                notificationHub,
                 new EventStreamConsumersRegistry(journalMetadataTable),
-                notificationPipelineFactory,
                 sessionFactory,
                 pipelineFactory);
         }

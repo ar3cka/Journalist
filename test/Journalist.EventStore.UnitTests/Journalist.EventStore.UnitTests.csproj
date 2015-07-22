@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Configuration\EventStoreConnectionConfigurationTests.cs" />
     <Compile Include="Connection\EventStoreConnectionTests.cs" />
+    <Compile Include="Connection\EventStoreConnectionStateTests.cs" />
     <Compile Include="Events\JournaledEventTests.cs" />
     <Compile Include="Infrastructure\Customizations\IOStreamCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\EventStreamConsumingSessionCustomization.cs" />
@@ -70,7 +71,6 @@
     <Compile Include="Notifications\NotificationHubTests.cs" />
     <Compile Include="Notifications\Timeouts\PollingTimeoutTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Streams\EventStreamConnectivityStateTests.cs" />
     <Compile Include="Streams\EventStreamConsumerTests.cs" />
     <Compile Include="Streams\EventStreamConsumingSessionTests.cs" />
     <Compile Include="Streams\EventStreamProducerTests.cs" />

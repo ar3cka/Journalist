@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
-using Journalist.EventStore.Notifications;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;
@@ -21,26 +20,24 @@ namespace Journalist.EventStore.UnitTests.Connection
         }
 
         [Theory, AutoMoqData]
-        public void Constructor_CreatesAndStartsNotificationHub(
-            [Frozen] Mock<INotificationPipelineFactory> factoryMock,
-            [Frozen] Mock<INotificationHubController> controllerMock,
-            [Frozen] INotificationHub hub,
-            EventStoreConnection eventStoreConnection)
+        public void Constructor_ChangeConnectionStateToActive(
+            [Frozen] Mock<IEventStoreConnectionState> stateMock,
+            EventStoreConnection eventStoreConnection,
+            string streamName)
         {
-            factoryMock.Verify(self => self.CreateHub(), Times.Once());
-            factoryMock.Verify(self => self.CreateHubController(), Times.Once());
-            controllerMock.Verify(self => self.StartHub(hub));
+            stateMock.Verify(self => self.ChangeToCreated());
         }
 
         [Theory, AutoMoqData]
-        public void Close_StopsNotificationHub(
-            [Frozen] Mock<INotificationHubController> controllerMock,
-            [Frozen] INotificationHub hub,
-            EventStoreConnection eventStoreConnection)
+        public void Close_ChangeConnectionStateClosed(
+            [Frozen] Mock<IEventStoreConnectionState> stateMock,
+            EventStoreConnection eventStoreConnection,
+            string streamName)
         {
             eventStoreConnection.Close();
 
-            controllerMock.Verify(self => self.StopHub(hub));
+            stateMock.Verify(self => self.ChangeToClosing());
+            stateMock.Verify(self => self.ChangeToClosed());
         }
     }
 }

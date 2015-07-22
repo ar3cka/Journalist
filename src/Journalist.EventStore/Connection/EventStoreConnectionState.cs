@@ -1,19 +1,30 @@
-namespace Journalist.EventStore.Streams
+using System;
+using Journalist.EventStore.Streams;
+
+namespace Journalist.EventStore.Connection
 {
-    public class EventStreamConnectivityState : IEventStreamConnectivityState
+    public class EventStoreConnectionState : IEventStoreConnectionState
     {
+        public event EventHandler<EventStoreConnectivityStateEventArgs> ConnectionCreated;
+        public event EventHandler<EventStoreConnectivityStateEventArgs> ConnectionClosing;
+        public event EventHandler<EventStoreConnectivityStateEventArgs> ConnectionClosed;
+
+        private bool m_isInitial = true;
         private bool m_isActive;
         private bool m_isClosing;
         private bool m_isClosed;
 
-        public EventStreamConnectivityState()
-        {
-            m_isActive = true;
-        }
-
         public void EnsureConnectionIsActive()
         {
             Ensure.True<EventStreamConnectionWasClosedException>(m_isActive);
+        }
+
+        public void ChangeToCreated()
+        {
+            Ensure.True(m_isInitial, "Object is not in initial state.");
+
+            m_isInitial = false;
+            m_isActive = true;
         }
 
         public void ChangeToClosing()

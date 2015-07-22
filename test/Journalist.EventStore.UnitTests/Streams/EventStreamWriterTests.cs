@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
@@ -34,7 +35,7 @@ namespace Journalist.EventStore.UnitTests.Streams
 
         [Theory, EventStreamWriterData]
         public async Task AppendEvents_EnsureConnectivityStateIsActive(
-            [Frozen] Mock<IEventStreamConnectivityState> stateMock,
+            [Frozen] Mock<IEventStoreConnectionState> stateMock,
             EventStreamWriter writer,
             JournaledEvent[] events)
         {
@@ -107,7 +108,7 @@ namespace Journalist.EventStore.UnitTests.Streams
 
         [Theory, EventStreamWriterData]
         public async Task MoveToEndOfStreamAsync_EnsureConnectivityStateIsActive(
-            [Frozen] Mock<IEventStreamConnectivityState> stateMock,
+            [Frozen] Mock<IEventStoreConnectionState> stateMock,
             EventStreamWriter writer)
         {
             await writer.MoveToEndOfStreamAsync();

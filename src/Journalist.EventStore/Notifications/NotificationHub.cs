@@ -49,6 +49,11 @@ namespace Journalist.EventStore.Notifications
             m_subscriptions.Add(new NotificationListenerSubscription(listener));
         }
 
+        public void Unsubscribe(INotificationListener notificationListener)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void StartNotificationProcessing()
         {
             if (m_subscriptions.Any())
