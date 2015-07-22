@@ -44,36 +44,18 @@ namespace Journalist.EventStore.Streams
             AssertConsumerWasNotClosed();
             AssertConsumerIsNotInConsumingState();
 
-            if (!(await m_session.PromoteToLeaderAsync()))
+            if (await m_session.PromoteToLeaderAsync())
             {
-                return false;
+                await CommitReceivedStreamVersionAsync();
+                await ReceiveEventsFromReaderAsync();
+
+                if (m_hasUnprocessedEvents)
+                {
+                    return true;
+                }
+
+                await CompletedReceivingAsync();
             }
-
-            if (m_receiving && m_commitedStreamVersion != m_reader.StreamVersion)
-            {
-                await m_commitConsumedVersion(m_reader.StreamVersion);
-                m_commitedStreamVersion = m_reader.StreamVersion;
-                m_eventSliceOffset = 0;
-            }
-
-            if (m_reader.IsCompleted)
-            {
-                await m_reader.ContinueAsync();
-                m_receiving = false;
-            }
-
-            if (m_reader.HasEvents)
-            {
-                await m_reader.ReadEventsAsync();
-
-                m_hasUnprocessedEvents = true;
-                m_receiving = true;
-
-                return true;
-            }
-
-            await m_session.FreeAsync();
-            m_receiving = false;
 
             return false;
         }
@@ -126,11 +108,9 @@ namespace Journalist.EventStore.Streams
                 {
                     await CommitProcessedStreamVersionAsync(false);
                 }
-
-                m_receiving = false;
             }
 
-            await m_session.FreeAsync();
+            await CompletedReceivingAsync();
 
             m_closed = true;
         }
@@ -156,6 +136,39 @@ namespace Journalist.EventStore.Streams
             }
 
             throw new InvalidOperationException("Consumer stream is empty.");
+        }
+
+        private async Task CommitReceivedStreamVersionAsync()
+        {
+            if (m_receiving && m_commitedStreamVersion != m_reader.StreamVersion)
+            {
+                await m_commitConsumedVersion(m_reader.StreamVersion);
+                m_commitedStreamVersion = m_reader.StreamVersion;
+                m_eventSliceOffset = 0;
+            }
+        }
+
+        private async Task ReceiveEventsFromReaderAsync()
+        {
+            if (m_reader.IsCompleted)
+            {
+                await m_reader.ContinueAsync();
+                m_receiving = false;
+            }
+
+            if (m_reader.HasEvents)
+            {
+                await m_reader.ReadEventsAsync();
+
+                m_hasUnprocessedEvents = true;
+                m_receiving = true;
+            }
+        }
+
+        private async Task CompletedReceivingAsync()
+        {
+            await m_session.FreeAsync();
+            m_receiving = false;
         }
 
         private void AssertConsumerIsNotInConsumingState()
