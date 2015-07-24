@@ -25,7 +25,7 @@ namespace Journalist.EventStore.UnitTests.Connection
             EventStoreConnection eventStoreConnection,
             string streamName)
         {
-            stateMock.Verify(self => self.ChangeToCreated());
+            stateMock.Verify(self => self.ChangeToCreated(eventStoreConnection));
         }
 
         [Theory, AutoMoqData]

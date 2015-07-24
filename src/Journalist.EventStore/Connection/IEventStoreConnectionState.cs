@@ -13,7 +13,7 @@ namespace Journalist.EventStore.Connection
 
         void EnsureConnectionIsActive();
 
-        void ChangeToCreated();
+        void ChangeToCreated(IEventStoreConnection connection);
 
         void ChangeToClosing();
 

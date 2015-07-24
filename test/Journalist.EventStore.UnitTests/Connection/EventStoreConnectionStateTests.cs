@@ -19,50 +19,68 @@ namespace Journalist.EventStore.UnitTests.Connection
 
         [Theory, AutoMoqData]
         public void ChangeToCreated_FiresWhenObejectIsInClosedState_Throws(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            state.ChangeToCreated(connection);
             state.ChangeToClosing();
             state.ChangeToClosed();
 
-            Assert.Throws<InvalidOperationException>(() => state.ChangeToCreated());
+            Assert.Throws<InvalidOperationException>(() => state.ChangeToCreated(connection));
+        }
+
+        [Theory, AutoMoqData]
+        public void ChangeToCreated_FiresConnectionCreatedEvent(
+            IEventStoreConnection connection,
+            EventStoreConnectionState state)
+        {
+            var fired = false;
+            state.ConnectionCreated += (sender, args) => fired = true;
+
+            state.ChangeToCreated(connection);
+
+            Assert.True(fired);
         }
 
         [Theory, AutoMoqData]
         public void ChangeToCreated_WhenObejectIsInClosedState_Throws(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            state.ChangeToCreated(connection);
             state.ChangeToClosing();
             state.ChangeToClosed();
 
-            Assert.Throws<InvalidOperationException>(() => state.ChangeToCreated());
+            Assert.Throws<InvalidOperationException>(() => state.ChangeToCreated(connection));
         }
 
         [Theory, AutoMoqData]
         public void ChangeToCreated_WhenObejectIsInClosingState_Throws(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            state.ChangeToCreated(connection);
             state.ChangeToClosing();
 
-            Assert.Throws<InvalidOperationException>(() => state.ChangeToCreated());
+            Assert.Throws<InvalidOperationException>(() => state.ChangeToCreated(connection));
         }
 
         [Theory, AutoMoqData]
         public void ChangeToCreated_WhenObejectIsInActiveState_Throws(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            state.ChangeToCreated(connection);
 
-            Assert.Throws<InvalidOperationException>(() => state.ChangeToCreated());
+            Assert.Throws<InvalidOperationException>(() => state.ChangeToCreated(connection));
         }
 
         [Theory, AutoMoqData]
         public void ChangeToCreated_PropertiesTests(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            state.ChangeToCreated(connection);
 
             Assert.True(state.IsActive);
             Assert.False(state.IsClosed);
@@ -71,9 +89,10 @@ namespace Journalist.EventStore.UnitTests.Connection
 
         [Theory, AutoMoqData]
         public void ChangeToClosing_PropertiesTests(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            state.ChangeToCreated(connection);
             state.ChangeToClosing();
 
             Assert.False(state.IsActive);
@@ -82,7 +101,22 @@ namespace Journalist.EventStore.UnitTests.Connection
         }
 
         [Theory, AutoMoqData]
+        public void ChangeToClosing_FiresConnectionClosingEvent(
+            IEventStoreConnection connection,
+            EventStoreConnectionState state)
+        {
+            var fired = false;
+            state.ConnectionClosing += (sender, args) => fired = true;
+
+            state.ChangeToCreated(connection);
+            state.ChangeToClosing();
+
+            Assert.True(fired);
+        }
+
+        [Theory, AutoMoqData]
         public void ChangeToClosed_WhenObejectIsNotInClosingState_Throws(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
             Assert.Throws<InvalidOperationException>(() => state.ChangeToClosed());
@@ -90,9 +124,10 @@ namespace Journalist.EventStore.UnitTests.Connection
 
         [Theory, AutoMoqData]
         public void ChangeToClosed_PropertiesTests(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            state.ChangeToCreated(connection);
             state.ChangeToClosing();
             state.ChangeToClosed();
 
@@ -102,10 +137,26 @@ namespace Journalist.EventStore.UnitTests.Connection
         }
 
         [Theory, AutoMoqData]
-        public void EnsureConnectionIsActive_WhenObjectIsInClosingState_Throws(
+        public void ChangeToClosed_FiresConnectionClosedEvent(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            var fired = false;
+            state.ConnectionClosed += (sender, args) => fired = true;
+
+            state.ChangeToCreated(connection);
+            state.ChangeToClosing();
+            state.ChangeToClosed();
+
+            Assert.True(fired);
+        }
+
+        [Theory, AutoMoqData]
+        public void EnsureConnectionIsActive_WhenObjectIsInClosingState_Throws(
+            IEventStoreConnection connection,
+            EventStoreConnectionState state)
+        {
+            state.ChangeToCreated(connection);
             state.ChangeToClosing();
 
             Assert.Throws<EventStreamConnectionWasClosedException>(
@@ -114,9 +165,10 @@ namespace Journalist.EventStore.UnitTests.Connection
 
         [Theory, AutoMoqData]
         public void EnsureConnectionIsActive_WhenObjectIsInClosedState_Throws(
+            IEventStoreConnection connection,
             EventStoreConnectionState state)
         {
-            state.ChangeToCreated();
+            state.ChangeToCreated(connection);
             state.ChangeToClosing();
             state.ChangeToClosed();
 

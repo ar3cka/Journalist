@@ -38,7 +38,7 @@ namespace Journalist.EventStore.Connection
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
 
-            m_connectionState.ChangeToCreated();
+            m_connectionState.ChangeToCreated(this);
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)

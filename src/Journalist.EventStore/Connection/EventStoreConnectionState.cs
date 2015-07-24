@@ -13,18 +13,25 @@ namespace Journalist.EventStore.Connection
         private bool m_isActive;
         private bool m_isClosing;
         private bool m_isClosed;
+        private IEventStoreConnection m_connection;
 
         public void EnsureConnectionIsActive()
         {
             Ensure.True<EventStreamConnectionWasClosedException>(m_isActive);
         }
 
-        public void ChangeToCreated()
+        public void ChangeToCreated(IEventStoreConnection connection)
         {
+            Require.NotNull(connection, "connection");
+
             Ensure.True(m_isInitial, "Object is not in initial state.");
 
             m_isInitial = false;
             m_isActive = true;
+
+            m_connection = connection;
+
+            OnConnectionCreated();
         }
 
         public void ChangeToClosing()
@@ -33,6 +40,8 @@ namespace Journalist.EventStore.Connection
 
             m_isActive = false;
             m_isClosing = true;
+
+            OnConnectionClosing();
         }
 
         public void ChangeToClosed()
@@ -41,6 +50,35 @@ namespace Journalist.EventStore.Connection
 
             m_isClosing = false;
             m_isClosed = true;
+
+            OnConnectionClosed();
+        }
+
+        private void OnConnectionCreated()
+        {
+            var handler = ConnectionCreated;
+            if (handler != null)
+            {
+                handler(this, new EventStoreConnectivityStateEventArgs(m_connection));
+            }
+        }
+
+        private void OnConnectionClosing()
+        {
+            var handler = ConnectionClosing;
+            if (handler != null)
+            {
+                handler(this, new EventStoreConnectivityStateEventArgs(m_connection));
+            }
+        }
+
+        private void OnConnectionClosed()
+        {
+            var handler = ConnectionClosed;
+            if (handler != null)
+            {
+                handler(this, new EventStoreConnectivityStateEventArgs(m_connection));
+            }
         }
 
         public bool IsActive
