@@ -125,6 +125,22 @@ namespace Journalist.EventStore.UnitTests.Notifications
                 Times.Never());
         }
 
+        [Theory, NotificationHubData]
+        public async Task StartNotificationProcessing_WhenListenerWasRemoved_NeverCallsChannelReceiveNotificationsAsync(
+            [Frozen] Mock<INotificationsChannel> channelMock,
+            INotificationListener listener,
+            NotificationHub hub)
+        {
+            hub.Subscribe(listener);
+            hub.Unsubscribe(listener);
+
+            await RunNotificationProcessingTest(hub);
+
+            channelMock.Verify(
+                self => self.ReceiveNotificationsAsync(),
+                Times.Never());
+        }
+
         private static async Task RunNotificationProcessingTest(NotificationHub hub)
         {
             hub.StartNotificationProcessing();

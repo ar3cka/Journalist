@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,7 +14,8 @@ namespace Journalist.EventStore.Notifications
 {
     public class NotificationHub : INotificationHub
     {
-        private readonly List<NotificationListenerSubscription> m_subscriptions = new List<NotificationListenerSubscription>();
+        private readonly Dictionary<Guid, NotificationListenerSubscription> m_subscriptions = new Dictionary<Guid, NotificationListenerSubscription>();
+        private readonly Dictionary<INotificationListener, Guid> m_listenerSubscriptions = new Dictionary<INotificationListener, Guid>();
         private readonly INotificationsChannel m_channel;
         private readonly INotificationFormatter m_formatter;
         private readonly IPollingTimeout m_timeout;
@@ -46,19 +48,24 @@ namespace Journalist.EventStore.Notifications
         {
             Require.NotNull(listener, "listener");
 
-            m_subscriptions.Add(new NotificationListenerSubscription(listener));
+            var subscriptionId = Guid.NewGuid();
+            m_subscriptions.Add(subscriptionId, new NotificationListenerSubscription(listener));
+            m_listenerSubscriptions.Add(listener, subscriptionId);
         }
 
-        public void Unsubscribe(INotificationListener notificationListener)
+        public void Unsubscribe(INotificationListener listener)
         {
-            throw new System.NotImplementedException();
+            Require.NotNull(listener, "listener");
+
+            var subscriptionId = m_listenerSubscriptions[listener];
+            m_subscriptions.Remove(subscriptionId);
         }
 
         public void StartNotificationProcessing()
         {
             if (m_subscriptions.Any())
             {
-                foreach (var subscriptions in m_subscriptions)
+                foreach (var subscriptions in m_subscriptions.Values)
                 {
                     subscriptions.Start();
                 }
@@ -78,7 +85,7 @@ namespace Journalist.EventStore.Notifications
                     m_processingTask.Wait();
                 }
 
-                foreach (var subscriptions in m_subscriptions)
+                foreach (var subscriptions in m_subscriptions.Values)
                 {
                     subscriptions.Stop();
                 }
@@ -107,7 +114,7 @@ namespace Journalist.EventStore.Notifications
                     {
                         var notification = m_formatter.FromBytes(notificationBytes);
 
-                        foreach (var subscription in m_subscriptions)
+                        foreach (var subscription in m_subscriptions.Values)
                         {
                             await subscription.HandleNotificationAsync(notification);
                         }
