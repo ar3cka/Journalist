@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
@@ -37,11 +38,12 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_NotifiesListener(
             [Frozen] Mock<INotificationListener> listenerMock,
+            IEventStoreConnection connection,
             NotificationHub hub)
         {
             hub.Subscribe(listenerMock.Object);
 
-            await RunNotificationProcessingTest(hub);
+            await RunNotificationProcessingTest(hub, connection);
 
             listenerMock.Verify(self => self.OnSubscriptionStopped(), Times.Once());
             listenerMock.Verify(self => self.OnSubscriptionStopped(), Times.Once());
@@ -50,12 +52,13 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData(emptyChannel: true)]
         public async Task StopNotificationProcessing_WhenChannelIsEmpty_WaitsTimeout(
             [Frozen] Mock<IPollingTimeout> timeoutMock,
+            IEventStoreConnection connection,
             INotificationListener listener,
             NotificationHub hub)
         {
             hub.Subscribe(listener);
 
-            await RunNotificationProcessingTest(hub);
+            await RunNotificationProcessingTest(hub, connection);
 
             timeoutMock.Verify(self => self.WaitAsync(It.IsAny<CancellationToken>()), Times.Once());
         }
@@ -63,12 +66,13 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData(emptyChannel: true)]
         public async Task StopNotificationProcessing_WhenChannelIsEmpty_IncreaseTimeout(
             [Frozen] Mock<IPollingTimeout> timeoutMock,
+            IEventStoreConnection connection,
             INotificationListener listener,
             NotificationHub hub)
         {
             hub.Subscribe(listener);
 
-            await RunNotificationProcessingTest(hub);
+            await RunNotificationProcessingTest(hub, connection);
 
             timeoutMock.Verify(self => self.Increase(), Times.Once());
         }
@@ -76,12 +80,13 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_WhenChannelIsNotEmpty_DoesNotWaitTimeout(
             [Frozen] Mock<IPollingTimeout> timeoutMock,
+            IEventStoreConnection connection,
             INotificationListener listener,
             NotificationHub hub)
         {
             hub.Subscribe(listener);
 
-            await RunNotificationProcessingTest(hub);
+            await RunNotificationProcessingTest(hub, connection);
 
             timeoutMock.Verify(self => self.WaitAsync(It.IsAny<CancellationToken>()), Times.Never());
         }
@@ -89,12 +94,13 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_WhenChannelIsNotEmpty_ResetsTimout(
             [Frozen] Mock<IPollingTimeout> timeoutMock,
+            IEventStoreConnection connection,
             INotificationListener listener,
             NotificationHub hub)
         {
             hub.Subscribe(listener);
 
-            await RunNotificationProcessingTest(hub);
+            await RunNotificationProcessingTest(hub, connection);
 
             timeoutMock.Verify(self => self.Reset(), Times.AtLeastOnce());
         }
@@ -102,23 +108,25 @@ namespace Journalist.EventStore.UnitTests.Notifications
         [Theory, NotificationHubData]
         public async Task StopNotificationProcessing_WhenChannelIsNotEmpty_PropagatesNotificationsToListeners(
             [Frozen] Mock<INotificationListener> listenerMock,
+            IEventStoreConnection connection,
             NotificationHub hub)
         {
             hub.Subscribe(listenerMock.Object);
 
-            await RunNotificationProcessingTest(hub);
+            await RunNotificationProcessingTest(hub, connection);
 
             listenerMock.Verify(
-                self => self.OnAsync(It.IsAny<EventStreamUpdated>()),
+                self => self.On(It.IsAny<EventStreamUpdated>()),
                 Times.AtLeastOnce());
         }
 
         [Theory, NotificationHubData]
-        public async Task StartNotificationProcessing_WhenListenerListIsEmpty_NeverCallsChannelReceiveNotificationsAsync(
+        public void StartNotificationProcessing_WhenListenerListIsEmpty_NeverCallsChannelReceiveNotificationsAsync(
             [Frozen] Mock<INotificationsChannel> channelMock,
+            IEventStoreConnection connection,
             NotificationHub hub)
         {
-            await RunNotificationProcessingTest(hub);
+            hub.StartNotificationProcessing(connection);
 
             channelMock.Verify(
                 self => self.ReceiveNotificationsAsync(),
@@ -126,24 +134,25 @@ namespace Journalist.EventStore.UnitTests.Notifications
         }
 
         [Theory, NotificationHubData]
-        public async Task StartNotificationProcessing_WhenListenerWasRemoved_NeverCallsChannelReceiveNotificationsAsync(
+        public void StartNotificationProcessing_WhenListenerWasRemoved_NeverCallsChannelReceiveNotificationsAsync(
             [Frozen] Mock<INotificationsChannel> channelMock,
+            IEventStoreConnection connection,
             INotificationListener listener,
             NotificationHub hub)
         {
             hub.Subscribe(listener);
             hub.Unsubscribe(listener);
 
-            await RunNotificationProcessingTest(hub);
+            hub.StartNotificationProcessing(connection);
 
             channelMock.Verify(
                 self => self.ReceiveNotificationsAsync(),
                 Times.Never());
         }
 
-        private static async Task RunNotificationProcessingTest(NotificationHub hub)
+        private static async Task RunNotificationProcessingTest(NotificationHub hub, IEventStoreConnection connection)
         {
-            hub.StartNotificationProcessing();
+            hub.StartNotificationProcessing(connection);
             await Task.Delay(TimeSpan.FromSeconds(0.5));
             hub.StopNotificationProcessing();
         }

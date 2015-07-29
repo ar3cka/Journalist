@@ -76,7 +76,7 @@ namespace Journalist.EventStore.Connection
                     notificationHub.Subscribe(notificationListener);
                 }
 
-                notificationHub.StartNotificationProcessing();
+                notificationHub.StartNotificationProcessing(args.Connection);
             };
 
             connectivityState.ConnectionClosing += (sender, args) =>

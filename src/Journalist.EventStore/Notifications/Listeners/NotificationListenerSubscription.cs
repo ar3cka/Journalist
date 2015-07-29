@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Connection;
 using Journalist.Tasks;
 
 namespace Journalist.EventStore.Notifications.Listeners
@@ -7,6 +8,7 @@ namespace Journalist.EventStore.Notifications.Listeners
     {
         private readonly INotificationListener m_listener;
         private bool m_active;
+        private IEventStoreConnection m_connection;
 
         public NotificationListenerSubscription(INotificationListener listener)
         {
@@ -17,24 +19,39 @@ namespace Journalist.EventStore.Notifications.Listeners
         {
             if (m_active)
             {
-                return m_listener.OnAsync(notification);
+                return m_listener.On(notification);
             }
 
             return TaskDone.Done;
         }
 
-        public void Start()
+        public void Start(IEventStoreConnection connection)
         {
-            m_listener.OnSubscriptionStarted();
+            Require.NotNull(connection, "connection");
+
+            m_connection = connection;
+
+            m_listener.OnSubscriptionStarted(this);
 
             m_active = true;
         }
 
         public void Stop()
         {
+            m_connection = null;
             m_active = false;
 
             m_listener.OnSubscriptionStopped();
+        }
+
+        public IEventStoreConnection Connection
+        {
+            get
+            {
+                Ensure.True(m_connection != null, "Subscription is not activated.");
+
+                return m_connection;
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
 using Journalist.EventStore.Notifications.Listeners;
@@ -61,13 +62,15 @@ namespace Journalist.EventStore.Notifications
             m_subscriptions.Remove(subscriptionId);
         }
 
-        public void StartNotificationProcessing()
+        public void StartNotificationProcessing(IEventStoreConnection connection)
         {
+            Require.NotNull(connection, "connection");
+
             if (m_subscriptions.Any())
             {
                 foreach (var subscriptions in m_subscriptions.Values)
                 {
-                    subscriptions.Start();
+                    subscriptions.Start(connection);
                 }
 
                 m_token = new CancellationTokenSource();
