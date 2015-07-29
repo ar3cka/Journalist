@@ -52,5 +52,13 @@ namespace Journalist.Extensions
 
             return !collection.Any();
         }
+
+        public static bool IsEmpty<T>(this IEnumerable<T> collection, Func<T, bool> predicate)
+        {
+            Require.NotNull(collection, "collection");
+            Require.NotNull(predicate, "predicate");
+
+            return !collection.Any(predicate);
+        }
     }
 }
