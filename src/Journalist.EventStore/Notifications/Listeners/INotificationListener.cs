@@ -5,9 +5,9 @@ namespace Journalist.EventStore.Notifications.Listeners
 {
     public interface INotificationListener
     {
-        Task OnSubscriptionStarted(INotificationListenerSubscription subscription);
+        void OnSubscriptionStarted(INotificationListenerSubscription subscription);
 
-        Task OnSubscriptionStopped();
+        void OnSubscriptionStopped();
 
         Task On(EventStreamUpdated notification);
     }

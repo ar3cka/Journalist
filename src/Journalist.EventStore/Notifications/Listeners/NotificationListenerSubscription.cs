@@ -15,14 +15,12 @@ namespace Journalist.EventStore.Notifications.Listeners
             m_listener = listener;
         }
 
-        public Task HandleNotificationAsync(dynamic notification)
+        public async Task HandleNotificationAsync(dynamic notification)
         {
             if (m_active)
             {
-                return m_listener.On(notification);
+                await m_listener.On(notification);
             }
-
-            return TaskDone.Done;
         }
 
         public void Start(IEventStoreConnection connection)

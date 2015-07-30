@@ -11,16 +11,14 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         public readonly BlockingCollection<EventStreamUpdated> Notifications =
             new BlockingCollection<EventStreamUpdated>(new ConcurrentQueue<EventStreamUpdated>());
 
-        public Task OnSubscriptionStarted(INotificationListenerSubscription subscription)
+        public void OnSubscriptionStarted(INotificationListenerSubscription subscription)
         {
             Started = true;
-            return TaskDone.Done;
         }
 
-        public Task OnSubscriptionStopped()
+        public void OnSubscriptionStopped()
         {
             Started = false;
-            return TaskDone.Done;
         }
 
         public Task On(EventStreamUpdated notification)
