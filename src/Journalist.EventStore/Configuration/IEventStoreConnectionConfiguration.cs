@@ -5,7 +5,7 @@ namespace Journalist.EventStore.Configuration
         IEventStoreConnectionConfiguration UseStorage(
             string storageConnectionString,
             string journalTableName = Constants.StorageEntities.EVENT_JOURNAL_TABLE_NAME,
-            string journalMetadataTableName = Constants.StorageEntities.EVENT_JOURNAL_METADATA_TABLE_NAME,
+            string eventStoreDeploymentTableName = Constants.StorageEntities.EVENT_STORE_DEPLOYMENT_TABLE_NAME,
             string notificationQueueName = Constants.StorageEntities.NOTIFICATION_QUEUE_NAME,
             string streamConsumerSessionsBlobName = Constants.StorageEntities.EVENT_STREAM_CONSUMER_SESSIONS_BLOB_NAME);
 

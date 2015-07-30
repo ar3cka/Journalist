@@ -49,7 +49,7 @@ namespace Journalist.EventStore.Connection
 
             var journalMetadataTable = m_factory.CreateTable(
                 m_configuration.StorageConnectionString,
-                m_configuration.JournalMetadataTableName);
+                m_configuration.EventStoreDeploymentTableName);
 
             var sessionFactory = new EventStreamConsumingSessionFactory(
                 m_factory.CreateBlobContainer(

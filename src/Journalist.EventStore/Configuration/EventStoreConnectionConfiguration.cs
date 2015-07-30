@@ -56,19 +56,19 @@ namespace Journalist.EventStore.Configuration
         public IEventStoreConnectionConfiguration UseStorage(
             string storageConnectionString,
             string journalTableName,
-            string journalMetadataTableName,
+            string eventStoreDeploymentTableName,
             string notificationQueueName,
             string streamConsumerSessionsBlobName)
         {
             Require.NotEmpty(storageConnectionString, "storageConnectionString");
             Require.NotEmpty(journalTableName, "journalTableName");
-            Require.NotEmpty(journalMetadataTableName, "journalMetadataTableName");
+            Require.NotEmpty(eventStoreDeploymentTableName, "eventStoreDeploymentTableName");
             Require.NotEmpty(notificationQueueName, "notificationQueueName");
             Require.NotEmpty(streamConsumerSessionsBlobName, "streamConsumerSessionsBlobName");
 
             StorageConnectionString = storageConnectionString;
             JournalTableName = journalTableName;
-            JournalMetadataTableName = journalMetadataTableName;
+            EventStoreDeploymentTableName = eventStoreDeploymentTableName;
             NotificationQueueName = notificationQueueName;
             StreamConsumerSessionsBlobName = streamConsumerSessionsBlobName;
 
@@ -97,7 +97,7 @@ namespace Journalist.EventStore.Configuration
             private set;
         }
 
-        public string JournalMetadataTableName
+        public string EventStoreDeploymentTableName
         {
             get;
             private set;
