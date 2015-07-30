@@ -6,6 +6,7 @@ namespace Journalist.EventStore.Notifications.Types
         {
             public const string NOTIFICATION_ID = "NotificationId";
             public const string NOTIFICATION_TYPE = "NotificationType";
+            public const string RECIPIENT = "Recipient";
             public const string STREAM = "Stream";
         }
 

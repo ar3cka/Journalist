@@ -7,7 +7,6 @@ namespace Journalist.EventStore.Streams
 {
     public class EventStreamConsumer : IEventStreamConsumer
     {
-        private readonly string m_consumerName;
         private readonly IEventStreamReader m_reader;
         private readonly IEventStreamConsumingSession m_session;
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
@@ -21,20 +20,17 @@ namespace Journalist.EventStore.Streams
         private bool m_closed;
 
         public EventStreamConsumer(
-            string consumerName,
             EventStreamConsumerId consumerId,
             IEventStreamReader streamReader,
             IEventStreamConsumingSession session,
             StreamVersion commitedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
-            Require.NotEmpty(consumerName, "consumerName");
             Require.NotNull(consumerId, "consumerId");
             Require.NotNull(streamReader, "streamReader");
             Require.NotNull(session, "session");
             Require.NotNull(commitConsumedVersion, "commitConsumedVersion");
 
-            m_consumerName = consumerName;
             m_reader = streamReader;
             m_session = session;
             m_commitConsumedVersion = commitConsumedVersion;
@@ -187,11 +183,6 @@ namespace Journalist.EventStore.Streams
             {
                 throw new InvalidOperationException("Consumer was closed.");
             }
-        }
-
-        public string Name
-        {
-            get { return m_consumerName; }
         }
     }
 }

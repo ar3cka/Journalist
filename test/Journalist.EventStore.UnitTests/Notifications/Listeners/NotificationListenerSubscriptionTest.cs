@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Types;
+using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;
@@ -52,6 +54,42 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         }
 
         [Theory, AutoMoqData]
+        public async Task HandleNotificationAsync_WhenNotificationNotAddressedToConsumer_PropagatesNotificationToTheListener(
+            [Frozen] Mock<INotificationListener> listenerMock,
+            IEventStoreConnection connection,
+            NotificationListenerSubscription subscription,
+            EventStreamUpdated notification,
+            EventStreamConsumerId consumerId)
+        {
+            subscription.Start(connection);
+
+            await subscription.HandleNotificationAsync(notification.SendTo(consumerId));
+
+            listenerMock.Verify(
+                self => self.On(notification),
+                Times.Never());
+        }
+
+        [Theory, AutoMoqData]
+        public async Task HandleNotificationAsync_WhenNotificationAddressedToConsumer_PropagatesNotificationToTheListener(
+            [Frozen] Mock<INotificationListener> listenerMock,
+            [Frozen] EventStreamConsumerId consumerId,
+            IEventStoreConnection connection,
+            NotificationListenerSubscription subscription,
+            EventStreamUpdated notification)
+        {
+            var addressedNotification = (EventStreamUpdated)notification.SendTo(consumerId);
+
+            subscription.Start(connection);
+
+            await subscription.HandleNotificationAsync(addressedNotification);
+
+            listenerMock.Verify(
+                self => self.On(addressedNotification),
+                Times.Once());
+        }
+
+        [Theory, AutoMoqData]
         public async Task HandleNotificationAsync_WhenSubscriptionDidNotStart_NotPropagatesNotificationToTheListener(
             [Frozen] Mock<INotificationListener> listenerMock,
             NotificationListenerSubscription subscription,
@@ -83,32 +121,51 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         }
 
         [Theory, AutoMoqData]
-        public void ConnectionProperty_WhenSubscriptionWasStarted_ReturnsConnection(
-            IEventStoreConnection connection,
-            NotificationListenerSubscription subscription)
+        public void CreateSubscriptionConsumerAsync_WhenSubscriptionWasStarted_UseConnection(
+            [Frozen] EventStreamConsumerId consumerId,
+            Mock<IEventStoreConnection> connectionMock,
+            NotificationListenerSubscription subscription,
+            string streamName)
         {
-            subscription.Start(connection);
+            subscription.Start(connectionMock.Object);
 
-            Assert.Same(subscription.Connection, connection);
+            subscription.CreateSubscriptionConsumerAsync(streamName);
+
+            connectionMock.Verify(self => self.CreateStreamConsumerAsync(
+                streamName,
+                consumerId));
         }
 
         [Theory, AutoMoqData]
-        public void ConnectionProperty_WhenSubscriptionWasNotStarted_Throws(
-            IEventStoreConnection connection,
-            NotificationListenerSubscription subscription)
+        public async Task CreateSubscriptionConsumerAsync_WhenSubscriptionWasNotStarted_Throws(
+            [Frozen] EventStreamConsumerId consumerId,
+            NotificationListenerSubscription subscription,
+            string streamName)
         {
-            Assert.Throws<InvalidOperationException>(() => subscription.Connection);
+            await
+                Assert.ThrowsAsync<InvalidOperationException>(
+                    () => subscription.CreateSubscriptionConsumerAsync(streamName));
         }
 
         [Theory, AutoMoqData]
-        public void ConnectionProperty_WhenSubscriptionWasStopped_Throws(
+        public async Task DefferNotificationAsync_SendAddressedNotification(
+            [Frozen] Mock<INotificationHub> hubMock,
+            [Frozen] EventStreamConsumerId consumerId,
+            Mock<INotification> receivedNotificationMock,
+            INotification deferredNotification,
             IEventStoreConnection connection,
             NotificationListenerSubscription subscription)
         {
-            subscription.Start(connection);
-            subscription.Stop();
+            receivedNotificationMock
+                .Setup(self => self.SendTo(consumerId))
+                .Returns(deferredNotification);
 
-            Assert.Throws<InvalidOperationException>(() => subscription.Connection);
+            subscription.Start(connection);
+
+            await subscription.DefferNotificationAsync(receivedNotificationMock.Object);
+
+            hubMock
+                .Verify(self => self.NotifyAsync(deferredNotification));
         }
     }
 }

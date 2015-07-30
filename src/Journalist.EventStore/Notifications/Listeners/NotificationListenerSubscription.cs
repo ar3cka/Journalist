@@ -1,17 +1,29 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
-using Journalist.Tasks;
+using Journalist.EventStore.Notifications.Types;
+using Journalist.EventStore.Streams;
 
 namespace Journalist.EventStore.Notifications.Listeners
 {
     public class NotificationListenerSubscription : INotificationListenerSubscription
     {
+        private readonly EventStreamConsumerId m_subscriptionConsumerId;
         private readonly INotificationListener m_listener;
+        private readonly INotificationHub m_hub;
         private bool m_active;
         private IEventStoreConnection m_connection;
 
-        public NotificationListenerSubscription(INotificationListener listener)
+        public NotificationListenerSubscription(
+            EventStreamConsumerId subscriptionConsumerId,
+            INotificationHub hub,
+            INotificationListener listener)
         {
+            Require.NotNull(subscriptionConsumerId, "subscriptionConsumerId");
+            Require.NotNull(hub, "hub");
+            Require.NotNull(listener, "listener");
+
+            m_subscriptionConsumerId = subscriptionConsumerId;
+            m_hub = hub;
             m_listener = listener;
         }
 
@@ -19,7 +31,18 @@ namespace Journalist.EventStore.Notifications.Listeners
         {
             if (m_active)
             {
-                await m_listener.On(notification);
+                var notificationInterface = (INotification)notification;
+                if (notificationInterface.IsAddressed)
+                {
+                    if (notificationInterface.IsAddressedTo(m_subscriptionConsumerId))
+                    {
+                        await m_listener.On(notification);
+                    }
+                }
+                else
+                {
+                        await m_listener.On(notification);
+                }
             }
         }
 
@@ -42,14 +65,20 @@ namespace Journalist.EventStore.Notifications.Listeners
             m_listener.OnSubscriptionStopped();
         }
 
-        public IEventStoreConnection Connection
+        public Task<IEventStreamConsumer> CreateSubscriptionConsumerAsync(string streamName)
         {
-            get
-            {
-                Ensure.True(m_connection != null, "Subscription is not activated.");
+            Require.NotEmpty(streamName, "streamName");
 
-                return m_connection;
-            }
+            Ensure.True(m_active, "Subscription is not activated.");
+
+            return m_connection.CreateStreamConsumerAsync(streamName, m_subscriptionConsumerId);
+        }
+
+        public Task DefferNotificationAsync(INotification notification)
+        {
+            Require.NotNull(notification, "notification");
+
+            return m_hub.NotifyAsync(notification.SendTo(m_subscriptionConsumerId));
         }
     }
 }

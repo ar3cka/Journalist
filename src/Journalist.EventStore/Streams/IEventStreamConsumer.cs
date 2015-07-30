@@ -13,7 +13,5 @@ namespace Journalist.EventStore.Streams
         Task CloseAsync();
 
         IEnumerable<JournaledEvent> EnumerateEvents();
-
-        string Name { get; }
     }
 }

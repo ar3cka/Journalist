@@ -6,7 +6,7 @@ using Journalist.Tasks;
 
 namespace Journalist.EventStore.IntegrationTests.Streams
 {
-    public class NotificationListener : INotificationListener
+    public abstract class NotificationListener : INotificationListener
     {
         public readonly BlockingCollection<EventStreamUpdated> Notifications =
             new BlockingCollection<EventStreamUpdated>(new ConcurrentQueue<EventStreamUpdated>());

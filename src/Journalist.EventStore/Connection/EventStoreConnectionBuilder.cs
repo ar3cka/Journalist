@@ -64,9 +64,12 @@ namespace Journalist.EventStore.Connection
                 m_configuration.StorageConnectionString,
                 m_configuration.NotificationQueueName);
 
+            var consumersRegistry = new EventStreamConsumersRegistry(journalMetadataTable);
+
             var notificationHub = new NotificationHub(
                 new NotificationsChannel(notificationQueue),
                 new NotificationFormatter(),
+                consumersRegistry,
                 new PollingTimeout());
 
             connectivityState.ConnectionCreated += (sender, args) =>
@@ -96,7 +99,7 @@ namespace Journalist.EventStore.Connection
                 connectivityState,
                 new EventJournal(journalTable),
                 notificationHub,
-                new EventStreamConsumersRegistry(journalMetadataTable),
+                consumersRegistry,
                 sessionFactory,
                 pipelineFactory);
         }

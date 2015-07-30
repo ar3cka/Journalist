@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,16 +8,18 @@ using Journalist.EventStore.Notifications.Formatters;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.EventStore.Notifications.Types;
+using Journalist.EventStore.Streams;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Notifications
 {
     public class NotificationHub : INotificationHub
     {
-        private readonly Dictionary<Guid, NotificationListenerSubscription> m_subscriptions = new Dictionary<Guid, NotificationListenerSubscription>();
-        private readonly Dictionary<INotificationListener, Guid> m_listenerSubscriptions = new Dictionary<INotificationListener, Guid>();
+        private readonly Dictionary<EventStreamConsumerId, NotificationListenerSubscription> m_subscriptions = new Dictionary<EventStreamConsumerId, NotificationListenerSubscription>();
+        private readonly Dictionary<INotificationListener, EventStreamConsumerId> m_listenerSubscriptions = new Dictionary<INotificationListener, EventStreamConsumerId>();
         private readonly INotificationsChannel m_channel;
         private readonly INotificationFormatter m_formatter;
+        private readonly IEventStreamConsumersRegistry m_consumersRegistry;
         private readonly IPollingTimeout m_timeout;
 
         private CancellationTokenSource m_token;
@@ -27,18 +28,21 @@ namespace Journalist.EventStore.Notifications
         public NotificationHub(
             INotificationsChannel channel,
             INotificationFormatter formatter,
+            IEventStreamConsumersRegistry consumersRegistry,
             IPollingTimeout timeout)
         {
             Require.NotNull(channel, "channel");
             Require.NotNull(formatter, "formatter");
+            Require.NotNull(consumersRegistry, "consumersRegistry");
             Require.NotNull(timeout, "timeout");
 
             m_channel = channel;
             m_formatter = formatter;
+            m_consumersRegistry = consumersRegistry;
             m_timeout = timeout;
         }
 
-        public Task NotifyAsync(EventStreamUpdated notification)
+        public Task NotifyAsync(INotification notification)
         {
             Require.NotNull(notification, "notification");
 
@@ -49,9 +53,9 @@ namespace Journalist.EventStore.Notifications
         {
             Require.NotNull(listener, "listener");
 
-            var subscriptionId = Guid.NewGuid();
-            m_subscriptions.Add(subscriptionId, new NotificationListenerSubscription(listener));
-            m_listenerSubscriptions.Add(listener, subscriptionId);
+            var consumerId = RegisterEventListenerConsumer(listener);
+            m_subscriptions.Add(consumerId, new NotificationListenerSubscription(consumerId, this, listener));
+            m_listenerSubscriptions.Add(listener, consumerId);
         }
 
         public void Unsubscribe(INotificationListener listener)
@@ -93,6 +97,12 @@ namespace Journalist.EventStore.Notifications
                     subscriptions.Stop();
                 }
             }
+        }
+
+        private EventStreamConsumerId RegisterEventListenerConsumer(INotificationListener listener)
+        {
+            return Task.Run(() =>
+                m_consumersRegistry.RegisterAsync(listener.GetType().FullName)).Result;
         }
 
         private async Task ProcessNotificationFromChannel(CancellationToken token)

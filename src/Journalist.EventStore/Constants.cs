@@ -23,6 +23,7 @@ namespace Journalist.EventStore
             public class MetadataTableProperties
             {
                 public const string EVENT_STREAM_CONSUMER_ID = "EventStreamConsumerId";
+                public const string EVENT_STREAM_CONSUMER_NAME = "EventStreamConsumerName";
             }
         }
 

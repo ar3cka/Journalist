@@ -34,6 +34,23 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             Assert.Equal(consumerId1, consumerId2);
         }
 
+        [Theory, AutoMoqData]
+        public async Task IsResistedAsync_WhenConsumerWasNotRegistered_ReturnsFalse(EventStreamConsumerId consumerId)
+        {
+            var result = await Registry.IsResistedAsync(consumerId);
+
+            Assert.False(result);
+        }
+
+        [Theory, AutoMoqData]
+        public async Task IsResistedAsync_WhenConsumerWasRegistered_ReturnsTrue(string consumerName)
+        {
+            var consumerId = await Registry.RegisterAsync(consumerName);
+            var result = await Registry.IsResistedAsync(consumerId);
+
+            Assert.True(result);
+        }
+
         public EventStreamConsumersRegistry Registry
         {
             get; set;

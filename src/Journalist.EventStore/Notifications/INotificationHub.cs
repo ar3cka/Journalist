@@ -5,6 +5,6 @@ namespace Journalist.EventStore.Notifications
 {
     public interface INotificationHub
     {
-        Task NotifyAsync(EventStreamUpdated notification);
+        Task NotifyAsync(INotification notification);
     }
 }

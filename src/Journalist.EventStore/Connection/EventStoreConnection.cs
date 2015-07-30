@@ -108,6 +108,26 @@ namespace Journalist.EventStore.Connection
 
             var consumerId = await m_consumersRegistry.RegisterAsync(consumerName);
 
+            return await CreateStreamConsumerInternalAsync(streamName, consumerId);
+        }
+
+        public async Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, EventStreamConsumerId consumerId)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotNull(consumerId, "consumerId");
+
+            if (await m_consumersRegistry.IsResistedAsync(consumerId))
+            {
+                return await CreateStreamConsumerInternalAsync(streamName, consumerId);
+            }
+
+            throw new UnknownEventStreamConsumerException(consumerId);
+        }
+
+        private async Task<IEventStreamConsumer> CreateStreamConsumerInternalAsync(string streamName, EventStreamConsumerId consumerId)
+        {
+            m_connectionState.EnsureConnectionIsActive();
+
             var readerVersion = await m_journal.ReadStreamReaderPositionAsync(
                 streamName: streamName,
                 readerName: consumerId.ToString());
@@ -121,7 +141,6 @@ namespace Journalist.EventStore.Connection
                 streamName: streamName);
 
             return new EventStreamConsumer(
-                consumerName: consumerName,
                 consumerId: consumerId,
                 streamReader: reader,
                 session: session,

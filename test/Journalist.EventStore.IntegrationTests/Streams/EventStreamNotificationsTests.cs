@@ -12,8 +12,8 @@ namespace Journalist.EventStore.IntegrationTests.Streams
     {
         public EventStreamNotificationsTests()
         {
-            Listener1 = new NotificationListener();
-            Listener2 = new NotificationListener();
+            Listener1 = new NotificationListener1();
+            Listener2 = new NotificationListener2();
 
             Connection = EventStoreConnectionBuilder
                 .Create(config => config
@@ -77,5 +77,13 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         {
             get; set;
         }
+    }
+
+    public class NotificationListener2 : NotificationListener
+    {
+    }
+
+    public class NotificationListener1 : NotificationListener
+    {
     }
 }

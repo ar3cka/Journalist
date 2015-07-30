@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
+using Journalist.Tasks;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;
 using Xunit;
@@ -38,6 +40,38 @@ namespace Journalist.EventStore.UnitTests.Connection
 
             stateMock.Verify(self => self.ChangeToClosing());
             stateMock.Verify(self => self.ChangeToClosed());
+        }
+
+        [Theory, AutoMoqData]
+        public async Task CreateStreamConsumerAsync_WhenConsumerDoesNotExist_Throws(
+            [Frozen] Mock<IEventStreamConsumersRegistry> consumerRegistryMock,
+            EventStoreConnection eventStoreConnection,
+            string streamName,
+            EventStreamConsumerId consumerId)
+        {
+            consumerRegistryMock
+                .Setup(self => self.IsResistedAsync(consumerId))
+                .Returns(TaskDone.False);
+
+            await Assert.ThrowsAsync<UnknownEventStreamConsumerException>(() =>
+                eventStoreConnection.CreateStreamConsumerAsync(streamName, consumerId));
+        }
+
+        [Theory, AutoMoqData]
+        public async Task CreateStreamConsumerAsync_WhenConsumerExists_CreatesIt(
+            [Frozen] Mock<IEventStreamConsumersRegistry> consumerRegistryMock,
+            EventStoreConnection eventStoreConnection,
+            string streamName,
+            EventStreamConsumerId consumerId)
+        {
+            consumerRegistryMock
+                .Setup(self => self.IsResistedAsync(consumerId))
+                .Returns(TaskDone.True);
+
+            var consumer = await eventStoreConnection.CreateStreamConsumerAsync(streamName, consumerId);
+
+            Assert.NotNull(consumer);
+            Assert.IsType<EventStreamConsumer>(consumer);
         }
     }
 }
