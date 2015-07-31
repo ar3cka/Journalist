@@ -32,6 +32,9 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                     .Setup(self => self.ContinueAsync())
                     .Returns(TaskDone.Done))
                 .Do(mock => mock
+                    .Setup(self => self.StreamVersion)
+                    .ReturnsUsingFixture(fixture))
+                .Do(mock => mock
                     .Setup(self => self.Events)
                     .ReturnsUsingFixture(fixture)));
         }

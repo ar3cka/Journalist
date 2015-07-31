@@ -83,9 +83,7 @@ namespace Journalist.EventStore.Streams
             }
             else
             {
-                await m_commitConsumedVersion(m_reader.StreamVersion);
-                m_commitedStreamVersion = m_reader.StreamVersion;
-                m_eventSliceOffset = 0;
+                await CommitReceivedStreamVersionAsync();
             }
         }
 
@@ -134,6 +132,11 @@ namespace Journalist.EventStore.Streams
             }
 
             throw new InvalidOperationException("Consumer stream is empty.");
+        }
+
+        public string StreamName
+        {
+            get { return m_reader.StreamName; }
         }
 
         private async Task CommitReceivedStreamVersionAsync()

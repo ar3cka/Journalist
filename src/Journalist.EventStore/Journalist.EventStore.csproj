@@ -84,10 +84,12 @@
     <Compile Include="Notifications\Formatters\INotificationFormatter.cs" />
     <Compile Include="Notifications\Formatters\NotificationFormatter.cs" />
     <Compile Include="Notifications\INotificationHub.cs" />
+    <Compile Include="Notifications\Listeners\BatchEventConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\EventConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\INotificationListener.cs" />
     <Compile Include="Notifications\Listeners\INotificationListenerSubscription.cs" />
     <Compile Include="Notifications\Listeners\NotificationListenerSubscription.cs" />
+    <Compile Include="Notifications\Listeners\StreamConsumingNotificationListener.cs" />
     <Compile Include="Notifications\NotificationHub.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />

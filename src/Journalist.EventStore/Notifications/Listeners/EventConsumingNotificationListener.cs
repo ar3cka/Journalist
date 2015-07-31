@@ -1,37 +1,43 @@
+using System;
 using System.Threading.Tasks;
-using Journalist.EventStore.Notifications.Types;
+using Journalist.EventStore.Events;
+using Journalist.EventStore.Streams;
 
 namespace Journalist.EventStore.Notifications.Listeners
 {
-    public class EventConsumingNotificationListener : INotificationListener
+    public abstract class EventConsumingNotificationListener : StreamConsumingNotificationListener
     {
-        private INotificationListenerSubscription m_subscription;
-
-        public void OnSubscriptionStarted(INotificationListenerSubscription subscription)
+        protected override async Task<bool> TryProcessEventFromConsumerAsync(IEventStreamConsumer consumer)
         {
-            Require.NotNull(subscription, "subscription");
-
-            m_subscription = subscription;
-        }
-
-        public void OnSubscriptionStopped()
-        {
-        }
-
-        public async Task On(EventStreamUpdated notification)
-        {
-            Require.NotNull(notification, "notification");
-
-            var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
-            if (await consumer.ReceiveEventsAsync())
+            foreach (var journaledEvent in consumer.EnumerateEvents())
             {
-            }
-            else
-            {
-                await m_subscription.DefferNotificationAsync(notification);
+                var failed = false;
+                try
+                {
+                    await ProcessEventAsync(journaledEvent);
+                }
+                catch (Exception exception)
+                {
+                    ListenerLogger.Error(
+                        exception,
+                        "Processing event {EventId} of type {EventType} from stream {Stream} failed.",
+                        journaledEvent.EventId,
+                        journaledEvent.EventTypeName,
+                        consumer.StreamName);
+
+                    failed = true;
+                }
+
+                if (failed)
+                {
+                    await consumer.CommitProcessedStreamVersionAsync(skipCurrent: true);
+                    return false;
+                }
             }
 
-            await consumer.CloseAsync();
+            return true;
         }
+
+        protected abstract Task ProcessEventAsync(JournaledEvent journaledEvent);
     }
 }
