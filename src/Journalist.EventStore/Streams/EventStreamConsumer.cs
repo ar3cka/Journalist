@@ -9,6 +9,7 @@ namespace Journalist.EventStore.Streams
     {
         private readonly IEventStreamReader m_reader;
         private readonly IEventStreamConsumingSession m_session;
+        private readonly bool m_autoCommitProcessedStreamVersion;
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
 
         private bool m_hasUnprocessedEvents;
@@ -23,6 +24,7 @@ namespace Journalist.EventStore.Streams
             EventStreamConsumerId consumerId,
             IEventStreamReader streamReader,
             IEventStreamConsumingSession session,
+            bool autoCommitProcessedStreamVersion,
             StreamVersion commitedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
@@ -33,6 +35,7 @@ namespace Journalist.EventStore.Streams
 
             m_reader = streamReader;
             m_session = session;
+            m_autoCommitProcessedStreamVersion = autoCommitProcessedStreamVersion;
             m_commitConsumedVersion = commitConsumedVersion;
             m_commitedStreamVersion = commitedStreamVersion;
         }
@@ -44,7 +47,11 @@ namespace Journalist.EventStore.Streams
 
             if (await m_session.PromoteToLeaderAsync())
             {
-                await CommitReceivedStreamVersionAsync();
+                if (m_autoCommitProcessedStreamVersion)
+                {
+                    await CommitReceivedStreamVersionAsync();
+                }
+
                 await ReceiveEventsFromReaderAsync();
 
                 if (m_hasUnprocessedEvents)
@@ -91,7 +98,7 @@ namespace Journalist.EventStore.Streams
         {
             AssertConsumerWasNotClosed();
 
-            if (m_receiving)
+            if (m_receiving && m_autoCommitProcessedStreamVersion)
             {
                 if (m_hasUnprocessedEvents)
                 {

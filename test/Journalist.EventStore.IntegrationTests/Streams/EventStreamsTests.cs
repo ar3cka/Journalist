@@ -147,6 +147,35 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
+        public async Task CreatedConsumer_WhenAutoCommitDisabled_DoesNotSaveConsumedPositionPosition(
+            JournaledEvent[] dummyEvents1,
+            JournaledEvent[] dummyEvents2,
+            string consumerName)
+        {
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
+            await producer.PublishAsync(dummyEvents1);
+
+            var consumer1 = await Connection.CreateStreamConsumerAsync(config => config
+                .ReadStream(StreamName)
+                .UseConsumerName(consumerName)
+                .AutoCommitProcessedStreamPosition(false));
+
+            await consumer1.ReceiveEventsAsync();
+
+            await producer.PublishAsync(dummyEvents2);
+            var receivedEvents1 = consumer1.EnumerateEvents().ToList();
+            await consumer1.ReceiveEventsAsync(); // saves position and stops reading.
+            await consumer1.CloseAsync(); // frees session
+
+            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
+            await consumer2.ReceiveEventsAsync();
+            var receivedEvents2 = consumer2.EnumerateEvents().ToList();
+
+            Assert.Equal(dummyEvents1, receivedEvents1);
+            Assert.Equal(dummyEvents1.Union(dummyEvents2), receivedEvents2);
+        }
+
+        [Theory, AutoMoqData]
         public async Task CreatedConsumer_SavesConsumedPositionPositionOnClose(
             JournaledEvent[] dummyEvents1,
             JournaledEvent[] dummyEvents2,

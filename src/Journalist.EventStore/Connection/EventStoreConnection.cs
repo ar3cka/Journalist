@@ -130,6 +130,7 @@ namespace Journalist.EventStore.Connection
                 consumerId: consumerId,
                 streamReader: reader,
                 session: session,
+                autoCommitProcessedStreamVersion: configuration.UseAutoCommitProcessedStreamPositionBehavior,
                 commitedStreamVersion: readerVersion,
                 commitConsumedVersion: currentVersion => m_journal.CommitStreamReaderPositionAsync(
                     streamName: configuration.StreamName,
