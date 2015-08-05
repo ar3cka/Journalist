@@ -17,7 +17,6 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 
             Fixture.Customize<Func<StreamVersion, Task>>(composer => composer
                 .FromFactory((CommitStreamVersionFMock mock) => mock.Invoke));
-
         }
     }
 }

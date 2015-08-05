@@ -16,16 +16,21 @@ namespace Journalist.EventStore.Notifications.Listeners
         {
             Require.NotNull(subscription, "subscription");
 
+            AssertSubscriptionWasNotBound();
+
             m_subscription = subscription;
         }
 
         public void OnSubscriptionStopped()
         {
+            m_subscription = null;
         }
 
         public async Task On(EventStreamUpdated notification)
         {
             Require.NotNull(notification, "notification");
+
+            AssertSubscriptionWasBound();
 
             var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
             var retryProcessing = true;
@@ -44,6 +49,16 @@ namespace Journalist.EventStore.Notifications.Listeners
         }
 
         protected abstract Task<bool> TryProcessEventFromConsumerAsync(IEventStreamConsumer consumer);
+
+        private void AssertSubscriptionWasNotBound()
+        {
+            Ensure.True(m_subscription == null, "Subscription was bound to listener.");
+        }
+
+        private void AssertSubscriptionWasBound()
+        {
+            Ensure.True(m_subscription != null, "Subscription was not bound to listener.");
+        }
 
         protected ILogger ListenerLogger
         {

@@ -13,7 +13,6 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                 .Customize(new JournaledEventCustomization())
                 .Customize(new IOStreamCustomization()))
         {
-
         }
     }
 }
