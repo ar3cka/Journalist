@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Streams;
 
@@ -12,6 +13,8 @@ namespace Journalist.EventStore.Connection
         Task<IEventStreamWriter> CreateStreamWriterAsync(string streamName);
 
         Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName);
+
+        Task<IEventStreamConsumer> CreateStreamConsumerAsync(Action<IEventStreamConsumerConfiguration> configure);
 
         Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName);
 

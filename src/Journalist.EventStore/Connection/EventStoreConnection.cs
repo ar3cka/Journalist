@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
@@ -92,6 +93,8 @@ namespace Journalist.EventStore.Connection
 
         public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)
         {
+            Require.NotEmpty(streamName, "streamName");
+
             m_connectionState.EnsureConnectionIsActive();
 
             return new EventStreamProducer(
@@ -99,46 +102,29 @@ namespace Journalist.EventStore.Connection
                 retryPolicy: RetryPolicy.Default);
         }
 
-        public async Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName)
+        public async Task<IEventStreamConsumer> CreateStreamConsumerAsync(Action<IEventStreamConsumerConfiguration> configure)
         {
-            Require.NotEmpty(streamName, "streamName");
-            Require.NotEmpty(consumerName, "consumerName");
+            Require.NotNull(configure, "configure");
+
+            var configuration = new EventStreamConsumerConfiguration();
+            configure(configuration);
+            configuration.AsserConfigurationCompleted();
 
             m_connectionState.EnsureConnectionIsActive();
 
-            var consumerId = await m_consumersRegistry.RegisterAsync(consumerName);
-
-            return await CreateStreamConsumerInternalAsync(streamName, consumerId);
-        }
-
-        public async Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, EventStreamConsumerId consumerId)
-        {
-            Require.NotEmpty(streamName, "streamName");
-            Require.NotNull(consumerId, "consumerId");
-
-            if (await m_consumersRegistry.IsResistedAsync(consumerId))
-            {
-                return await CreateStreamConsumerInternalAsync(streamName, consumerId);
-            }
-
-            throw new UnknownEventStreamConsumerException(consumerId);
-        }
-
-        private async Task<IEventStreamConsumer> CreateStreamConsumerInternalAsync(string streamName, EventStreamConsumerId consumerId)
-        {
-            m_connectionState.EnsureConnectionIsActive();
+            var consumerId = await EnsureConsumerIsRegistered(configuration);
 
             var readerVersion = await m_journal.ReadStreamReaderPositionAsync(
-                streamName: streamName,
+                streamName: configuration.StreamName,
                 readerName: consumerId.ToString());
 
             var reader = await CreateStreamReaderAsync(
-                streamName: streamName,
+                streamName: configuration.StreamName,
                 streamVersion: readerVersion.Increment());
 
             var session = m_sessionFactory.CreateSession(
                 consumerId: consumerId,
-                streamName: streamName);
+                streamName: configuration.StreamName);
 
             return new EventStreamConsumer(
                 consumerId: consumerId,
@@ -146,15 +132,54 @@ namespace Journalist.EventStore.Connection
                 session: session,
                 commitedStreamVersion: readerVersion,
                 commitConsumedVersion: currentVersion => m_journal.CommitStreamReaderPositionAsync(
-                    streamName: streamName,
+                    streamName: configuration.StreamName,
                     readerName: consumerId.ToString(),
                     version: currentVersion));
+        }
+
+        public Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(consumerName, "consumerName");
+
+            return CreateStreamConsumerAsync(config => config
+                .ReadStream(streamName)
+                .UseConsumerName(consumerName));
+        }
+
+        public Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, EventStreamConsumerId consumerId)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotNull(consumerId, "consumerId");
+
+            return CreateStreamConsumerAsync(config => config
+                .ReadStream(streamName)
+                .UseConsumerId(consumerId));
         }
 
         public void Close()
         {
             m_connectionState.ChangeToClosing();
             m_connectionState.ChangeToClosed();
+        }
+
+        private async Task<EventStreamConsumerId> EnsureConsumerIsRegistered(EventStreamConsumerConfiguration configuration)
+        {
+            EventStreamConsumerId consumerId;
+            if (configuration.ConsumerRegistrationRequired)
+            {
+                consumerId = await m_consumersRegistry.RegisterAsync(configuration.ConsumerName);
+            }
+            else
+            {
+                consumerId = configuration.ConsumerId;
+
+                if (!(await m_consumersRegistry.IsResistedAsync(consumerId)))
+                {
+                    throw new UnknownEventStreamConsumerException(consumerId);
+                }
+            }
+            return consumerId;
         }
     }
 }

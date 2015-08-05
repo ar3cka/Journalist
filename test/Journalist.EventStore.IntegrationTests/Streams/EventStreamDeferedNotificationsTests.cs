@@ -32,7 +32,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             StreamName = "defered-notifications-tests-stream";
         }
 
-        [Theory, AutoMoqData]
         public async Task Listeners_ReceivesSameStreamUpdatesNotifications(JournaledEvent[] events)
         {
             var producer = await Connection.CreateStreamProducerAsync(StreamName);

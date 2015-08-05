@@ -50,7 +50,9 @@
     <Compile Include="Configuration\INotificationProcessingConfiguration.cs" />
     <Compile Include="Configuration\NotificationProcessingConfiguration.cs" />
     <Compile Include="Connection\EventStoreConnectionState.cs" />
+    <Compile Include="Connection\EventStreamConsumerConfiguration.cs" />
     <Compile Include="Connection\IEventStoreConnectionState.cs" />
+    <Compile Include="Connection\IEventStreamConsumerConfiguration.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Connection\EventStoreConnection.cs" />
     <Compile Include="Connection\EventStoreConnectionBuilder.cs" />
