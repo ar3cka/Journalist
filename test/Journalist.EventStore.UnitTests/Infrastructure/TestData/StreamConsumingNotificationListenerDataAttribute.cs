@@ -1,5 +1,6 @@
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Streams;
+using Journalist.EventStore.UnitTests.Infrastructure.Customizations;
 using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Journalist.Tasks;
 using Moq;
@@ -14,6 +15,8 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
             bool processingFailed = false,
             bool consumerReceivingFailed = false)
         {
+            Fixture.Customize(new EventStreamConsumerMoqCustomization(consumerReceivingFailed));
+
             Fixture.Customize<StreamConsumingNotificationListenerStub>(composer => composer
                 .Do(stub =>
                 {
