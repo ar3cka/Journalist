@@ -49,6 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\DummyEvent.cs" />
     <Compile Include="Streams\EventStreamConsumersRegistryTests.cs" />
+    <Compile Include="Streams\EventStreamConsumerTests.cs" />
     <Compile Include="Streams\EventStreamDeferedNotificationsTests.cs" />
     <Compile Include="Streams\EventStreamNotificationsTests.cs" />
     <Compile Include="Streams\EventStreamsTests.cs" />
