@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -126,7 +127,6 @@ namespace Journalist.EventStore.Notifications
                     foreach (var notificationBytes in notifications)
                     {
                         var notification = m_formatter.FromBytes(notificationBytes);
-
                         foreach (var subscription in m_subscriptions.Values)
                         {
                             await subscription.HandleNotificationAsync(notification);

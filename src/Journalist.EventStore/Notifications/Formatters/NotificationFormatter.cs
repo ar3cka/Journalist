@@ -44,6 +44,7 @@ namespace Journalist.EventStore.Notifications.Formatters
 
                 var notificationType = Type.GetType(value, true);
                 var notification = (INotification)FormatterServices.GetUninitializedObject(notificationType);
+
                 notification.RestoreFrom(streamReader);
 
                 return notification;

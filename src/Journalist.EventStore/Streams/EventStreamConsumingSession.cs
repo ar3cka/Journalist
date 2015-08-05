@@ -1,11 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using Journalist.WindowsAzure.Storage.Blobs;
+using Serilog;
 
 namespace Journalist.EventStore.Streams
 {
     public class EventStreamConsumingSession : IEventStreamConsumingSession
     {
+        private static readonly ILogger s_logger = Log.ForContext<EventStreamConsumingSession>();
+
         private readonly string m_streamName;
         private readonly EventStreamConsumerId m_consumerId;
         private readonly TimeSpan m_leaseTimeout;
@@ -37,7 +40,18 @@ namespace Journalist.EventStore.Streams
             if (m_acquiredLease == null)
             {
                 EnsureBlobExists();
-                acquiredLease = await m_blob.AcquireLeaseAsync();
+                try
+                {
+                    acquiredLease = await m_blob.AcquireLeaseAsync();
+                }
+                catch (LeaseAlreadyAcquiredException exception)
+                {
+                    s_logger.Debug(
+                        exception,
+                        "Promotion session ({StreamName}, {ConsumerId}) to leader failed.",
+                        m_streamName,
+                        m_consumerId);
+                }
             }
 
             if (m_acquiredLease == null && acquiredLease != null)

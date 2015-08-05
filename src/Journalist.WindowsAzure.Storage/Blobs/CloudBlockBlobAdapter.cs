@@ -41,7 +41,7 @@ namespace Journalist.WindowsAzure.Storage.Blobs
                 if (blobLeased)
                 {
                     throw new LeaseAlreadyAcquiredException(
-                        "Blob lease '{0}' already acquired.".FormatString(m_blob.Uri),
+                        "Blob lease \"{0}\" already acquired.".FormatString(m_blob.Uri),
                         exception);
                 }
 

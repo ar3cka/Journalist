@@ -31,7 +31,7 @@ namespace Journalist.EventStore.Journal
             var batch = m_table.PrepareBatchOperation();
 
             var targetVersion = position.Version.Increment(events.Count);
-            WriteHeadProperty(streamName, position, (int) targetVersion, batch);
+            WriteHeadProperty(streamName, position, (int)targetVersion, batch);
             WriteEvents(streamName, position.Version, events, batch);
 
             try

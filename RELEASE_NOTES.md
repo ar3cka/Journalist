@@ -2,6 +2,8 @@
 * [EventStore][Breaking] EventStoreConnection related were moved to separate namespace.
 * [EventStore][Breaking] IEventStreamReader.CurrentStreamVersion was renamed to StreamVersion.
 * [EventStore][Breaking] EventStream cosnumers name reader cursor based on its unqiue identifier.
+* [EventStore][Breaking] StreamVersion.Parse accepts "0" string.
+* [EventStore][BugFix] EventStreamConsumer.ReceiveEventsAsync retruns false when session's leader was already promoted.
 * [LanguageExtensions][New] IsEmpty extensions methods for collections.
 * [LanguageExtensions][New] Ensure helper methods.
 

@@ -30,7 +30,7 @@ namespace Journalist.EventStore
         {
             Require.NotEmpty(version, "version");
 
-            return Create(int.Parse(version));
+            return new StreamVersion(int.Parse(version));
         }
 
         public StreamVersion Increment(int incrementValue)

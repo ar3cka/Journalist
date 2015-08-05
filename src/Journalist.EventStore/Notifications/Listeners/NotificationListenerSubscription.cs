@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Types;
@@ -36,12 +37,12 @@ namespace Journalist.EventStore.Notifications.Listeners
                 {
                     if (notificationInterface.IsAddressedTo(m_subscriptionConsumerId))
                     {
-                        await m_listener.On(notification);
+                        await ProcessNotificationAsync(notification, m_listener);
                     }
                 }
                 else
                 {
-                        await m_listener.On(notification);
+                    await ProcessNotificationAsync(notification, m_listener);
                 }
             }
         }
@@ -79,6 +80,18 @@ namespace Journalist.EventStore.Notifications.Listeners
             Require.NotNull(notification, "notification");
 
             return m_hub.NotifyAsync(notification.SendTo(m_subscriptionConsumerId));
+        }
+
+        private static async Task ProcessNotificationAsync(dynamic notification, INotificationListener listener)
+        {
+            try
+            {
+                await listener.On(notification);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

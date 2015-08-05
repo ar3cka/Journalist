@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
@@ -33,16 +34,29 @@ namespace Journalist.EventStore.Notifications.Listeners
             AssertSubscriptionWasBound();
 
             var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
-            var retryProcessing = true;
-            if (await consumer.ReceiveEventsAsync() && await TryProcessEventFromConsumerAsync(consumer))
-            {
-                await consumer.CommitProcessedStreamVersionAsync();
-                retryProcessing = false;
-            }
 
-            if (retryProcessing)
+            try
             {
-                await m_subscription.DefferNotificationAsync(notification);
+                var retryProcessing = true;
+                if (await consumer.ReceiveEventsAsync() && await TryProcessEventFromConsumerAsync(consumer))
+                {
+                    await consumer.CommitProcessedStreamVersionAsync();
+                    retryProcessing = false;
+                }
+
+                if (retryProcessing)
+                {
+                    await m_subscription.DefferNotificationAsync(notification);
+                }
+            }
+            catch (Exception exception)
+            {
+                ListenerLogger.Error(
+                    exception,
+                    "Processing notification ({NotificationId}, {NotificationType}) from {Stream} failed.",
+                    notification.NotificationId.ToString(),
+                    notification.NotificationType,
+                    notification.StreamName);
             }
 
             await consumer.CloseAsync();
