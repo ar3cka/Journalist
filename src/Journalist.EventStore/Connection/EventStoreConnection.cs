@@ -144,7 +144,7 @@ namespace Journalist.EventStore.Connection
             Require.NotEmpty(consumerName, "consumerName");
 
             return CreateStreamConsumerAsync(config => config
-                .ReadStream(streamName)
+                .ReadFromStream(streamName)
                 .UseConsumerName(consumerName));
         }
 
@@ -154,7 +154,7 @@ namespace Journalist.EventStore.Connection
             Require.NotNull(consumerId, "consumerId");
 
             return CreateStreamConsumerAsync(config => config
-                .ReadStream(streamName)
+                .ReadFromStream(streamName)
                 .UseConsumerId(consumerId));
         }
 

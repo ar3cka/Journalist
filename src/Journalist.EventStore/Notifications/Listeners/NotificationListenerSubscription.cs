@@ -3,11 +3,14 @@ using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
+using Serilog;
 
 namespace Journalist.EventStore.Notifications.Listeners
 {
     public class NotificationListenerSubscription : INotificationListenerSubscription
     {
+        private static readonly ILogger s_logger = Log.ForContext<NotificationListenerSubscription>();
+
         private readonly EventStreamConsumerId m_subscriptionConsumerId;
         private readonly INotificationListener m_listener;
         private readonly INotificationHub m_hub;
@@ -72,7 +75,10 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             Ensure.True(m_active, "Subscription is not activated.");
 
-            return m_connection.CreateStreamConsumerAsync(streamName, m_subscriptionConsumerId);
+            return m_connection.CreateStreamConsumerAsync(config => config
+                .UseConsumerId(m_subscriptionConsumerId)
+                .ReadFromStream(streamName)
+                .AutoCommitProcessedStreamPosition(false));
         }
 
         public Task DefferNotificationAsync(INotification notification)
@@ -88,9 +94,9 @@ namespace Journalist.EventStore.Notifications.Listeners
             {
                 await listener.On(notification);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                throw;
+                s_logger.Error(exception, "Processing notification {@Notification} failed.", notification);
             }
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Events;
@@ -18,23 +19,29 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             BatchEventListener = new BatchEventListener();
             EventListener = new EventListener();
 
+            var queueName = Guid.NewGuid().ToString("N");
+            StreamName = Guid.NewGuid().ToString("N");
+
             Connection = EventStoreConnectionBuilder
                 .Create(config => config
                     .UseStorage(
                         storageConnectionString: "UseDevelopmentStorage=true",
                         journalTableName: "TestEventJournal",
-                        notificationQueueName: "test-defered-notification-queue")
+                        notificationQueueName: queueName)
                     .Notifications.EnableProcessing()
                     .Notifications.Subscribe(BatchEventListener)
                     .Notifications.Subscribe(EventListener))
                 .Build();
-
-            StreamName = "defered-notifications-tests-stream";
         }
 
+        [Theory, AutoMoqData]
         public async Task Listeners_ReceivesSameStreamUpdatesNotifications(JournaledEvent[] events)
         {
             var producer = await Connection.CreateStreamProducerAsync(StreamName);
+            BatchEventListener.ExpectedEventCount = events.Length;
+            EventListener.ExpectedEventCount = events.Length;
+
+
             await producer.PublishAsync(events);
 
             var item1 = TakeNotificationFromListener(EventListener, events.Length);
@@ -46,10 +53,31 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             Assert.Equal(events, item2);
         }
 
+        [Theory, AutoMoqData]
+        public async Task Listeners_WithDelay_ReceivesSameStreamUpdatesNotifications(JournaledEvent[] events1, JournaledEvent[] events2)
+        {
+            var producer = await Connection.CreateStreamProducerAsync(StreamName);
+
+            var expectedEvents = events1.Union(events2).ToArray();
+            BatchEventListener.ExpectedEventCount = expectedEvents.Length;
+            EventListener.ExpectedEventCount = expectedEvents.Length;
+
+            await producer.PublishAsync(events1);
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            await producer.PublishAsync(events2);
+
+
+            var item1 = TakeNotificationFromListener(EventListener, expectedEvents.Length);
+            var item2 = TakeNotificationFromListener(BatchEventListener, expectedEvents.Length);
+
+            Assert.NotNull(item1);
+            Assert.NotNull(item2);
+            Assert.Equal(expectedEvents, item1);
+            Assert.Equal(expectedEvents, item2);
+        }
+
         private static List<JournaledEvent> TakeNotificationFromListener(EventListener listener, int numberEvents)
         {
-            listener.ExpectedEventCount = numberEvents;
-
             var events = new List<JournaledEvent>();
             foreach (var journaledEvent in listener.Events.GetConsumingEnumerable())
             {
@@ -133,6 +161,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         public readonly BlockingCollection<JournaledEvent> Events = new BlockingCollection<JournaledEvent>(new ConcurrentQueue<JournaledEvent>());
 
         private bool m_throwException = true;
+        private int m_eventCount;
 
         protected override Task ProcessEventBatchAsync(JournaledEvent[] journaledEvent)
         {
@@ -147,9 +176,15 @@ namespace Journalist.EventStore.IntegrationTests.Streams
                 Events.Add(e);
             }
 
-            Events.CompleteAdding();
+            m_eventCount += journaledEvent.Length;
+            if (m_eventCount == ExpectedEventCount)
+            {
+                Events.CompleteAdding();
+            }
 
             return TaskDone.Done;
         }
+
+        public int ExpectedEventCount { get; set; }
     }
 }

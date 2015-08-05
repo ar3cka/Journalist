@@ -156,7 +156,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await producer.PublishAsync(dummyEvents1);
 
             var consumer1 = await Connection.CreateStreamConsumerAsync(config => config
-                .ReadStream(StreamName)
+                .ReadFromStream(StreamName)
                 .UseConsumerName(consumerName)
                 .AutoCommitProcessedStreamPosition(false));
 

@@ -4,7 +4,7 @@ namespace Journalist.EventStore.Connection
 {
     public interface IEventStreamConsumerConfiguration
     {
-        IEventStreamConsumerConfiguration ReadStream(string streamName);
+        IEventStreamConsumerConfiguration ReadFromStream(string streamName);
 
         IEventStreamConsumerConfiguration UseConsumerName(string consumerName);
 

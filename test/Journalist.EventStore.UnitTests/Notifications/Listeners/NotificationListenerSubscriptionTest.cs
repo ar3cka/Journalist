@@ -132,8 +132,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             subscription.CreateSubscriptionConsumerAsync(streamName);
 
             connectionMock.Verify(self => self.CreateStreamConsumerAsync(
-                streamName,
-                consumerId));
+                It.IsAny<Action<IEventStreamConsumerConfiguration>>()));
         }
 
         [Theory, AutoMoqData]

@@ -16,7 +16,7 @@ namespace Journalist.EventStore.Connection
             m_consumerName = Constants.DEFAULT_STREAM_READER_NAME;
         }
 
-        public IEventStreamConsumerConfiguration ReadStream(string streamName)
+        public IEventStreamConsumerConfiguration ReadFromStream(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 
