@@ -55,11 +55,13 @@
     <Compile Include="Infrastructure\Customizations\JournaledEventCustomization.cs" />
     <Compile Include="Infrastructure\Stubs\BatchEventConsumingNotificationListenerStub.cs" />
     <Compile Include="Infrastructure\Stubs\CommitStreamVersionFMock.cs" />
+    <Compile Include="Infrastructure\Stubs\EventConsumingNotificationListenerStub.cs" />
     <Compile Include="Infrastructure\Stubs\RetryPolicyStub.cs" />
     <Compile Include="Infrastructure\Stubs\StreamConsumingNotificationListenerStub.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\BatchEventConsumingNotificationListenerDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\CloudBlockBlobContainerDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\EventConsumingNotificationListenerDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamReaderCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamProducerDataCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamReaderDataAttribute.cs" />
@@ -73,6 +75,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Notifications\Listeners\BatchEventConsumingNotificationListenerTests.cs" />
+    <Compile Include="Notifications\Listeners\EventConsumingNotificationListenerTests.cs" />
     <Compile Include="Notifications\Listeners\StreamConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\NotificationListenerSubscriptionTest.cs" />
     <Compile Include="Notifications\NotificationHubTests.cs" />

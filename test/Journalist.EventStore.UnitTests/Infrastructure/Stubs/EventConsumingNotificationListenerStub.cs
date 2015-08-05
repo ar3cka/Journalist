@@ -6,9 +6,9 @@ using Journalist.Tasks;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.Stubs
 {
-    public class BatchEventConsumingNotificationListenerStub : BatchEventConsumingNotificationListener
+    public class EventConsumingNotificationListenerStub : EventConsumingNotificationListener
     {
-        protected override Task ProcessEventBatchAsync(JournaledEvent[] journaledEvent)
+        protected override Task ProcessEventAsync(JournaledEvent journaledEvent)
         {
             if (Exception != null)
             {

@@ -6,13 +6,13 @@ using Ploeh.AutoFixture;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 {
-    public class BatchEventConsumingNotificationListenerDataAttribute : AutoMoqDataAttribute
+    public class EventConsumingNotificationListenerDataAttribute : AutoMoqDataAttribute
     {
-        public BatchEventConsumingNotificationListenerDataAttribute(bool throwException = false)
+        public EventConsumingNotificationListenerDataAttribute(bool throwException = false)
         {
             Fixture.Customize(new EventStreamConsumerMoqCustomization(false));
 
-            Fixture.Customize<BatchEventConsumingNotificationListenerStub>(composer => composer
+            Fixture.Customize<EventConsumingNotificationListenerStub>(composer => composer
                 .Do(stub =>
                 {
                     stub.OnSubscriptionStarted(Fixture.Create<INotificationListenerSubscription>());

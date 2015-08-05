@@ -2,6 +2,7 @@ using Journalist.EventStore.Streams;
 using Journalist.Tasks;
 using Moq;
 using Ploeh.AutoFixture;
+using Ploeh.AutoFixture.AutoMoq;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
 {
@@ -25,7 +26,10 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                     .Returns(TaskDone.Done))
                 .Do(mock => mock
                     .Setup(self => self.CommitProcessedStreamVersionAsync(It.IsAny<bool>()))
-                    .Returns(TaskDone.Done)));
+                    .Returns(TaskDone.Done))
+                .Do(mock => mock
+                    .Setup(self => self.EnumerateEvents())
+                    .ReturnsUsingFixture(fixture)));
         }
     }
 }
