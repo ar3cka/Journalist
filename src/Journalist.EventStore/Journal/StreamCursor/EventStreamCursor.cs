@@ -76,5 +76,10 @@ namespace Journalist.EventStore.Journal.StreamCursor
         {
             get { return CursorState.IsEndOfStream(m_state); }
         }
+
+        public bool IsEmpty
+        {
+            get { return this == Empty; }
+        }
     }
 }

@@ -13,13 +13,7 @@ namespace Journalist.EventStore.Streams
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
         private readonly EventStreamConsumerStateMachine m_stm;
 
-        private bool m_hasUnprocessedEvents;
-        private bool m_consuming;
-        private bool m_receiving;
         private int m_eventSliceOffset;
-        private int m_commitedEventCount;
-        private StreamVersion m_commitedStreamVersion;
-        private bool m_closed;
 
         public EventStreamConsumer(
             EventStreamConsumerId consumerId,
@@ -38,30 +32,30 @@ namespace Journalist.EventStore.Streams
             m_session = session;
             m_autoCommitProcessedStreamVersion = autoCommitProcessedStreamVersion;
             m_commitConsumedVersion = commitConsumedVersion;
-            m_commitedStreamVersion = commitedStreamVersion;
             m_stm = new EventStreamConsumerStateMachine(commitedStreamVersion);
         }
 
         public async Task<bool> ReceiveEventsAsync()
         {
-            AssertConsumerWasNotClosed();
-            AssertConsumerIsNotInConsumingState();
+            m_stm.ReceivingStarted();
 
             if (await m_session.PromoteToLeaderAsync())
             {
-                if (m_autoCommitProcessedStreamVersion)
+                if (m_stm.CommitRequired(m_autoCommitProcessedStreamVersion))
                 {
-                    await CommitReceivedStreamVersionAsync();
+                    var version = m_stm.CalculateConsumedStreamVersion(false);
+                    m_commitConsumedVersion(version);
                 }
 
                 await ReceiveEventsFromReaderAsync();
 
-                if (m_hasUnprocessedEvents)
+                if (m_stm.ReceivingTerminationRequired)
                 {
-                    return true;
+                    await CompletedReceivingAsync();
+                    return false;
                 }
 
-                await CompletedReceivingAsync();
+                return true;
             }
 
             return false;
@@ -69,82 +63,39 @@ namespace Journalist.EventStore.Streams
 
         public async Task CommitProcessedStreamVersionAsync(bool skipCurrent)
         {
-            AssertConsumerWasNotClosed();
-
-            if (m_consuming)
+            var version = m_stm.CalculateConsumedStreamVersion(skipCurrent);
+            if (m_stm.CommitedStreamVersion < version)
             {
-                var eventOffset = skipCurrent ? m_eventSliceOffset : m_eventSliceOffset + 1;
-                if (eventOffset <= m_commitedEventCount)
-                {
-                    // current event has been commited.
-                    return;
-                }
+                await m_commitConsumedVersion(version);
 
-                var version = m_commitedStreamVersion.Increment(eventOffset - m_commitedEventCount);
-
-                if (m_commitedStreamVersion < version)
-                {
-                    await m_commitConsumedVersion(version);
-
-                    m_commitedStreamVersion = version;
-                    m_commitedEventCount++;
-                }
-            }
-            else
-            {
-                await CommitReceivedStreamVersionAsync();
+                m_stm.ConsumedStreamVersionCommited(version);
             }
         }
 
         public async Task CloseAsync()
         {
-            AssertConsumerWasNotClosed();
-
             m_stm.ConsumerClosed();
 
-            if (m_receiving && m_autoCommitProcessedStreamVersion)
+            if (m_stm.CommitRequired(m_autoCommitProcessedStreamVersion))
             {
-                if (m_hasUnprocessedEvents)
-                {
-                    if (m_consuming)
-                    {
-                        await CommitProcessedStreamVersionAsync(true);
-                    }
-                }
-                else
-                {
-                    await CommitProcessedStreamVersionAsync(false);
-                }
+                await CommitProcessedStreamVersionAsync(true);
             }
 
             await CompletedReceivingAsync();
-
-            m_closed = true;
         }
 
         public IEnumerable<JournaledEvent> EnumerateEvents()
         {
-            AssertConsumerWasNotClosed();
-            AssertConsumerIsNotInConsumingState();
-
             m_stm.ConsumingStarted();
 
-            if (m_hasUnprocessedEvents)
+            for (m_eventSliceOffset = 0; m_eventSliceOffset < m_reader.Events.Count; m_eventSliceOffset++)
             {
-                m_consuming = true;
+                m_stm.EventProcessingStarted();
 
-                for (m_eventSliceOffset = 0; m_eventSliceOffset < m_reader.Events.Count; m_eventSliceOffset++)
-                {
-                    yield return m_reader.Events[m_eventSliceOffset];
-                }
-
-                m_consuming = false;
-                m_hasUnprocessedEvents = false;
-
-                m_stm.ConsumingCompleted();
+                yield return m_reader.Events[m_eventSliceOffset];
             }
 
-            throw new InvalidOperationException("Consumer stream is empty.");
+            m_stm.ConsumingCompleted();
         }
 
         public string StreamName
@@ -152,55 +103,24 @@ namespace Journalist.EventStore.Streams
             get { return m_reader.StreamName; }
         }
 
-        private async Task CommitReceivedStreamVersionAsync()
-        {
-            if (m_receiving && m_commitedStreamVersion != m_reader.StreamVersion)
-            {
-                await m_commitConsumedVersion(m_reader.StreamVersion);
-                m_commitedStreamVersion = m_reader.StreamVersion;
-                m_eventSliceOffset = 0;
-            }
-        }
-
         private async Task ReceiveEventsFromReaderAsync()
         {
             if (m_reader.IsCompleted)
             {
                 await m_reader.ContinueAsync();
-                m_receiving = false;
             }
 
             if (m_reader.HasEvents)
             {
                 await m_reader.ReadEventsAsync();
 
-                m_stm.ConsumerEventsReceived();
-
-                m_hasUnprocessedEvents = true;
-                m_receiving = true;
+                m_stm.ReceivingCompleted(m_reader.Events.Count);
             }
         }
 
         private async Task CompletedReceivingAsync()
         {
             await m_session.FreeAsync();
-            m_receiving = false;
-        }
-
-        private void AssertConsumerIsNotInConsumingState()
-        {
-            if (m_consuming)
-            {
-                throw new InvalidOperationException("Consumer stream is already opened.");
-            }
-        }
-
-        private void AssertConsumerWasNotClosed()
-        {
-            if (m_closed)
-            {
-                throw new InvalidOperationException("Consumer was closed.");
-            }
         }
     }
 }

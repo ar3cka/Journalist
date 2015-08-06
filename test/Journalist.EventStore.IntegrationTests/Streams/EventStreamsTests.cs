@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Events;
-using Journalist.EventStore.Streams;
 using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
 using Xunit;
 
@@ -41,35 +40,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await writer.AppendEventsAsync(dummyEvents);
 
             Assert.Equal(StreamVersion.Create(dummyEvents.Length), writer.StreamVersion);
-        }
-
-        [Theory, AutoMoqData]
-        public async Task CreatedReader_CanReadAppendedEvents(JournaledEvent[] dummyEvents)
-        {
-            var writer = await Connection.CreateStreamWriterAsync(StreamName);
-            await writer.AppendEventsAsync(dummyEvents);
-
-            var reader = await Connection.CreateStreamReaderAsync(StreamName);
-            await reader.ReadEventsAsync();
-
-            Assert.Equal(dummyEvents.Length, reader.Events.Count);
-            for (var i = 0; i < dummyEvents.Length; i++)
-            {
-                Assert.Equal(dummyEvents[i], reader.Events[i]);
-            }
-        }
-
-        [Theory, AutoMoqData]
-        public async Task CreatedReader_WhenOpenedFromPositionOfTheLastEvent_ReturnsOneEvent(JournaledEvent[] dummyEvents)
-        {
-            var writer = await Connection.CreateStreamWriterAsync(StreamName);
-            await writer.AppendEventsAsync(dummyEvents);
-
-            var reader = await Connection.CreateStreamReaderAsync(StreamName, writer.StreamVersion);
-            await reader.ReadEventsAsync();
-
-            Assert.Equal(1, reader.Events.Count);
-            Assert.Equal(dummyEvents[(int)writer.StreamVersion - 1], reader.Events[0]);
         }
 
         [Theory, AutoMoqData]

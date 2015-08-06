@@ -77,6 +77,11 @@ namespace Journalist.EventStore.Journal
             Require.Positive(sliceSize, "sliceSize");
 
             var position = await ReadEndOfStreamPositionAsync(streamName);
+            if (position.Version < fromVersion)
+            {
+                return EventStreamCursor.Empty;
+            }
+
             return new EventStreamCursor(
                 position,
                 fromVersion,

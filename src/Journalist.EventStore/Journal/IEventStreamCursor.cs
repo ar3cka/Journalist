@@ -13,5 +13,7 @@ namespace Journalist.EventStore.Journal
         bool Fetching { get; }
 
         bool EndOfStream { get; }
+
+        bool IsEmpty { get; }
     }
 }

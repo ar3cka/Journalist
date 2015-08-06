@@ -21,6 +21,21 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
+        public async Task CloseConsumer_CommitsConsumedVersion(
+            JournaledEvent[] dummyEvents)
+        {
+            await PublishEventsAsync(dummyEvents);
+
+            var consumer = await Connection.CreateStreamConsumerAsync(StreamName);
+            await consumer.ReceiveEventsAsync();
+            await consumer.CloseAsync();
+
+            consumer = await Connection.CreateStreamConsumerAsync(StreamName);
+
+            Assert.False(await consumer.ReceiveEventsAsync());
+        }
+
+        [Theory, AutoMoqData]
         public async Task CreatedConsumer_CanReadPublishedEvents(
             JournaledEvent[] dummyEvents)
         {

@@ -52,6 +52,7 @@
     <Compile Include="Streams\EventStreamConsumerTests.cs" />
     <Compile Include="Streams\EventStreamDeferedNotificationsTests.cs" />
     <Compile Include="Streams\EventStreamNotificationsTests.cs" />
+    <Compile Include="Streams\EventStreamReaderTests.cs" />
     <Compile Include="Streams\EventStreamsTests.cs" />
     <Compile Include="Streams\MessageMutator.cs" />
     <Compile Include="Streams\NotificationListener.cs" />

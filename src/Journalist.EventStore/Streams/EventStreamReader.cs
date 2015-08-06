@@ -56,6 +56,11 @@ namespace Journalist.EventStore.Streams
         {
             ConnectionState.EnsureConnectionIsActive();
 
+            if (m_streamCursor.IsEmpty)
+            {
+                return;
+            }
+
             if (IsCompleted)
             {
                 m_streamCursor = await m_openCursor(StreamVersion.Increment());
@@ -64,7 +69,7 @@ namespace Journalist.EventStore.Streams
                 return;
             }
 
-            throw new InvalidOperationException("Reader is not in competed state.");
+            throw new InvalidOperationException("Reader is not in completed state.");
         }
 
         public IReadOnlyList<JournaledEvent> Events
