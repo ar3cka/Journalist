@@ -68,7 +68,7 @@ namespace Journalist.EventStore.Streams
             {
                 await m_commitConsumedVersion(version);
 
-                m_stm.ConsumedStreamVersionCommited(version);
+                m_stm.ConsumedStreamVersionCommited(version, skipCurrent);
             }
         }
 

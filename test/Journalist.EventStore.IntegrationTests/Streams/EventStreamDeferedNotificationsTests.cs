@@ -41,7 +41,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             BatchEventListener.ExpectedEventCount = events.Length;
             EventListener.ExpectedEventCount = events.Length;
 
-
             await producer.PublishAsync(events);
 
             var item1 = TakeNotificationFromListener(EventListener, events.Length);

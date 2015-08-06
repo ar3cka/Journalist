@@ -48,10 +48,10 @@ namespace Journalist.EventStore.Streams
                 throw new NotImplementedException();
             }
 
-            public virtual void ConsumedStreamVersionCommited(EventStreamConsumerStateMachine stm, StreamVersion version)
+            public virtual void ConsumedStreamVersionCommited(EventStreamConsumerStateMachine stm, StreamVersion version, bool skipCurrent)
             {
                 stm.m_commitedVersion = version;
-                stm.m_uncommittedEventCount = 0;
+                stm.m_uncommittedEventCount = skipCurrent ? 0 : -1;
             }
         }
 
@@ -111,6 +111,11 @@ namespace Journalist.EventStore.Streams
             public override State MoveToConsumedState(EventStreamConsumerStateMachine stm)
             {
                 throw new InvalidOperationException("Consumer stream is in receiving started state.");
+            }
+
+            public override StreamVersion CalculateConsumedStreamVersion(EventStreamConsumerStateMachine stm, bool skipCurrentEvent)
+            {
+                return stm.m_commitedVersion.Increment(stm.m_uncommittedEventCount);
             }
         }
 
@@ -295,7 +300,7 @@ namespace Journalist.EventStore.Streams
         public bool CommitRequired(bool autoCommitProcessedStreamVersion)
         {
             return autoCommitProcessedStreamVersion &&
-                   (m_state is ConsumedState ||  m_state is ClosedState) &&
+                   (m_state is ConsumedState ||  m_state is ReceivingStartedState || m_state is ClosedState) &&
                    m_uncommittedEventCount > 0;
         }
 
@@ -304,9 +309,9 @@ namespace Journalist.EventStore.Streams
             return m_state.CalculateConsumedStreamVersion(this, skipCurrentEvent);
         }
 
-        public void ConsumedStreamVersionCommited(StreamVersion version)
+        public void ConsumedStreamVersionCommited(StreamVersion version, bool skipCurrent)
         {
-            m_state.ConsumedStreamVersionCommited(this, version);
+            m_state.ConsumedStreamVersionCommited(this, version, skipCurrent);
         }
 
         public StreamVersion CommitedStreamVersion

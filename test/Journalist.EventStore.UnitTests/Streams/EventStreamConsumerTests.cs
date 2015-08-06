@@ -95,15 +95,16 @@ namespace Journalist.EventStore.UnitTests.Streams
         [Theory]
         [EventStreamReaderCustomization]
         public async Task ReceiveEventsAsync_WhenReceivingWasStarted_CommitsReaderVersion(
+            [Frozen] StreamVersion streamVersion,
             [Frozen] CommitStreamVersionFMock commitStreamVersionMock,
             [Frozen] IEventStreamReader reader,
             EventStreamConsumer consumer)
         {
             await consumer.ReceiveEventsAsync(); // starts receiving
-            await consumer.ReceiveEventsAsync(); // continues receiving
+            await consumer.ReceiveEventsAsync(); // continues receiving and commits previous events
 
             Assert.Equal(1, commitStreamVersionMock.CallsCount);
-            Assert.Equal(reader.StreamVersion, commitStreamVersionMock.CommitedVersion);
+            Assert.Equal(reader.StreamVersion.Increment(reader.Events.Count), commitStreamVersionMock.CommitedVersion);
         }
 
         [Theory]
@@ -161,7 +162,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             await consumer.ReceiveEventsAsync();
             await consumer.CloseAsync();
 
-            Assert.Equal(0, commitStreamVersionMock.CallsCount);
+            Assert.Equal(1, commitStreamVersionMock.CallsCount);
         }
 
         [Theory]

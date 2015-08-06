@@ -36,11 +36,10 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task CreatedConsumer_CanReadPublishedEvents(
+        public async Task ReceiveEventsAsync_ReadsPublishedEvents(
             JournaledEvent[] dummyEvents)
         {
-            var producer = await Connection.CreateStreamProducerAsync(StreamName);
-            await producer.PublishAsync(dummyEvents);
+            await PublishEventsAsync(dummyEvents);
 
             var consumer = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer.ReceiveEventsAsync();
@@ -50,18 +49,17 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task CreatedConsumer_CanReadPublishedEvents(
+        public async Task ReceiveEventsAsync_ReadsPublishedEvents(
             JournaledEvent[] dummyEvents1,
             JournaledEvent[] dummyEvents2)
         {
-            var producer = await Connection.CreateStreamProducerAsync(StreamName);
-            await producer.PublishAsync(dummyEvents1);
+            await PublishEventsAsync(dummyEvents1);
 
             var consumer = await Connection.CreateStreamConsumerAsync(StreamName);
             await consumer.ReceiveEventsAsync();
             var receivedEvents1 = consumer.EnumerateEvents().ToList();
 
-            await producer.PublishAsync(dummyEvents2);
+            await PublishEventsAsync(dummyEvents2);
             await consumer.ReceiveEventsAsync();
             var receivedEvents2 = consumer.EnumerateEvents().ToList();
 
@@ -70,24 +68,22 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task CreatedConsumer_SavesConsumedPositionPosition(
+        public async Task CloseAsync_SavesConsumedPositionPosition(
             JournaledEvent[] dummyEvents1,
             JournaledEvent[] dummyEvents2,
             string consumerName)
         {
             await PublishEventsAsync(dummyEvents1);
 
-            var consumer1 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
-            await consumer1.ReceiveEventsAsync();
+            var consumer = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
+            await consumer.ReceiveEventsAsync();
+            var receivedEvents1 = consumer.EnumerateEvents().ToArray();
+            await consumer.CloseAsync(); // saves position
 
             await PublishEventsAsync(dummyEvents2);
-            var receivedEvents1 = consumer1.EnumerateEvents().ToList();
-            await consumer1.ReceiveEventsAsync(); // saves position and stops reading.
-            await consumer1.CloseAsync(); // frees session
-
-            var consumer2 = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
-            await consumer2.ReceiveEventsAsync();
-            var receivedEvents2 = consumer2.EnumerateEvents().ToList();
+            consumer = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
+            await consumer.ReceiveEventsAsync();
+            var receivedEvents2 = consumer.EnumerateEvents().ToList();
 
             Assert.Equal(dummyEvents1, receivedEvents1);
             Assert.Equal(dummyEvents2, receivedEvents2);
@@ -99,21 +95,17 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             JournaledEvent[] dummyEvents2,
             string consumerName)
         {
+            await PublishEventsAsync(dummyEvents1);
+
             var consumer = await Connection.CreateStreamConsumerAsync(config => config
                 .ReadFromStream(StreamName)
                 .UseConsumerName(consumerName)
                 .AutoCommitProcessedStreamPosition(false));
 
-            await PublishEventsAsync(dummyEvents1);
             await consumer.ReceiveEventsAsync();
-            consumer.EnumerateEvents().ToList();
-
-            await PublishEventsAsync(dummyEvents2);
-            await consumer.ReceiveEventsAsync();
-            consumer.EnumerateEvents().ToList();
-
             await consumer.CloseAsync();
 
+            await PublishEventsAsync(dummyEvents2);
             consumer = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
             await consumer.ReceiveEventsAsync();
             var receivedBatch = consumer.EnumerateEvents().ToList();
@@ -127,27 +119,19 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             JournaledEvent[] dummyEvents2,
             string consumerName)
         {
+            await PublishEventsAsync(dummyEvents1);
+
             var consumer = await Connection.CreateStreamConsumerAsync(config => config
                 .ReadFromStream(StreamName)
                 .UseConsumerName(consumerName)
                 .AutoCommitProcessedStreamPosition(false));
 
-            await PublishEventsAsync(dummyEvents1);
             await consumer.ReceiveEventsAsync();
-            consumer.EnumerateEvents().ToList();
-
-            await PublishEventsAsync(dummyEvents2);
-            await consumer.ReceiveEventsAsync();
-            consumer.EnumerateEvents().ToList();
-
             await consumer.CommitProcessedStreamVersionAsync();
             await consumer.CloseAsync();
 
             consumer = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
-            await consumer.ReceiveEventsAsync();
-            var receivedBatch = consumer.EnumerateEvents().ToList();
-
-            Assert.Empty(receivedBatch);
+            Assert.False(await consumer.ReceiveEventsAsync());
         }
 
         [Theory, AutoMoqData]
