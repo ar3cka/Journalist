@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
-using Journalist.EventStore.Notifications.Formatters;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.EventStore.Notifications.Types;
@@ -19,7 +17,6 @@ namespace Journalist.EventStore.Notifications
         private readonly Dictionary<EventStreamConsumerId, NotificationListenerSubscription> m_subscriptions = new Dictionary<EventStreamConsumerId, NotificationListenerSubscription>();
         private readonly Dictionary<INotificationListener, EventStreamConsumerId> m_listenerSubscriptions = new Dictionary<INotificationListener, EventStreamConsumerId>();
         private readonly INotificationsChannel m_channel;
-        private readonly INotificationFormatter m_formatter;
         private readonly IEventStreamConsumersRegistry m_consumersRegistry;
         private readonly IPollingTimeout m_timeout;
 
@@ -28,17 +25,14 @@ namespace Journalist.EventStore.Notifications
 
         public NotificationHub(
             INotificationsChannel channel,
-            INotificationFormatter formatter,
             IEventStreamConsumersRegistry consumersRegistry,
             IPollingTimeout timeout)
         {
             Require.NotNull(channel, "channel");
-            Require.NotNull(formatter, "formatter");
             Require.NotNull(consumersRegistry, "consumersRegistry");
             Require.NotNull(timeout, "timeout");
 
             m_channel = channel;
-            m_formatter = formatter;
             m_consumersRegistry = consumersRegistry;
             m_timeout = timeout;
         }
@@ -47,7 +41,7 @@ namespace Journalist.EventStore.Notifications
         {
             Require.NotNull(notification, "notification");
 
-            return m_channel.SendAsync(m_formatter.ToBytes(notification));
+            return m_channel.SendAsync(notification);
         }
 
         public void Subscribe(INotificationListener listener)
@@ -124,9 +118,8 @@ namespace Journalist.EventStore.Notifications
                 {
                     m_timeout.Reset();
 
-                    foreach (var notificationBytes in notifications)
+                    foreach (var notification in notifications)
                     {
-                        var notification = m_formatter.FromBytes(notificationBytes);
                         foreach (var subscription in m_subscriptions.Values)
                         {
                             await subscription.HandleNotificationAsync(notification);

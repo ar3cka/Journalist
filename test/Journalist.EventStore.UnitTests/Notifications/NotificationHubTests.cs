@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
@@ -23,16 +22,11 @@ namespace Journalist.EventStore.UnitTests.Notifications
             [Frozen] Mock<INotificationFormatter> formatterMock,
             [Frozen] Mock<INotificationsChannel> channelMock,
             NotificationHub hub,
-            EventStreamUpdated notification,
-            Stream notificationBytes)
+            EventStreamUpdated notification)
         {
-            formatterMock
-                .Setup(self => self.ToBytes(notification))
-                .Returns(notificationBytes);
-
             await hub.NotifyAsync(notification);
 
-            channelMock.Verify(self => self.SendAsync(notificationBytes), Times.Once());
+            channelMock.Verify(self => self.SendAsync(notification), Times.Once());
         }
 
         [Theory, NotificationHubData]

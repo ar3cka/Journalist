@@ -67,8 +67,7 @@ namespace Journalist.EventStore.Connection
             var consumersRegistry = new EventStreamConsumersRegistry(journalMetadataTable);
 
             var notificationHub = new NotificationHub(
-                new NotificationsChannel(notificationQueue),
-                new NotificationFormatter(),
+                new NotificationsChannel(notificationQueue, new NotificationFormatter()),
                 consumersRegistry,
                 new PollingTimeout());
 

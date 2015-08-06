@@ -5,7 +5,7 @@ namespace Journalist.EventStore.Notifications.Formatters
 {
     public interface INotificationFormatter
     {
-        Stream ToBytes(INotification notification);
+        MemoryStream ToBytes(INotification notification);
 
         INotification FromBytes(Stream notificationBytes);
     }

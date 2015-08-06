@@ -8,7 +8,7 @@ namespace Journalist.EventStore.Notifications.Formatters
 {
     public class NotificationFormatter : INotificationFormatter
     {
-        public Stream ToBytes(INotification notification)
+        public MemoryStream ToBytes(INotification notification)
         {
             Require.NotNull(notification, "notification");
 
