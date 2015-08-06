@@ -82,6 +82,7 @@
     <Compile Include="Notifications\Timeouts\PollingTimeoutTests.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdatedTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Streams\EventStreamConsumerStateMachineTests.cs" />
     <Compile Include="Streams\EventStreamConsumerTests.cs" />
     <Compile Include="Streams\EventStreamConsumingSessionTests.cs" />
     <Compile Include="Streams\EventStreamProducerTests.cs" />

@@ -11,6 +11,7 @@ namespace Journalist.EventStore.Streams
         private readonly IEventStreamConsumingSession m_session;
         private readonly bool m_autoCommitProcessedStreamVersion;
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
+        private readonly EventStreamConsumerStateMachine m_stm;
 
         private bool m_hasUnprocessedEvents;
         private bool m_consuming;
@@ -38,6 +39,7 @@ namespace Journalist.EventStore.Streams
             m_autoCommitProcessedStreamVersion = autoCommitProcessedStreamVersion;
             m_commitConsumedVersion = commitConsumedVersion;
             m_commitedStreamVersion = commitedStreamVersion;
+            m_stm = new EventStreamConsumerStateMachine(commitedStreamVersion);
         }
 
         public async Task<bool> ReceiveEventsAsync()
@@ -98,6 +100,8 @@ namespace Journalist.EventStore.Streams
         {
             AssertConsumerWasNotClosed();
 
+            m_stm.ConsumerClosed();
+
             if (m_receiving && m_autoCommitProcessedStreamVersion)
             {
                 if (m_hasUnprocessedEvents)
@@ -123,6 +127,8 @@ namespace Journalist.EventStore.Streams
             AssertConsumerWasNotClosed();
             AssertConsumerIsNotInConsumingState();
 
+            m_stm.ConsumingStarted();
+
             if (m_hasUnprocessedEvents)
             {
                 m_consuming = true;
@@ -135,7 +141,7 @@ namespace Journalist.EventStore.Streams
                 m_consuming = false;
                 m_hasUnprocessedEvents = false;
 
-                yield break;
+                m_stm.ConsumingCompleted();
             }
 
             throw new InvalidOperationException("Consumer stream is empty.");
@@ -167,6 +173,8 @@ namespace Journalist.EventStore.Streams
             if (m_reader.HasEvents)
             {
                 await m_reader.ReadEventsAsync();
+
+                m_stm.ConsumerEventsReceived();
 
                 m_hasUnprocessedEvents = true;
                 m_receiving = true;

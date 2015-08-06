@@ -107,6 +107,7 @@
     <Compile Include="Streams\EventStreamConsumerExtensions.cs" />
     <Compile Include="Streams\EventStreamConsumerId.cs" />
     <Compile Include="Streams\EventStreamConsumersRegistry.cs" />
+    <Compile Include="Streams\EventStreamConsumerStateMachine.cs" />
     <Compile Include="Streams\EventStreamConsumingSession.cs" />
     <Compile Include="Streams\EventStreamConsumingSessionFactory.cs" />
     <Compile Include="Streams\EventStreamInteractionEntity.cs" />
