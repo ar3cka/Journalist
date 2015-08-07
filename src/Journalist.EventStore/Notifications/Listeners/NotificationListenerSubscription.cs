@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
-using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 using Journalist.Extensions;
 using Serilog;
@@ -38,12 +37,13 @@ namespace Journalist.EventStore.Notifications.Listeners
             m_countdown = new CountdownEvent(0);
         }
 
-        public async Task HandleNotificationAsync(dynamic notification)
+        public async Task HandleNotificationAsync(INotification notification)
         {
-            var notificationInterface = (INotification)notification;
-            if (notificationInterface.IsAddressed)
+            Require.NotNull(notification, "notification");
+
+            if (notification.IsAddressed)
             {
-                if (notificationInterface.IsAddressedTo(m_subscriptionConsumerId))
+                if (notification.IsAddressedTo(m_subscriptionConsumerId))
                 {
                     await ProcessNotificationAsync(notification);
                 }

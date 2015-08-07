@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
-using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 
 namespace Journalist.EventStore.Notifications.Listeners
