@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 using Serilog;
@@ -12,22 +13,22 @@ namespace Journalist.EventStore.Notifications.Listeners
         private static readonly ILogger s_logger = Log.ForContext<NotificationListenerSubscription>();
 
         private readonly EventStreamConsumerId m_subscriptionConsumerId;
+        private readonly INotificationsChannel m_notificationsChannel;
         private readonly INotificationListener m_listener;
-        private readonly INotificationHub m_hub;
         private bool m_active;
         private IEventStoreConnection m_connection;
 
         public NotificationListenerSubscription(
             EventStreamConsumerId subscriptionConsumerId,
-            INotificationHub hub,
+            INotificationsChannel notificationsChannel,
             INotificationListener listener)
         {
             Require.NotNull(subscriptionConsumerId, "subscriptionConsumerId");
-            Require.NotNull(hub, "hub");
+            Require.NotNull(notificationsChannel, "notificationsChannel");
             Require.NotNull(listener, "listener");
 
             m_subscriptionConsumerId = subscriptionConsumerId;
-            m_hub = hub;
+            m_notificationsChannel = notificationsChannel;
             m_listener = listener;
         }
 
@@ -85,7 +86,8 @@ namespace Journalist.EventStore.Notifications.Listeners
         {
             Require.NotNull(notification, "notification");
 
-            return m_hub.NotifyAsync(notification.SendTo(m_subscriptionConsumerId));
+            return m_notificationsChannel.SendAsync(
+                notification.SendTo(m_subscriptionConsumerId));
         }
 
         private static async Task ProcessNotificationAsync(dynamic notification, INotificationListener listener)

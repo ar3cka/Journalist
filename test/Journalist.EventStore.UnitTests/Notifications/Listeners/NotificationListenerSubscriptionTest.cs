@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
-using Journalist.EventStore.Notifications;
+using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
@@ -148,7 +148,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
 
         [Theory, AutoMoqData]
         public async Task DefferNotificationAsync_SendAddressedNotification(
-            [Frozen] Mock<INotificationHub> hubMock,
+            [Frozen] Mock<INotificationsChannel> channelMock,
             [Frozen] EventStreamConsumerId consumerId,
             Mock<INotification> receivedNotificationMock,
             INotification deferredNotification,
@@ -163,8 +163,8 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
 
             await subscription.DefferNotificationAsync(receivedNotificationMock.Object);
 
-            hubMock
-                .Verify(self => self.NotifyAsync(deferredNotification));
+            channelMock
+                .Verify(self => self.SendAsync(deferredNotification));
         }
     }
 }

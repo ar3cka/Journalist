@@ -49,7 +49,7 @@ namespace Journalist.EventStore.Notifications
             Require.NotNull(listener, "listener");
 
             var consumerId = RegisterEventListenerConsumer(listener);
-            m_subscriptions.Add(consumerId, new NotificationListenerSubscription(consumerId, this, listener));
+            m_subscriptions.Add(consumerId, new NotificationListenerSubscription(consumerId, m_channel, listener));
             m_listenerSubscriptions.Add(listener, consumerId);
         }
 
