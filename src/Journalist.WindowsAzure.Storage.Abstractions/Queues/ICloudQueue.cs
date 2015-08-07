@@ -8,6 +8,8 @@ namespace Journalist.WindowsAzure.Storage.Queues
     {
         Task AddMessageAsync(byte[] content);
 
+        Task AddMessageAsync(byte[] content, TimeSpan visibilityTimeout);
+
         Task<ICloudQueueMessage> GetMessageAsync();
 
         Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync();

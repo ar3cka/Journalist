@@ -13,9 +13,19 @@ namespace Journalist.WindowsAzure.Storage.Queues
         {
         }
 
-        public Task AddMessageAsync(byte[] bytes)
+        public Task AddMessageAsync(byte[] content)
         {
-            return CloudEntity.AddMessageAsync(new CloudQueueMessage(bytes));
+            return CloudEntity.AddMessageAsync(new CloudQueueMessage(content));
+        }
+
+        public Task AddMessageAsync(byte[] content, TimeSpan visibilityTimeout)
+        {
+            return CloudEntity.AddMessageAsync(
+                message: new CloudQueueMessage(content),
+                timeToLive: null,
+                initialVisibilityDelay: visibilityTimeout,
+                options: null,
+                operationContext: null);
         }
 
         public async Task<ICloudQueueMessage> GetMessageAsync()
