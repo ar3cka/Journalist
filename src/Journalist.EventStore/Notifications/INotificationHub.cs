@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Journalist.EventStore.Notifications.Types;
 
 namespace Journalist.EventStore.Notifications
 {

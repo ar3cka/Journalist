@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
-using Journalist.Extensions;
 using Serilog;
 
 namespace Journalist.EventStore.Notifications.Listeners

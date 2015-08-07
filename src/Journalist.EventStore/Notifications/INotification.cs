@@ -1,7 +1,7 @@
 using System.IO;
 using Journalist.EventStore.Streams;
 
-namespace Journalist.EventStore.Notifications.Types
+namespace Journalist.EventStore.Notifications
 {
     public interface INotification
     {

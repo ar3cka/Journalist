@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Types;
@@ -14,8 +15,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
 {
     public class NotificationListenerSubscriptionTest
     {
-        [Theory]
-        [AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public void Start_NotifyListener(
             [Frozen] Mock<INotificationListener> listenerMock,
             IEventStoreConnection connection,
@@ -26,18 +26,29 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             listenerMock.Verify(self => self.OnSubscriptionStarted(subscription), Times.Once());
         }
 
-        [Theory, AutoMoqData]
-        public void Stop_NotifyListener(
+        [Theory, NotificationListenerSubscriptionData]
+        public void Stop_WhenSubscriptionHasNotBeenStarted_Throws(
             [Frozen] Mock<INotificationListener> listenerMock,
             NotificationListenerSubscription subscription,
-            EventStreamUpdated notification)
+            INotification notification)
         {
+            Assert.Throws<InvalidOperationException>(() => subscription.Stop());
+        }
+
+        [Theory, NotificationListenerSubscriptionData]
+        public void Stop_NotifyListener(
+            [Frozen] Mock<INotificationListener> listenerMock,
+            IEventStoreConnection connection,
+            NotificationListenerSubscription subscription,
+            INotification notification)
+        {
+            subscription.Start(connection);
             subscription.Stop();
 
             listenerMock.Verify(self => self.OnSubscriptionStopped(), Times.Once());
         }
 
-        [Theory, AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public async Task HandleNotificationAsync_WhenSubscriptionStarted_PropagatesNotificationToTheListener(
             [Frozen] Mock<INotificationListener> listenerMock,
             IEventStoreConnection connection,
@@ -53,7 +64,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
                 Times.Once());
         }
 
-        [Theory, AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public async Task HandleNotificationAsync_WhenNotificationNotAddressedToConsumer_PropagatesNotificationToTheListener(
             [Frozen] Mock<INotificationListener> listenerMock,
             IEventStoreConnection connection,
@@ -70,7 +81,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
                 Times.Never());
         }
 
-        [Theory, AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public async Task HandleNotificationAsync_WhenNotificationAddressedToConsumer_PropagatesNotificationToTheListener(
             [Frozen] Mock<INotificationListener> listenerMock,
             [Frozen] EventStreamConsumerId consumerId,
@@ -89,7 +100,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
                 Times.Once());
         }
 
-        [Theory, AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public async Task HandleNotificationAsync_WhenSubscriptionDidNotStart_NotPropagatesNotificationToTheListener(
             [Frozen] Mock<INotificationListener> listenerMock,
             NotificationListenerSubscription subscription,
@@ -102,7 +113,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
                 Times.Never());
         }
 
-        [Theory, AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public async Task HandleNotificationAsync__WhenSubscriptionStoped_PropagateNotificationToTheListener(
             [Frozen] Mock<INotificationListener> listenerMock,
             IEventStoreConnection connection,
@@ -120,7 +131,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
                 Times.Once());
         }
 
-        [Theory, AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public void CreateSubscriptionConsumerAsync_WhenSubscriptionWasStarted_UseConnection(
             [Frozen] EventStreamConsumerId consumerId,
             Mock<IEventStoreConnection> connectionMock,
@@ -135,7 +146,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
                 It.IsAny<Action<IEventStreamConsumerConfiguration>>()));
         }
 
-        [Theory, AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public async Task CreateSubscriptionConsumerAsync_WhenSubscriptionWasNotStarted_Throws(
             [Frozen] EventStreamConsumerId consumerId,
             NotificationListenerSubscription subscription,
@@ -145,7 +156,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
                 () => subscription.CreateSubscriptionConsumerAsync(streamName));
         }
 
-        [Theory, AutoMoqData]
+        [Theory, NotificationListenerSubscriptionData]
         public async Task DefferNotificationAsync_SendAddressedNotification(
             [Frozen] Mock<INotificationsChannel> channelMock,
             [Frozen] EventStreamConsumerId consumerId,

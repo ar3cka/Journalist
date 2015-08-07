@@ -6,7 +6,6 @@ using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Timeouts;
-using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 using Journalist.Extensions;
 

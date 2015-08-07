@@ -67,6 +67,7 @@
     <Compile Include="Infrastructure\TestData\EventStreamReaderDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamWriterDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\NotificationHubDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\NotificationListenerSubscriptionDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\StreamConsumingNotificationListenerDataAttribute.cs" />
     <Compile Include="Notifications\Formatters\NotificationFormatterTests.cs" />
     <Compile Include="Notifications\Formatters\Templates\TemplatesRes.Designer.cs">

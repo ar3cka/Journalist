@@ -85,6 +85,7 @@
     <Compile Include="Notifications\Channels\NotificationsChannel.cs" />
     <Compile Include="Notifications\Formatters\INotificationFormatter.cs" />
     <Compile Include="Notifications\Formatters\NotificationFormatter.cs" />
+    <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Notifications\INotificationHub.cs" />
     <Compile Include="Notifications\Listeners\BatchEventConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\EventConsumingNotificationListener.cs" />
@@ -98,7 +99,6 @@
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Timeouts\IPollingTimeout.cs" />
     <Compile Include="Notifications\Timeouts\PollingTimeout.cs" />
-    <Compile Include="Notifications\Types\INotification.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyKeys.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

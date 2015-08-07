@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
