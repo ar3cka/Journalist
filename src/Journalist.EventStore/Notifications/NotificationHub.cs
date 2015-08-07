@@ -8,18 +8,21 @@ using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.EventStore.Streams;
 using Journalist.Extensions;
+using Serilog;
 
 namespace Journalist.EventStore.Notifications
 {
     public class NotificationHub : INotificationHub
     {
+        private static readonly ILogger s_logger = Log.ForContext<NotificationHub>();
+
         private readonly Dictionary<EventStreamConsumerId, NotificationListenerSubscription> m_subscriptions = new Dictionary<EventStreamConsumerId, NotificationListenerSubscription>();
         private readonly Dictionary<INotificationListener, EventStreamConsumerId> m_listenerSubscriptions = new Dictionary<INotificationListener, EventStreamConsumerId>();
         private readonly INotificationsChannel m_channel;
         private readonly IEventStreamConsumersRegistry m_consumersRegistry;
         private readonly IPollingTimeout m_timeout;
 
-        private CancellationTokenSource m_token;
+        private CancellationTokenSource m_pollingCancellationToken;
         private Task m_processingTask;
 
         public NotificationHub(
@@ -71,8 +74,8 @@ namespace Journalist.EventStore.Notifications
                     subscriptions.Start(connection);
                 }
 
-                m_token = new CancellationTokenSource();
-                m_processingTask = ProcessNotificationFromChannel(m_token.Token);
+                m_pollingCancellationToken = new CancellationTokenSource();
+                m_processingTask = ProcessNotificationFromChannel(m_pollingCancellationToken.Token);
             }
         }
 
@@ -80,15 +83,22 @@ namespace Journalist.EventStore.Notifications
         {
             if (m_subscriptions.Any())
             {
-                if (m_token != null)
+                // Call sequence is important. First we stop receiving
+                // of a new notifications then wait for completion of
+                // received notifications processing.
+                //
+                if (m_pollingCancellationToken != null)
                 {
-                    m_token.Cancel();
+                    m_pollingCancellationToken.Cancel();
                     m_processingTask.Wait();
                 }
 
-                foreach (var subscriptions in m_subscriptions.Values)
+                // Absense of new a notifications in the subscription
+                // stop phase is essential guarantee.
+                //
+                foreach (var subscription in m_subscriptions.Values)
                 {
-                    subscriptions.Stop();
+                    subscription.Stop();
                 }
             }
         }
@@ -121,7 +131,17 @@ namespace Journalist.EventStore.Notifications
                     {
                         foreach (var subscription in m_subscriptions.Values)
                         {
-                            await subscription.HandleNotificationAsync(notification);
+                            subscription
+                                .HandleNotificationAsync(notification)
+                                .ContinueWith(handlingTask =>
+                                {
+                                    if (handlingTask.Exception != null)
+                                    {
+                                        s_logger.Fatal(
+                                            handlingTask.Exception.GetBaseException(),
+                                            "UNHANDLED EXCEPTION in NotificationListenerSubscription.");
+                                    }
+                                });
                         }
                     }
                 }

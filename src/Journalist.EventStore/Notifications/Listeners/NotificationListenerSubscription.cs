@@ -19,7 +19,7 @@ namespace Journalist.EventStore.Notifications.Listeners
         private readonly EventStreamConsumerId m_subscriptionConsumerId;
         private readonly INotificationsChannel m_notificationsChannel;
         private readonly INotificationListener m_listener;
-        private readonly CountdownEvent m_countdown;
+        private readonly CountdownEvent m_processingCountdown;
         private IEventStoreConnection m_connection;
 
         public NotificationListenerSubscription(
@@ -34,7 +34,7 @@ namespace Journalist.EventStore.Notifications.Listeners
             m_subscriptionConsumerId = subscriptionConsumerId;
             m_notificationsChannel = notificationsChannel;
             m_listener = listener;
-            m_countdown = new CountdownEvent(0);
+            m_processingCountdown = new CountdownEvent(0);
         }
 
         public async Task HandleNotificationAsync(INotification notification)
@@ -60,16 +60,16 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             m_connection = connection;
             m_listener.OnSubscriptionStarted(this);
-            m_countdown.Reset(1);
+            m_processingCountdown.Reset(1);
         }
 
         public void Stop()
         {
-            Ensure.False(m_countdown.IsSet, "Subscription has not been not started.");
+            Ensure.False(m_processingCountdown.IsSet, "Subscription has not been not started.");
 
-            m_countdown.Signal();
+            m_processingCountdown.Signal();
+            m_processingCountdown.Wait();
             m_listener.OnSubscriptionStopped();
-            m_countdown.Wait();
 
             m_connection = null;
         }
@@ -78,7 +78,7 @@ namespace Journalist.EventStore.Notifications.Listeners
         {
             Require.NotEmpty(streamName, "streamName");
 
-            Ensure.False(m_countdown.IsSet, "Subscription is not activated.");
+            Ensure.False(m_processingCountdown.IsSet, "Subscription is not activated.");
 
             return m_connection.CreateStreamConsumerAsync(config => config
                 .UseConsumerId(m_subscriptionConsumerId)
@@ -97,7 +97,7 @@ namespace Journalist.EventStore.Notifications.Listeners
                 if (s_logger.IsEnabled(LogEventLevel.Debug))
                 {
                     s_logger.Debug(
-                        "Sending retry notification ({RetryNotificationId}, {NotificationType} to consumer {SubscriptionConsumerId}. " +
+                        "Sending retry notification ({RetryNotificationId}, {NotificationType}) to consumer {SubscriptionConsumerId}. " +
                         "Source notification: {SourceNotificationId}.",
                         retryNotification.NotificationId,
                         retryNotification.NotificationType,
@@ -124,13 +124,28 @@ namespace Journalist.EventStore.Notifications.Listeners
             }
         }
 
-        private async Task ProcessNotificationAsync(dynamic notification)
+        private async Task ProcessNotificationAsync(INotification notification)
         {
             try
             {
-                if (m_countdown.TryAddCount())
+                if (m_processingCountdown.TryAddCount())
                 {
-                    await m_listener.On(notification);
+                    await m_listener.On((dynamic)notification);
+                }
+                else
+                {
+                    var redeliveredNotification = notification.RedeliverTo(m_subscriptionConsumerId);
+
+                    s_logger.Warning(
+                        "Trying to redeliver notification (RedeliverNotificationId}, {NotificationType}) " +
+                        "to consumer {SubscriptionConsumerId} because subscription is stopping. " +
+                        "Source notification: {SourceNotificationId}.",
+                        redeliveredNotification.NotificationId,
+                        redeliveredNotification.NotificationType,
+                        m_subscriptionConsumerId,
+                        notification.NotificationId);
+
+                    await m_notificationsChannel.SendAsync(redeliveredNotification);
                 }
             }
             catch (Exception exception)
@@ -139,9 +154,9 @@ namespace Journalist.EventStore.Notifications.Listeners
             }
             finally
             {
-                if (!m_countdown.IsSet)
+                if (!m_processingCountdown.IsSet)
                 {
-                    m_countdown.Signal();
+                    m_processingCountdown.Signal();
                 }
             }
         }
