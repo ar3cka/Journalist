@@ -69,7 +69,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             await listener.On(notification);
 
             subscriptionMock.Verify(
-                self => self.RetryNotificationProcessinAsync(notification),
+                self => self.RetryNotificationProcessingAsync(notification),
                 Times.Once());
         }
 
@@ -100,7 +100,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             await listener.On(notification);
 
             subscriptionMock.Verify(
-                self => self.RetryNotificationProcessinAsync(notification),
+                self => self.RetryNotificationProcessingAsync(notification),
                 Times.Once());
         }
 
@@ -134,7 +134,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         {
             await listener.On(notification);
 
-            subscriptionMock.Verify(self => self.RetryNotificationProcessinAsync(notification), Times.Never());
+            subscriptionMock.Verify(self => self.RetryNotificationProcessingAsync(notification), Times.Never());
         }
 
         [Theory, StreamConsumingNotificationListenerData]

@@ -86,7 +86,7 @@ namespace Journalist.EventStore.Notifications.Listeners
                 .AutoCommitProcessedStreamPosition(false));
         }
 
-        public async Task RetryNotificationProcessinAsync(INotification notification)
+        public async Task RetryNotificationProcessingAsync(INotification notification)
         {
             Require.NotNull(notification, "notification");
 

@@ -52,7 +52,7 @@ namespace Journalist.EventStore.Notifications.Listeners
                         notification.NotificationId,
                         notification.NotificationType);
 
-                    await m_subscription.RetryNotificationProcessinAsync(notification);
+                    await m_subscription.RetryNotificationProcessingAsync(notification);
                 }
             }
             catch (Exception exception)
