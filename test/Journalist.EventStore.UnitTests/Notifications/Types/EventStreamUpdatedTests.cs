@@ -99,6 +99,24 @@ namespace Journalist.EventStore.UnitTests.Notifications.Types
             Assert.Equal(2, notification.DeliveryCount);
         }
 
+        [Theory, AutoMoqData]
+        public void RedeliverTo_DecreasesDeliveryCount(
+            EventStreamUpdated notification,
+            EventStreamConsumerId consumerId)
+        {
+            SaveAndRestore(notification);
+
+            Assert.Equal(0, notification.RedeliverTo(consumerId).DeliveryCount);
+        }
+
+        [Theory, AutoMoqData]
+        public void RedeliverTo_WhenNotificationWasNotDelivered_DoesNotTouchDecreasesDeliveryCount(
+            EventStreamUpdated notification,
+            EventStreamConsumerId consumerId)
+        {
+            Assert.Equal(0, notification.RedeliverTo(consumerId).DeliveryCount);
+        }
+
         private static void SaveAndRestore(INotification notification)
         {
             using (var memory = new MemoryStream())

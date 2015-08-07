@@ -9,6 +9,8 @@ namespace Journalist.EventStore.Notifications
 
         INotification SendTo(EventStreamConsumerId consumerId);
 
+        INotification RedeliverTo(EventStreamConsumerId consumerId);
+
         void SaveTo(StreamWriter writer);
 
         void RestoreFrom(StreamReader reader);

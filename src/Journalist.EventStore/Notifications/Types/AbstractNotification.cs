@@ -39,18 +39,27 @@ namespace Journalist.EventStore.Notifications.Types
                 return this;
             }
 
-            var properties = new Dictionary<string, string>();
-            SaveCommonProperties(properties);
-            SavePropertiesTo(properties);
+            return CopyAndUpdate(properties =>
+            {
+                properties[NotificationPropertyKeys.Common.NOTIFICATION_ID] = NotificationId.Create().ToString();
+                properties[NotificationPropertyKeys.Common.RECIPIENT] = consumerId.ToString();
+            });
+        }
 
-            properties[NotificationPropertyKeys.Common.NOTIFICATION_ID] = Guid.NewGuid().ToString("N");
-            properties[NotificationPropertyKeys.Common.RECIPIENT] = consumerId.ToString();
+        public INotification RedeliverTo(EventStreamConsumerId consumerId)
+        {
+            Require.NotNull(consumerId, "consumerId");
 
-            var notification = (AbstractNotification)FormatterServices.GetUninitializedObject(GetType());
-            notification.RestoreCommonProperties(properties, false);
-            notification.RestoreFromProperties(properties);
+            return CopyAndUpdate(properties =>
+            {
+                properties[NotificationPropertyKeys.Common.NOTIFICATION_ID] = Guid.NewGuid().ToString("N");
+                properties[NotificationPropertyKeys.Common.RECIPIENT] = consumerId.ToString();
 
-            return notification;
+                if (m_deliveryCount > 0)
+                {
+                    properties[NotificationPropertyKeys.Common.DELIVERY_COUNT] = (m_deliveryCount - 1).ToInvariantString();
+                }
+            });
         }
 
         public void SaveTo(StreamWriter writer)
@@ -92,6 +101,21 @@ namespace Journalist.EventStore.Notifications.Types
         protected abstract void SavePropertiesTo(Dictionary<string, string> properties);
 
         protected abstract void RestoreFromProperties(Dictionary<string, string> properties);
+
+        private INotification CopyAndUpdate(Action<Dictionary<string, string>> update)
+        {
+            var properties = new Dictionary<string, string>();
+            SaveCommonProperties(properties);
+            SavePropertiesTo(properties);
+
+            update(properties);
+
+            var notification = (AbstractNotification)FormatterServices.GetUninitializedObject(GetType());
+            notification.RestoreCommonProperties(properties, false);
+            notification.RestoreFromProperties(properties);
+
+            return notification;
+        }
 
         private void SaveCommonProperties(Dictionary<string, string> properties)
         {
