@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
@@ -19,7 +20,7 @@ namespace Journalist.EventStore.Notifications.Listeners
         private readonly EventStreamConsumerId m_subscriptionConsumerId;
         private readonly INotificationsChannel m_notificationsChannel;
         private readonly INotificationListener m_listener;
-        private bool m_active;
+        private readonly CountdownEvent m_countdown;
         private IEventStoreConnection m_connection;
 
         public NotificationListenerSubscription(
@@ -34,24 +35,22 @@ namespace Journalist.EventStore.Notifications.Listeners
             m_subscriptionConsumerId = subscriptionConsumerId;
             m_notificationsChannel = notificationsChannel;
             m_listener = listener;
+            m_countdown = new CountdownEvent(0);
         }
 
         public async Task HandleNotificationAsync(dynamic notification)
         {
-            if (m_active)
+            var notificationInterface = (INotification)notification;
+            if (notificationInterface.IsAddressed)
             {
-                var notificationInterface = (INotification)notification;
-                if (notificationInterface.IsAddressed)
+                if (notificationInterface.IsAddressedTo(m_subscriptionConsumerId))
                 {
-                    if (notificationInterface.IsAddressedTo(m_subscriptionConsumerId))
-                    {
-                        await ProcessNotificationAsync(notification, m_listener);
-                    }
+                    await ProcessNotificationAsync(notification);
                 }
-                else
-                {
-                    await ProcessNotificationAsync(notification, m_listener);
-                }
+            }
+            else
+            {
+                await ProcessNotificationAsync(notification);
             }
         }
 
@@ -60,25 +59,26 @@ namespace Journalist.EventStore.Notifications.Listeners
             Require.NotNull(connection, "connection");
 
             m_connection = connection;
-
             m_listener.OnSubscriptionStarted(this);
-
-            m_active = true;
+            m_countdown.Reset(1);
         }
 
         public void Stop()
         {
-            m_connection = null;
-            m_active = false;
+            Ensure.False(m_countdown.IsSet, "Subscription has not been not started.");
 
+            m_countdown.Signal();
             m_listener.OnSubscriptionStopped();
+            m_countdown.Wait();
+
+            m_connection = null;
         }
 
         public Task<IEventStreamConsumer> CreateSubscriptionConsumerAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 
-            Ensure.True(m_active, "Subscription is not activated.");
+            Ensure.False(m_countdown.IsSet, "Subscription is not activated.");
 
             return m_connection.CreateStreamConsumerAsync(config => config
                 .UseConsumerId(m_subscriptionConsumerId)
@@ -124,15 +124,25 @@ namespace Journalist.EventStore.Notifications.Listeners
             }
         }
 
-        private static async Task ProcessNotificationAsync(dynamic notification, INotificationListener listener)
+        private async Task ProcessNotificationAsync(dynamic notification)
         {
             try
             {
-                await listener.On(notification);
+                if (m_countdown.TryAddCount())
+                {
+                    await m_listener.On(notification);
+                }
             }
             catch (Exception exception)
             {
                 s_logger.Error(exception, "Processing notification {@Notification} failed.", notification);
+            }
+            finally
+            {
+                if (!m_countdown.IsSet)
+                {
+                    m_countdown.Signal();
+                }
             }
         }
     }

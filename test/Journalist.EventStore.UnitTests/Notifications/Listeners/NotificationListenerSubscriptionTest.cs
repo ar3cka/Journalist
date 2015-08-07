@@ -141,9 +141,8 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             NotificationListenerSubscription subscription,
             string streamName)
         {
-            await
-                Assert.ThrowsAsync<InvalidOperationException>(
-                    () => subscription.CreateSubscriptionConsumerAsync(streamName));
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => subscription.CreateSubscriptionConsumerAsync(streamName));
         }
 
         [Theory, AutoMoqData]
