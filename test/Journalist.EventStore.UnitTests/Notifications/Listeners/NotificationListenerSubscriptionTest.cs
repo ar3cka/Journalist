@@ -161,7 +161,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
 
             subscription.Start(connection);
 
-            await subscription.DefferNotificationAsync(receivedNotificationMock.Object);
+            await subscription.RetryNotificationProcessinAsync(receivedNotificationMock.Object);
 
             channelMock
                 .Verify(self => self.SendAsync(deferredNotification));

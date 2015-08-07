@@ -13,6 +13,6 @@ namespace Journalist.EventStore.Notifications.Listeners
 
         Task<IEventStreamConsumer> CreateSubscriptionConsumerAsync(string streamName);
 
-        Task DefferNotificationAsync(INotification notification);
+        Task RetryNotificationProcessinAsync(INotification notification);
     }
 }

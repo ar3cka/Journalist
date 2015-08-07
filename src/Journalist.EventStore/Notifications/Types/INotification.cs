@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Journalist.EventStore.Streams;
 
@@ -16,7 +15,7 @@ namespace Journalist.EventStore.Notifications.Types
 
         bool IsAddressed{ get; }
 
-        Guid NotificationId { get; }
+        NotificationId NotificationId { get; }
 
         string NotificationType { get; }
 

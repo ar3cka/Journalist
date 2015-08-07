@@ -9,14 +9,14 @@ namespace Journalist.EventStore.Notifications.Types
 {
     public abstract class AbstractNotification : INotification
     {
-        private Guid m_notificationId;
+        private NotificationId m_notificationId;
         private string m_notificationType;
         private EventStreamConsumerId m_recipient;
         private int m_deliveryCount;
 
         protected AbstractNotification()
         {
-            m_notificationId = Guid.NewGuid();
+            m_notificationId = NotificationId.Create();
             m_notificationType = GetType().FullName;
             m_recipient = null;
         }
@@ -96,7 +96,7 @@ namespace Journalist.EventStore.Notifications.Types
         private void SaveCommonProperties(Dictionary<string, string> properties)
         {
             properties[NotificationPropertyKeys.Common.NOTIFICATION_TYPE] = NotificationType;
-            properties[NotificationPropertyKeys.Common.NOTIFICATION_ID] = NotificationId.ToString("N");
+            properties[NotificationPropertyKeys.Common.NOTIFICATION_ID] = NotificationId.ToString();
 
             if (m_recipient != null)
             {
@@ -111,7 +111,7 @@ namespace Journalist.EventStore.Notifications.Types
 
         private void RestoreCommonProperties(Dictionary<string, string> properties, bool channelDelivery)
         {
-            m_notificationId = Guid.Parse(properties[NotificationPropertyKeys.Common.NOTIFICATION_ID]);
+            m_notificationId = NotificationId.Parse(properties[NotificationPropertyKeys.Common.NOTIFICATION_ID]);
             m_notificationType = GetType().FullName;
 
             if (properties.ContainsKey(NotificationPropertyKeys.Common.RECIPIENT))
@@ -137,7 +137,7 @@ namespace Journalist.EventStore.Notifications.Types
             get { return m_recipient != null; }
         }
 
-        public Guid NotificationId
+        public NotificationId NotificationId
         {
             get { return m_notificationId; }
         }

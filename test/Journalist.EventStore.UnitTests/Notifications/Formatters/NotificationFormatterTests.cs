@@ -18,7 +18,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Formatters
 
             Assert.Equal(
                 TemplatesRes.EventStreamUpdated.FormatString(
-                    notification.NotificationId.ToString("N"),
+                    notification.NotificationId.ToString(),
                     notification.StreamName,
                     (int)notification.FromVersion,
                     (int)notification.ToVersion),

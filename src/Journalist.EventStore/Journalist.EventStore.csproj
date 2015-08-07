@@ -93,6 +93,7 @@
     <Compile Include="Notifications\Listeners\NotificationListenerSubscription.cs" />
     <Compile Include="Notifications\Listeners\StreamConsumingNotificationListener.cs" />
     <Compile Include="Notifications\NotificationHub.cs" />
+    <Compile Include="Notifications\NotificationId.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Timeouts\IPollingTimeout.cs" />

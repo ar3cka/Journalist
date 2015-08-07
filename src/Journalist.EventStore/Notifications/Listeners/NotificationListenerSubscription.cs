@@ -4,12 +4,16 @@ using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
+using Journalist.Extensions;
 using Serilog;
+using Serilog.Events;
 
 namespace Journalist.EventStore.Notifications.Listeners
 {
     public class NotificationListenerSubscription : INotificationListenerSubscription
     {
+        private const int MAX_ATTEMPT_COUNT= 10;
+
         private static readonly ILogger s_logger = Log.ForContext<NotificationListenerSubscription>();
 
         private readonly EventStreamConsumerId m_subscriptionConsumerId;
@@ -82,12 +86,42 @@ namespace Journalist.EventStore.Notifications.Listeners
                 .AutoCommitProcessedStreamPosition(false));
         }
 
-        public Task DefferNotificationAsync(INotification notification)
+        public async Task RetryNotificationProcessinAsync(INotification notification)
         {
             Require.NotNull(notification, "notification");
 
-            return m_notificationsChannel.SendAsync(
-                notification.SendTo(m_subscriptionConsumerId));
+            if (notification.DeliveryCount < MAX_ATTEMPT_COUNT)
+            {
+                var retryNotification = notification.SendTo(m_subscriptionConsumerId);
+
+                if (s_logger.IsEnabled(LogEventLevel.Debug))
+                {
+                    s_logger.Debug(
+                        "Sending retry notification ({RetryNotificationId}, {NotificationType} to consumer {SubscriptionConsumerId}. " +
+                        "Source notification: {SourceNotificationId}.",
+                        retryNotification.NotificationId,
+                        retryNotification.NotificationType,
+                        m_subscriptionConsumerId,
+                        notification.NotificationId);
+                }
+
+                await m_notificationsChannel.SendAsync(retryNotification);
+            }
+            else
+            {
+                s_logger.Error(
+                    "Number of processing attempt has been exceeded. " +
+                        "Listener type: {ListenerType}. " +
+                        "NotificationId: {Notification}. " +
+                        "NotificationType: {NotificationType}. " +
+                        "Delivery count: {DeliveryCount}. " +
+                        "Maximum deliver count: {MaxDeliveryCount}",
+                    m_listener.GetType(),
+                    notification.NotificationId,
+                    notification.NotificationType,
+                    notification.DeliveryCount.ToInvariantString(),
+                    MAX_ATTEMPT_COUNT.ToInvariantString());
+            }
         }
 
         private static async Task ProcessNotificationAsync(dynamic notification, INotificationListener listener)
