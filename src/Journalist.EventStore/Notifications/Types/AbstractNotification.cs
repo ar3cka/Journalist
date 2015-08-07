@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using Journalist.EventStore.Streams;
+using Journalist.Extensions;
 
 namespace Journalist.EventStore.Notifications.Types
 {
@@ -11,6 +12,7 @@ namespace Journalist.EventStore.Notifications.Types
         private Guid m_notificationId;
         private string m_notificationType;
         private EventStreamConsumerId m_recipient;
+        private int m_deliveryCount;
 
         protected AbstractNotification()
         {
@@ -45,7 +47,7 @@ namespace Journalist.EventStore.Notifications.Types
             properties[NotificationPropertyKeys.Common.RECIPIENT] = consumerId.ToString();
 
             var notification = (AbstractNotification)FormatterServices.GetUninitializedObject(GetType());
-            notification.RestoreCommonProperties(properties);
+            notification.RestoreCommonProperties(properties, false);
             notification.RestoreFromProperties(properties);
 
             return notification;
@@ -83,7 +85,7 @@ namespace Journalist.EventStore.Notifications.Types
                 properties.Add(key, value);
             }
 
-            RestoreCommonProperties(properties);
+            RestoreCommonProperties(properties, true);
             RestoreFromProperties(properties);
         }
 
@@ -100,9 +102,14 @@ namespace Journalist.EventStore.Notifications.Types
             {
                 properties[NotificationPropertyKeys.Common.RECIPIENT] = m_recipient.ToString();
             }
+
+            if (m_deliveryCount != 0)
+            {
+                properties[NotificationPropertyKeys.Common.DELIVERY_COUNT] = m_deliveryCount.ToInvariantString();
+            }
         }
 
-        private void RestoreCommonProperties(Dictionary<string, string> properties)
+        private void RestoreCommonProperties(Dictionary<string, string> properties, bool channelDelivery)
         {
             m_notificationId = Guid.Parse(properties[NotificationPropertyKeys.Common.NOTIFICATION_ID]);
             m_notificationType = GetType().FullName;
@@ -110,6 +117,18 @@ namespace Journalist.EventStore.Notifications.Types
             if (properties.ContainsKey(NotificationPropertyKeys.Common.RECIPIENT))
             {
                 m_recipient = EventStreamConsumerId.Parse(properties[NotificationPropertyKeys.Common.RECIPIENT]);
+            }
+
+            if (channelDelivery)
+            {
+                m_deliveryCount = 1;
+                string deliveryCount;
+                if (properties.TryGetValue(NotificationPropertyKeys.Common.DELIVERY_COUNT, out deliveryCount))
+                {
+                    var value = int.Parse(deliveryCount);
+                    value++;
+                    m_deliveryCount = value;
+                }
             }
         }
 
@@ -126,6 +145,11 @@ namespace Journalist.EventStore.Notifications.Types
         public string NotificationType
         {
             get { return m_notificationType; }
+        }
+
+        public int DeliveryCount
+        {
+            get { return m_deliveryCount; }
         }
     }
 }

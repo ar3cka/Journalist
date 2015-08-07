@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
@@ -48,6 +49,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Types
             Assert.Equal(notification.FromVersion, addressedNotification.FromVersion);
             Assert.Equal(notification.ToVersion, addressedNotification.ToVersion);
             Assert.Equal(notification.NotificationType, addressedNotification.NotificationType);
+            Assert.Equal(notification.DeliveryCount, addressedNotification.DeliveryCount);
         }
 
         [Theory, AutoMoqData]
@@ -80,6 +82,34 @@ namespace Journalist.EventStore.UnitTests.Notifications.Types
             var addressedNotification = notification.SendTo(consumerId);
 
             Assert.NotEqual(notification.NotificationId, addressedNotification.NotificationId);
+        }
+
+        [Theory, AutoMoqData]
+        public void RestoreFrom_IncreasesDeliveryCount(
+            EventStreamUpdated notification,
+            EventStreamConsumerId consumerId)
+        {
+            Assert.Equal(0, notification.DeliveryCount);
+
+            SaveAndRestore(notification);
+            Assert.Equal(1, notification.DeliveryCount);
+
+            SaveAndRestore(notification);
+            Assert.Equal(2, notification.DeliveryCount);
+        }
+
+        private static void SaveAndRestore(INotification notification)
+        {
+            using (var memory = new MemoryStream())
+            using (var writer = new StreamWriter(memory))
+            using (var reader = new StreamReader(memory))
+            {
+                notification.SaveTo(writer);
+                writer.Flush();
+                memory.Position = 0;
+
+                notification.RestoreFrom(reader);
+            }
         }
     }
 }

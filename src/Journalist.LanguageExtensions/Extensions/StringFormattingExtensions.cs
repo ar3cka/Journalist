@@ -32,6 +32,23 @@ namespace Journalist.Extensions
             return string.Join(separator, source.Select(toString));
         }
 
+        public static string ToInvariantString(this IFormattable value)
+        {
+            Require.NotNull(value, "value");
+
+            return value.ToString(null, CultureInfo.InvariantCulture);
+        }
+
+        public static string ToInvariantString(this int value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public static string ToInvariantString(this long value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
+
         public static string ToCsvString<T>(this IEnumerable<T> source, Func<T, string> toString)
         {
             Require.NotNull(source, "source");

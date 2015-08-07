@@ -19,5 +19,7 @@ namespace Journalist.EventStore.Notifications.Types
         Guid NotificationId { get; }
 
         string NotificationType { get; }
+
+        int DeliveryCount { get; }
     }
 }

@@ -8,6 +8,7 @@ namespace Journalist.EventStore.Notifications.Types
             public const string NOTIFICATION_TYPE = "NotificationType";
             public const string RECIPIENT = "Recipient";
             public const string STREAM = "Stream";
+            public const string DELIVERY_COUNT = "DeliveryCount";
         }
 
         public static class EventStreamUpdated
