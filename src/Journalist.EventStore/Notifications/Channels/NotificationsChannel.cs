@@ -25,24 +25,18 @@ namespace Journalist.EventStore.Notifications.Channels
             m_formatter = formatter;
         }
 
-        public async Task SendAsync(INotification notification)
+        public Task SendAsync(INotification notification)
         {
             Require.NotNull(notification, "notification");
 
-            try
-            {
-                using (var notificationBytes = m_formatter.ToBytes(notification))
-                {
-                    await m_queue.AddMessageAsync(notificationBytes.ToArray());
-                }
-            }
-            catch (Exception exception)
-            {
-                s_logger.Error(
-                    exception,
-                    "Notification sending failed. Notification: {@Notification}.",
-                    notification);
-            }
+            return SendInternalAsync(notification, null);
+        }
+
+        public Task SendAsync(INotification notification, TimeSpan visibilityTimeout)
+        {
+            Require.NotNull(notification, "notification");
+
+            return SendInternalAsync(notification, visibilityTimeout);
         }
 
         public async Task<INotification[]> ReceiveNotificationsAsync()
@@ -71,6 +65,31 @@ namespace Journalist.EventStore.Notifications.Channels
             }
 
             return result.ToArray();
+        }
+
+        private async Task SendInternalAsync(INotification notification, TimeSpan? visibilityTimeout)
+        {
+            try
+            {
+                using (var notificationBytes = m_formatter.ToBytes(notification))
+                {
+                    if (visibilityTimeout.HasValue)
+                    {
+                        await m_queue.AddMessageAsync(notificationBytes.ToArray(), visibilityTimeout.Value);
+                    }
+                    else
+                    {
+                        await m_queue.AddMessageAsync(notificationBytes.ToArray());
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                s_logger.Error(
+                    exception,
+                    "Notification sending failed. Notification: {@Notification}.",
+                    notification);
+            }
         }
     }
 }
