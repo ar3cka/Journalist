@@ -32,10 +32,16 @@ namespace Journalist.EventStore.Notifications.Types
         {
             Require.NotNull(consumerId, "consumerId");
 
+            if (IsAddressed && IsAddressedTo(consumerId))
+            {
+                return this;
+            }
+
             var properties = new Dictionary<string, string>();
             SaveCommonProperties(properties);
             SavePropertiesTo(properties);
 
+            properties[NotificationPropertyKeys.Common.NOTIFICATION_ID] = Guid.NewGuid().ToString("N");
             properties[NotificationPropertyKeys.Common.RECIPIENT] = consumerId.ToString();
 
             var notification = (AbstractNotification)FormatterServices.GetUninitializedObject(GetType());
@@ -88,7 +94,7 @@ namespace Journalist.EventStore.Notifications.Types
         private void SaveCommonProperties(Dictionary<string, string> properties)
         {
             properties[NotificationPropertyKeys.Common.NOTIFICATION_TYPE] = NotificationType;
-            properties[NotificationPropertyKeys.Common.NOTIFICATION_ID] = NotificationId.ToString("D");
+            properties[NotificationPropertyKeys.Common.NOTIFICATION_ID] = NotificationId.ToString("N");
 
             if (m_recipient != null)
             {
