@@ -64,7 +64,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         {
             consumerMock
                 .Setup(self => self.ReceiveEventsAsync())
-                .Returns(TaskDone.False);
+                .Returns(ReceivingResultCode.PromotionFailed.YieldTask());
 
             await listener.On(notification);
 
@@ -81,7 +81,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         {
             consumerMock
                 .Setup(self => self.ReceiveEventsAsync())
-                .Returns(TaskDone.False);
+                .Returns(ReceivingResultCode.PromotionFailed.YieldTask());
 
             await listener.On(notification);
 

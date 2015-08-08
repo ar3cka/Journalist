@@ -124,6 +124,7 @@
     <Compile Include="Streams\IEventStreamProducer.cs" />
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
+    <Compile Include="Streams\ReceivingResultCode.cs" />
     <Compile Include="Streams\UnknownEventStreamConsumerException.cs" />
     <Compile Include="StreamVersion.cs" />
     <Compile Include="Utils\IRetryPolicy.cs" />

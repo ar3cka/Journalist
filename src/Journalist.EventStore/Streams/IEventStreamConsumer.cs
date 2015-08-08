@@ -6,7 +6,7 @@ namespace Journalist.EventStore.Streams
 {
     public interface IEventStreamConsumer
     {
-        Task<bool> ReceiveEventsAsync();
+        Task<ReceivingResultCode> ReceiveEventsAsync();
 
         Task CommitProcessedStreamVersionAsync(bool skipCurrent);
 

@@ -32,7 +32,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             consumer = await Connection.CreateStreamConsumerAsync(StreamName);
 
-            Assert.False(await consumer.ReceiveEventsAsync());
+            Assert.Equal(ReceivingResultCode.EmptyStream, await consumer.ReceiveEventsAsync());
         }
 
         [Theory, AutoMoqData]
@@ -112,7 +112,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await consumer.CloseAsync();
 
             consumer = await Connection.CreateStreamConsumerAsync(StreamName, consumerName);
-            Assert.False(await consumer.ReceiveEventsAsync());
+            Assert.Equal(ReceivingResultCode.EmptyStream, await consumer.ReceiveEventsAsync());
         }
 
         [Theory, AutoMoqData]

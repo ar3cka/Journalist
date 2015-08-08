@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
+using Journalist.Extensions;
 using Serilog;
 
 namespace Journalist.EventStore.Notifications.Listeners
@@ -38,18 +39,24 @@ namespace Journalist.EventStore.Notifications.Listeners
             try
             {
                 var retryProcessing = true;
-                if (await consumer.ReceiveEventsAsync() && await TryProcessEventFromConsumerAsync(consumer))
+                var receivingResult = await consumer.ReceiveEventsAsync();
+                if (receivingResult == ReceivingResultCode.EventsReceived && await TryProcessEventFromConsumerAsync(consumer))
                 {
                     await consumer.CommitProcessedStreamVersionAsync();
+                    retryProcessing = false;
+                }
+                else if (receivingResult == ReceivingResultCode.EmptyStream)
+                {
                     retryProcessing = false;
                 }
 
                 if (retryProcessing)
                 {
                     ListenerLogger.Warning(
-                        "Processing notification ({NotificationId}, {NotificationType}) was unsuccessful. Going to try later.",
+                        "Processing notification ({NotificationId}, {NotificationType}) was unsuccessful (Code). Going to try later.",
                         notification.NotificationId,
-                        notification.NotificationType);
+                        notification.NotificationType,
+                        receivingResult);
 
                     await m_subscription.RetryNotificationProcessingAsync(notification);
                 }

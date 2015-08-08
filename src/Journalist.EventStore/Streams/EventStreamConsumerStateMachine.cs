@@ -318,13 +318,5 @@ namespace Journalist.EventStore.Streams
         {
             get { return m_commitedVersion; }
         }
-
-        public bool ReceivingTerminationRequired
-        {
-            get
-            {
-                return m_receivedEventCount == 0;
-            }
-        }
     }
 }

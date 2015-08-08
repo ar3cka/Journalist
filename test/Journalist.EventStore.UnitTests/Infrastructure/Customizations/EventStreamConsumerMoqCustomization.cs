@@ -20,7 +20,9 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
             fixture.Customize<Mock<IEventStreamConsumer>>(composer => composer
                 .Do(mock => mock
                     .Setup(self => self.ReceiveEventsAsync())
-                    .Returns(() => m_consumerReceivingFailed ? TaskDone.False : TaskDone.True))
+                    .Returns(() => m_consumerReceivingFailed
+                        ? ReceivingResultCode.EmptyStream.YieldTask()
+                        : ReceivingResultCode.EventsReceived.YieldTask()))
                 .Do(mock => mock
                     .Setup(self => self.CloseAsync())
                     .Returns(TaskDone.Done))

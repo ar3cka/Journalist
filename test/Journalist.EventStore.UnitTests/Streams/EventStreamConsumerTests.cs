@@ -16,10 +16,10 @@ namespace Journalist.EventStore.UnitTests.Streams
     {
         [Theory]
         [EventStreamReaderCustomization(hasEvents: false)]
-        public async Task ReceiveAsync_WhenReaderIsEmpty_ReturnsFalse(
+        public async Task ReceiveAsync_WhenReaderIsEmpty_ReturnsEmptyStreamCode(
             EventStreamConsumer consumer)
         {
-            Assert.False(await consumer.ReceiveEventsAsync());
+            Assert.Equal(ReceivingResultCode.EmptyStream, await consumer.ReceiveEventsAsync());
         }
 
         [Theory]
@@ -35,18 +35,18 @@ namespace Journalist.EventStore.UnitTests.Streams
 
         [Theory]
         [EventStreamReaderCustomization]
-        public async Task ReceiveAsync_WhenReaderIsNotEmpty_ReturnsTrue(
+        public async Task ReceiveAsync_WhenReaderIsNotEmpty_ReturnsEventsReceivedCode(
             EventStreamConsumer consumer)
         {
-            Assert.True(await consumer.ReceiveEventsAsync());
+            Assert.Equal(ReceivingResultCode.EventsReceived, await consumer.ReceiveEventsAsync());
         }
 
         [Theory]
         [EventStreamReaderCustomization(leaderPromotion: false)]
-        public async Task ReceiveAsync_WhenReaderWasNotBeenPromotedToLeader_ReturnsFalse(
+        public async Task ReceiveAsync_WhenReaderWasNotBeenPromotedToLeader_ReturnsPromotionFailedCode(
             EventStreamConsumer consumer)
         {
-            Assert.False(await consumer.ReceiveEventsAsync());
+            Assert.Equal(ReceivingResultCode.PromotionFailed, await consumer.ReceiveEventsAsync());
         }
 
         [Theory]

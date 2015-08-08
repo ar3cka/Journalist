@@ -35,30 +35,34 @@ namespace Journalist.EventStore.Streams
             m_stm = new EventStreamConsumerStateMachine(commitedStreamVersion);
         }
 
-        public async Task<bool> ReceiveEventsAsync()
+        public async Task<ReceivingResultCode> ReceiveEventsAsync()
         {
-            m_stm.ReceivingStarted();
 
             if (await m_session.PromoteToLeaderAsync())
             {
+                m_stm.ReceivingStarted();
+
                 if (m_stm.CommitRequired(m_autoCommitProcessedStreamVersion))
                 {
                     var version = m_stm.CalculateConsumedStreamVersion(false);
                     await m_commitConsumedVersion(version);
                 }
 
-                await ReceiveEventsFromReaderAsync();
-
-                if (m_stm.ReceivingTerminationRequired)
+                if (m_reader.HasEvents)
                 {
-                    await CompletedReceivingAsync();
-                    return false;
+                    await m_reader.ReadEventsAsync();
+                    m_stm.ReceivingCompleted(m_reader.Events.Count);
+                    return ReceivingResultCode.EventsReceived;
+
                 }
 
-                return true;
+                m_stm.ReceivingCompleted(0);
+                await m_session.FreeAsync();
+
+                return ReceivingResultCode.EmptyStream;
             }
 
-            return false;
+            return ReceivingResultCode.PromotionFailed;
         }
 
         public async Task CommitProcessedStreamVersionAsync(bool skipCurrent)
@@ -67,7 +71,6 @@ namespace Journalist.EventStore.Streams
             if (m_stm.CommitedStreamVersion < version)
             {
                 await m_commitConsumedVersion(version);
-
                 m_stm.ConsumedStreamVersionCommited(version, skipCurrent);
             }
         }
@@ -81,7 +84,7 @@ namespace Journalist.EventStore.Streams
                 await CommitProcessedStreamVersionAsync(true);
             }
 
-            await CompletedReceivingAsync();
+            await m_session.FreeAsync();
         }
 
         public IEnumerable<JournaledEvent> EnumerateEvents()
@@ -101,25 +104,6 @@ namespace Journalist.EventStore.Streams
         public string StreamName
         {
             get { return m_reader.StreamName; }
-        }
-
-        private async Task ReceiveEventsFromReaderAsync()
-        {
-            if (m_reader.HasEvents)
-            {
-                await m_reader.ReadEventsAsync();
-
-                m_stm.ReceivingCompleted(m_reader.Events.Count);
-            }
-            else
-            {
-                m_stm.ReceivingCompleted(0);
-            }
-        }
-
-        private async Task CompletedReceivingAsync()
-        {
-            await m_session.FreeAsync();
         }
     }
 }
