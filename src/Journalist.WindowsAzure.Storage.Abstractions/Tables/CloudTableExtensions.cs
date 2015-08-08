@@ -56,8 +56,10 @@ namespace Journalist.WindowsAzure.Storage.Tables
             Require.NotNull(toRowKey, "toRowKey");
 
             return table.PrepareEntityFilterRangeQuery(
-                "(PartitionKey eq '{0}') and (RowKey ge '{1}' and RowKey le '{2}')".FormatString(partitionKey,
-                    fromRowKey, toRowKey),
+                "(PartitionKey eq '{0}') and (RowKey ge '{1}' and RowKey le '{2}')".FormatString(
+                    partitionKey,
+                    fromRowKey,
+                    toRowKey),
                 properties);
         }
 
@@ -67,9 +69,19 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string fromRowKey,
             string toRowKey)
         {
-            return table.PrepareEntityRangeQueryByRows(partitionKey, fromRowKey, toRowKey, EmptyArray.Get<string>());
+            return table.PrepareEntityRangeQueryByRows(
+                partitionKey,
+                fromRowKey,
+                toRowKey,
+                EmptyArray.Get<string>());
         }
 
+        public static ICloudTableEntityRangeQuery PrepareEntityFilterRangeQuery(this ICloudTable table, string filter)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityFilterRangeQuery(filter, EmptyArray.Get<string>());
+        }
 
         public static ICloudTableEntitySegmentedRangeQuery PrepareEntityFilterSegmentedRangeQuery(this ICloudTable table, string filter)
         {

@@ -5,7 +5,7 @@ namespace Journalist.EventStore.Journal
 {
     public interface IEventStreamSlice : IReadOnlyCollection<JournaledEvent>
     {
-        EventStreamPosition SlicePosition { get; }
+        StreamVersion SliceSteamVersion { get; }
 
         bool EndOfStream { get; }
     }

@@ -214,7 +214,7 @@ namespace Journalist.EventStore.Journal
             }
         }
 
-        private async Task<SortedList<StreamVersion, JournaledEvent>> FetchEvents(
+        private async Task<FetchEventsResult> FetchEvents(
             string stream,
             StreamVersion fromVersion,
             StreamVersion toVersion,
@@ -226,21 +226,35 @@ namespace Journalist.EventStore.Journal
                 nextSliceVersion = toVersion;
             }
 
+            const string queryTemplate =
+                "((PartitionKey eq '{0}') and (RowKey eq 'HEAD')) or " +
+                "((PartitionKey eq '{0}') and (RowKey ge '{1}' and RowKey le '{2}'))";
+
             var query = m_table.PrepareEntityFilterRangeQuery(
-                "(PartitionKey eq '{0}') and (RowKey ge '{1}' and RowKey le '{2}')".FormatString(
+                queryTemplate.FormatString(
                     stream,
                     fromVersion.ToString(),
-                    nextSliceVersion.ToString()), JournaledEventPropertyNames.All);
+                    nextSliceVersion.ToString()));
 
             var queryResult = await query.ExecuteAsync();
 
-            var result = new SortedList<StreamVersion, JournaledEvent>(sliceSize);
+            var events = new SortedList<StreamVersion, JournaledEvent>(sliceSize);
+            var streamVersion = StreamVersion.Unknown;
             foreach (var properties in queryResult)
             {
-                result.Add(StreamVersion.Parse((string)properties[KnownProperties.RowKey]), JournaledEvent.Create(properties));
+                var rowKey = (string)properties[KnownProperties.RowKey];
+                if (rowKey.EqualsCi("HEAD"))
+                {
+                    streamVersion = StreamVersion.Create(
+                        (int)properties[EventJournalTableRowPropertyNames.Version]);
+                }
+                else
+                {
+                    events.Add(StreamVersion.Parse((string)properties[KnownProperties.RowKey]), JournaledEvent.Create(properties));
+                }
             }
 
-            return result;
+            return new FetchEventsResult(streamVersion, events);
         }
 
         private static void WriteEvents(string stream, StreamVersion version, IEnumerable<JournaledEvent> events, IBatchOperation batch)

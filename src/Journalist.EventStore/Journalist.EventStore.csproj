@@ -79,6 +79,7 @@
     <Compile Include="Journal\StreamCursor\EndOfStreamCursorState.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursor.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamSlice.cs" />
+    <Compile Include="Journal\StreamCursor\FetchEventsResult.cs" />
     <Compile Include="Journal\StreamCursor\FetchingCursorState.cs" />
     <Compile Include="Journal\StreamCursor\InitialCursorState.cs" />
     <Compile Include="Notifications\Channels\INotificationsChannel.cs" />

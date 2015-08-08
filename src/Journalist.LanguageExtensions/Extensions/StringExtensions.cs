@@ -9,7 +9,7 @@ namespace Journalist.Extensions
             return string.Equals(a, b, StringComparison.Ordinal);
         }
 
-        public static bool EqualsCi<T>(this string a, string b)
+        public static bool EqualsCi(this string a, string b)
         {
             return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
         }

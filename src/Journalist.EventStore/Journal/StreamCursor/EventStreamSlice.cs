@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Journalist.EventStore.Events;
+using Journalist.Extensions;
 
 namespace Journalist.EventStore.Journal.StreamCursor
 {
@@ -10,28 +11,38 @@ namespace Journalist.EventStore.Journal.StreamCursor
         public static readonly EventStreamSlice Empty = new EventStreamSlice();
 
         private readonly bool m_endOfStream;
-        private readonly EventStreamPosition m_streamPosition;
+        private readonly StreamVersion m_streamVersion;
         private readonly SortedList<StreamVersion, JournaledEvent> m_events;
-        private readonly EventStreamPosition m_currentSlicePosition;
+        private readonly StreamVersion m_sliceStreamVersion;
 
-        public EventStreamSlice(EventStreamPosition streamPosition, SortedList<StreamVersion, JournaledEvent> events)
+        public EventStreamSlice(
+            StreamVersion streamVersion,
+            SortedList<StreamVersion, JournaledEvent> events)
         {
             Require.NotNull(events, "events");
 
-            m_streamPosition = streamPosition;
+            m_streamVersion = streamVersion;
             m_events = events;
 
-            var lastFetchedVersion = events.Keys[events.Count - 1];
-            m_endOfStream = lastFetchedVersion >= streamPosition.Version;
-            m_currentSlicePosition = new EventStreamPosition(streamPosition.ETag, lastFetchedVersion);
+            if (m_events.IsEmpty())
+            {
+                m_endOfStream = true;
+                m_sliceStreamVersion = streamVersion;
+            }
+            else
+            {
+                var lastFetchedVersion = events.Keys[events.Count - 1];
+                m_endOfStream = lastFetchedVersion >= streamVersion;
+                m_sliceStreamVersion = lastFetchedVersion;
+            }
         }
 
         private EventStreamSlice()
         {
-            m_streamPosition = EventStreamPosition.Start;
+            m_streamVersion = StreamVersion.Unknown;
             m_events = new SortedList<StreamVersion, JournaledEvent>(0);
             m_endOfStream = true;
-            m_currentSlicePosition = EventStreamPosition.Start;
+            m_sliceStreamVersion = StreamVersion.Unknown;
         }
 
         public IEnumerator<JournaledEvent> GetEnumerator()
@@ -43,7 +54,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
             //
             //////////////////////////////////////////////////////////////
             return m_events
-                .Where(pair => pair.Key <= m_streamPosition.Version)
+                .Where(pair => pair.Key <= m_streamVersion)
                 .Select(journaledEvent => journaledEvent.Value)
                 .GetEnumerator();
         }
@@ -53,9 +64,9 @@ namespace Journalist.EventStore.Journal.StreamCursor
             return GetEnumerator();
         }
 
-        public EventStreamPosition SlicePosition
+        public StreamVersion SliceSteamVersion
         {
-            get { return m_currentSlicePosition; }
+            get { return m_sliceStreamVersion; }
         }
 
         public bool EndOfStream

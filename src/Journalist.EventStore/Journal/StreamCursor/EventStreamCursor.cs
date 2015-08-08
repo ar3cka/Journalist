@@ -6,14 +6,12 @@ using Journalist.Tasks;
 
 namespace Journalist.EventStore.Journal.StreamCursor
 {
-    public delegate Task<SortedList<StreamVersion, JournaledEvent>> FetchEvents(StreamVersion fromVersion);
-
     public class EventStreamCursor : IEventStreamCursor
     {
         public static readonly EventStreamCursor Empty = new EventStreamCursor(
             EventStreamPosition.Start,
             StreamVersion.Unknown,
-            from => new SortedList<StreamVersion, JournaledEvent>(0).YieldTask());
+            from => new FetchEventsResult(StreamVersion.Unknown, new SortedList<StreamVersion, JournaledEvent>(0)).YieldTask());
 
         private EventStreamSlice m_slice;
         private CursorState m_state;
@@ -29,7 +27,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
             }
             else
             {
-                m_state = new InitialCursorState(position, fromVersion, fetch);
+                m_state = new InitialCursorState(fromVersion, fetch);
             }
         }
 
@@ -63,7 +61,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
             {
                 AssertCursorWasInitialized();
 
-                return m_slice.SlicePosition.Version;
+                return m_slice.SliceSteamVersion;
             }
         }
 
