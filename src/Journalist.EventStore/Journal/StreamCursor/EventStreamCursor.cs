@@ -1,34 +1,27 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Journalist.EventStore.Events;
-using Journalist.Tasks;
 
 namespace Journalist.EventStore.Journal.StreamCursor
 {
     public class EventStreamCursor : IEventStreamCursor
     {
-        public static readonly EventStreamCursor Empty = new EventStreamCursor(
-            EventStreamPosition.Start,
-            StreamVersion.Unknown,
-            from => new FetchEventsResult(StreamVersion.Unknown, new SortedList<StreamVersion, JournaledEvent>(0)).YieldTask());
+        public static readonly EventStreamCursor Empty = new EventStreamCursor();
 
         private EventStreamSlice m_slice;
         private CursorState m_state;
 
-        public EventStreamCursor(EventStreamPosition position, StreamVersion fromVersion, FetchEvents fetch)
+        public EventStreamCursor(StreamVersion fromVersion, FetchEvents fetch)
         {
             Require.NotNull(fetch, "fetch");
 
-            if (EventStreamPosition.IsNewStream(position))
-            {
-                m_state = new EndOfStreamCursorState();
-                m_slice = EventStreamSlice.Empty;
-            }
-            else
-            {
-                m_state = new InitialCursorState(fromVersion, fetch);
-            }
+            m_state = new InitialCursorState(fromVersion, fetch);
+            m_slice = EventStreamSlice.Empty;
+        }
+
+        private EventStreamCursor()
+        {
+            m_state = new EndOfStreamCursorState();
+            m_slice = EventStreamSlice.Empty;
         }
 
         public async Task FetchSlice()
@@ -61,23 +54,13 @@ namespace Journalist.EventStore.Journal.StreamCursor
             {
                 AssertCursorWasInitialized();
 
-                return m_slice.SliceSteamVersion;
+                return m_slice.ToStreamVersion;
             }
-        }
-
-        public bool Fetching
-        {
-            get { return CursorState.IsFetching(m_state); }
         }
 
         public bool EndOfStream
         {
             get { return CursorState.IsEndOfStream(m_state); }
-        }
-
-        public bool IsEmpty
-        {
-            get { return this == Empty; }
         }
     }
 }

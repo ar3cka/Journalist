@@ -23,7 +23,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         {
             var reader = await Connection.CreateStreamReaderAsync(StreamName);
 
-            Assert.True(reader.IsCompleted);
             Assert.False(reader.HasEvents);
         }
 

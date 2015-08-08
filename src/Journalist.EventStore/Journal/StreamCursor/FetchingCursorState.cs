@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Journalist.Extensions;
 
 namespace Journalist.EventStore.Journal.StreamCursor
 {
@@ -20,16 +21,14 @@ namespace Journalist.EventStore.Journal.StreamCursor
         public override async Task<EventStreamSlice> FetchSlice()
         {
             var fetchResult = await m_fetch(m_sliceSteamVersion.Increment(1));
-            var slice = new EventStreamSlice(fetchResult.SteamVersion, fetchResult.Events);
-            if (slice.EndOfStream)
+            var slice = new EventStreamSlice(fetchResult.Events);
+            if (slice.IsEmpty())
             {
                 NextState = new EndOfStreamCursorState();
             }
             else
             {
-                NextState = new FetchingCursorState(
-                    slice.SliceSteamVersion,
-                    m_fetch);
+                NextState = new FetchingCursorState(slice.ToStreamVersion, m_fetch);
             }
 
             return slice;

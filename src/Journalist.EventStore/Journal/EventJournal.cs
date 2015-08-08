@@ -66,7 +66,6 @@ namespace Journalist.EventStore.Journal
             }
 
             return new EventStreamCursor(
-                position,
                 StreamVersion.Start,
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
@@ -83,30 +82,8 @@ namespace Journalist.EventStore.Journal
             }
 
             return new EventStreamCursor(
-                position,
                 fromVersion,
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
-        }
-
-        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(
-            string streamName,
-            StreamVersion fromVersion,
-            StreamVersion toVersion,
-            int sliceSize)
-        {
-            Require.NotEmpty(streamName, "streamName");
-            Require.Positive(sliceSize, "sliceSize");
-
-            var headProperties = await ReadHeadAsync(streamName);
-            if (headProperties == null)
-            {
-                return EventStreamCursor.Empty;
-            }
-
-            return new EventStreamCursor(
-                new EventStreamPosition(string.Empty, toVersion),
-                fromVersion,
-                from => FetchEvents(streamName, from, toVersion, sliceSize));
         }
 
         public async Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName)

@@ -23,13 +23,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                     .Setup(self => self.HasEvents)
                     .Returns(HasEvents))
                 .Do(mock => mock
-                    .Setup(self => self.IsCompleted)
-                    .Returns(Completed))
-                .Do(mock => mock
                     .Setup(self => self.ReadEventsAsync())
-                    .Returns(TaskDone.Done))
-                .Do(mock => mock
-                    .Setup(self => self.ContinueAsync())
                     .Returns(TaskDone.Done))
                 .Do(mock => mock
                     .Setup(self => self.StreamVersion)

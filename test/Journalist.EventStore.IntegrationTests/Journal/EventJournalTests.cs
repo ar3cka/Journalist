@@ -71,20 +71,6 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             Assert.Equal(200, events.Count);
         }
 
-        [Fact]
-        public async Task OpenEventStreamAsync_ReadFirstPartialPreviousCommitedEvents()
-        {
-            // arrange
-            await AppendEventsAsync(50, 4);
-
-            // act
-            var events = await ReadEventsAsync();
-            var eventsPart = await ReadEventsPartialAsync(StreamVersion.Start, StreamVersion.Create(100), 10);
-
-            // assert
-            Assert.Equal(events.Take(100).ToArray(), eventsPart);
-        }
-
         private async Task<EventStreamPosition> AppendEventsAsync(
             EventStreamPosition position,
             int batchSize = EVENTS_COUNT,
@@ -130,21 +116,6 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         private async Task<List<JournaledEvent>> ReadEventsAsync()
         {
             var stream = await Journal.OpenEventStreamCursorAsync(StreamName);
-
-            var result = new List<JournaledEvent>();
-            while (!stream.EndOfStream)
-            {
-                await stream.FetchSlice();
-                result.AddRange(stream.Slice);
-            }
-
-            return result;
-        }
-
-        private async Task<List<JournaledEvent>> ReadEventsPartialAsync(StreamVersion fromVersion,
-            StreamVersion toVersion, int sliceSize = 1000)
-        {
-            var stream = await Journal.OpenEventStreamCursorAsync(StreamName, fromVersion, toVersion, sliceSize);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)

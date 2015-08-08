@@ -10,10 +10,6 @@ namespace Journalist.EventStore.Journal
 
         StreamVersion CurrentVersion { get; }
 
-        bool Fetching { get; }
-
         bool EndOfStream { get; }
-
-        bool IsEmpty { get; }
     }
 }

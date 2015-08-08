@@ -90,43 +90,5 @@ namespace Journalist.EventStore.UnitTests.Streams
         {
             Assert.True(reader.HasEvents);
         }
-
-        [Theory, EventStreamReaderData(emptyCursor: false)]
-        public async Task ContinueAsync_WhenCursorIsNotCompleted_Throws(
-            EventStreamReader reader)
-        {
-            await Assert.ThrowsAsync<InvalidOperationException>(reader.ContinueAsync);
-        }
-
-        [Theory, EventStreamReaderData(emptyCursor: true)]
-        public async Task ContinueAsync_EnsureConnectivityStateIsActive(
-            [Frozen] Mock<IEventStoreConnectionState> stateMock,
-            EventStreamReader reader)
-        {
-            await reader.ContinueAsync();
-
-            stateMock.Verify(self => self.EnsureConnectionIsActive());
-        }
-
-        [Theory, EventStreamReaderData(emptyCursor: true)]
-        public async Task ContinueAsync_WhenCursorIsCompleted_DoesNotThrow(
-            EventStreamReader reader)
-        {
-            await reader.ContinueAsync();
-        }
-
-        [Theory, EventStreamReaderData(emptyCursor: true)]
-        public void IsCompleted_WhenCursorIsCompleted_ReturnsTrue(
-            EventStreamReader reader)
-        {
-            Assert.True(reader.IsCompleted);
-        }
-
-        [Theory, EventStreamReaderData(emptyCursor: false)]
-        public void IsCompleted_WhenCursorIsNotCompleted_ReturnsFalse(
-            EventStreamReader reader)
-        {
-            Assert.False(reader.IsCompleted);
-        }
     }
 }

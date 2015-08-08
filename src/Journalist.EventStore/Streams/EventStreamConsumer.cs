@@ -44,7 +44,7 @@ namespace Journalist.EventStore.Streams
                 if (m_stm.CommitRequired(m_autoCommitProcessedStreamVersion))
                 {
                     var version = m_stm.CalculateConsumedStreamVersion(false);
-                    m_commitConsumedVersion(version);
+                    await m_commitConsumedVersion(version);
                 }
 
                 await ReceiveEventsFromReaderAsync();
@@ -105,16 +105,15 @@ namespace Journalist.EventStore.Streams
 
         private async Task ReceiveEventsFromReaderAsync()
         {
-            if (m_reader.IsCompleted)
-            {
-                await m_reader.ContinueAsync();
-            }
-
             if (m_reader.HasEvents)
             {
                 await m_reader.ReadEventsAsync();
 
                 m_stm.ReceivingCompleted(m_reader.Events.Count);
+            }
+            else
+            {
+                m_stm.ReceivingCompleted(0);
             }
         }
 

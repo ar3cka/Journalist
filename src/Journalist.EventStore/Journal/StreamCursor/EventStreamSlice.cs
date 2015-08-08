@@ -10,53 +10,39 @@ namespace Journalist.EventStore.Journal.StreamCursor
     {
         public static readonly EventStreamSlice Empty = new EventStreamSlice();
 
-        private readonly bool m_endOfStream;
-        private readonly StreamVersion m_streamVersion;
         private readonly SortedList<StreamVersion, JournaledEvent> m_events;
-        private readonly StreamVersion m_sliceStreamVersion;
+        private readonly StreamVersion m_fromStreamVersion;
+        private readonly StreamVersion m_toStreamVersion;
 
         public EventStreamSlice(
-            StreamVersion streamVersion,
             SortedList<StreamVersion, JournaledEvent> events)
         {
             Require.NotNull(events, "events");
 
-            m_streamVersion = streamVersion;
             m_events = events;
 
             if (m_events.IsEmpty())
             {
-                m_endOfStream = true;
-                m_sliceStreamVersion = streamVersion;
+                m_fromStreamVersion = StreamVersion.Unknown;
+                m_toStreamVersion = StreamVersion.Unknown;
             }
             else
             {
-                var lastFetchedVersion = events.Keys[events.Count - 1];
-                m_endOfStream = lastFetchedVersion >= streamVersion;
-                m_sliceStreamVersion = lastFetchedVersion;
+                m_fromStreamVersion = events.Keys[0];
+                m_toStreamVersion = events.Keys[events.Count - 1];
             }
         }
 
         private EventStreamSlice()
         {
-            m_streamVersion = StreamVersion.Unknown;
             m_events = new SortedList<StreamVersion, JournaledEvent>(0);
-            m_endOfStream = true;
-            m_sliceStreamVersion = StreamVersion.Unknown;
+            m_fromStreamVersion = StreamVersion.Unknown;
+            m_toStreamVersion = StreamVersion.Unknown;
         }
 
         public IEnumerator<JournaledEvent> GetEnumerator()
         {
-            //////////////////////////////////////////////////////////////
-            //
-            // Because during the fetch, stream can go ahead, that's why
-            // we are limiting events with current stream position.
-            //
-            //////////////////////////////////////////////////////////////
-            return m_events
-                .Where(pair => pair.Key <= m_streamVersion)
-                .Select(journaledEvent => journaledEvent.Value)
-                .GetEnumerator();
+            return m_events.Values.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -64,14 +50,14 @@ namespace Journalist.EventStore.Journal.StreamCursor
             return GetEnumerator();
         }
 
-        public StreamVersion SliceSteamVersion
+        public StreamVersion FromStreamVersion
         {
-            get { return m_sliceStreamVersion; }
+            get { return m_fromStreamVersion; }
         }
 
-        public bool EndOfStream
+        public StreamVersion ToStreamVersion
         {
-            get { return m_endOfStream; }
+            get { return m_toStreamVersion; }
         }
 
         public int Count

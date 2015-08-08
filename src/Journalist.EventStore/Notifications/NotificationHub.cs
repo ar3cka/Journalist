@@ -129,6 +129,7 @@ namespace Journalist.EventStore.Notifications
 
                     foreach (var notification in notifications)
                     {
+#pragma warning disable 4014
                         foreach (var subscription in m_subscriptions.Values)
                         {
                             subscription
@@ -143,6 +144,7 @@ namespace Journalist.EventStore.Notifications
                                     }
                                 });
                         }
+#pragma warning restore 4014
                     }
                 }
             }

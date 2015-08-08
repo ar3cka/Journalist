@@ -96,7 +96,7 @@ namespace Journalist.EventStore.Streams
 
             public override State MoveToReceivingCompletedState(EventStreamConsumerStateMachine stm, int eventsCount)
             {
-                Require.Positive(eventsCount, "eventsCount");
+                Require.ZeroOrGreater(eventsCount, "eventsCount");
 
                 stm.m_receivedEventCount = eventsCount;
 

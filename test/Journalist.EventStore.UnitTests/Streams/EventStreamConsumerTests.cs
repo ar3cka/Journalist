@@ -82,17 +82,6 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory]
-        [EventStreamReaderCustomization(completed: true)]
-        public async Task ReceiveEventsAsync_WhenReaderCompleted_ContinueReading(
-            [Frozen] Mock<IEventStreamReader> readerMock,
-            EventStreamConsumer consumer)
-        {
-            await consumer.ReceiveEventsAsync();
-
-            readerMock.Verify(self => self.ContinueAsync(), Times.Once());
-        }
-
-        [Theory]
         [EventStreamReaderCustomization]
         public async Task ReceiveEventsAsync_WhenReceivingWasStarted_CommitsReaderVersion(
             [Frozen] StreamVersion streamVersion,

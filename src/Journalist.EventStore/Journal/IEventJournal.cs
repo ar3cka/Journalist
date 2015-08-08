@@ -12,8 +12,6 @@ namespace Journalist.EventStore.Journal
 
         Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize);
 
-        Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, StreamVersion toVersion, int sliceSize);
-
         Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName);
 
         Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, string readerName);

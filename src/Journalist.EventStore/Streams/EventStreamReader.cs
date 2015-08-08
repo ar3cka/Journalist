@@ -12,11 +12,9 @@ namespace Journalist.EventStore.Streams
 {
     public class EventStreamReader : EventStreamInteractionEntity, IEventStreamReader
     {
-        private readonly Func<StreamVersion, Task<IEventStreamCursor>> m_openCursor;
         private readonly IEventMutationPipeline m_mutationPipeline;
-
+        private readonly IEventStreamCursor m_streamCursor;
         private List<JournaledEvent> m_readedEvents;
-        private IEventStreamCursor m_streamCursor;
 
         public EventStreamReader(
             string streamName,
@@ -31,7 +29,6 @@ namespace Journalist.EventStore.Streams
 
             m_streamCursor = streamCursor;
             m_mutationPipeline = mutationPipeline;
-            m_openCursor = openCursor;
         }
 
         public async Task ReadEventsAsync()
@@ -50,26 +47,6 @@ namespace Journalist.EventStore.Streams
             {
                 m_readedEvents.Add(m_mutationPipeline.Mutate(journaledEvent));
             }
-        }
-
-        public async Task ContinueAsync()
-        {
-            ConnectionState.EnsureConnectionIsActive();
-
-            if (m_streamCursor.IsEmpty)
-            {
-                return;
-            }
-
-            if (IsCompleted)
-            {
-                m_streamCursor = await m_openCursor(StreamVersion.Increment());
-                m_readedEvents = null;
-
-                return;
-            }
-
-            throw new InvalidOperationException("Reader is not in completed state.");
         }
 
         public IReadOnlyList<JournaledEvent> Events
@@ -92,22 +69,10 @@ namespace Journalist.EventStore.Streams
 
         public bool HasEvents
         {
-            get { return !m_streamCursor.EndOfStream; }
-        }
-
-        public bool IsCompleted
-        {
-            get { return m_streamCursor.EndOfStream; }
-        }
-
-        public bool IsInitial
-        {
-            get { return !m_streamCursor.Fetching && !m_streamCursor.EndOfStream; }
-        }
-
-        public bool IsReading
-        {
-            get { return m_streamCursor.Fetching; }
+            get
+            {
+                return !m_streamCursor.EndOfStream;
+            }
         }
     }
 }

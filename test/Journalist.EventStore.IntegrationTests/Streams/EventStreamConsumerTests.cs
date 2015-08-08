@@ -49,25 +49,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task ReceiveEventsAsync_ReadsPublishedEvents(
-            JournaledEvent[] dummyEvents1,
-            JournaledEvent[] dummyEvents2)
-        {
-            await PublishEventsAsync(dummyEvents1);
-
-            var consumer = await Connection.CreateStreamConsumerAsync(StreamName);
-            await consumer.ReceiveEventsAsync();
-            var receivedEvents1 = consumer.EnumerateEvents().ToList();
-
-            await PublishEventsAsync(dummyEvents2);
-            await consumer.ReceiveEventsAsync();
-            var receivedEvents2 = consumer.EnumerateEvents().ToList();
-
-            Assert.Equal(dummyEvents1, receivedEvents1);
-            Assert.Equal(dummyEvents2, receivedEvents2);
-        }
-
-        [Theory, AutoMoqData]
         public async Task CloseAsync_SavesConsumedPositionPosition(
             JournaledEvent[] dummyEvents1,
             JournaledEvent[] dummyEvents2,
