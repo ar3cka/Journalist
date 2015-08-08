@@ -1,7 +1,6 @@
 using System;
-using Journalist.EventStore.Connection;
 
-namespace Journalist.EventStore.Streams
+namespace Journalist.EventStore.Connection
 {
     public sealed class EventStoreConnectivityStateEventArgs : EventArgs
     {
