@@ -96,8 +96,8 @@ Target "Default" DoNothing
     ==> "RunUnitTests"
     ==> "RunIntegrationTests"
     ==> "CopyBuildResults"
-    ==> "Default"
     ==> "CreatePackages"
+    ==> "Default"
     ==> "PublishPackages"
     ==> "Release"
 
