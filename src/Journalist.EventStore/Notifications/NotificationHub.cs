@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Journalist.Collections;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
@@ -24,6 +25,8 @@ namespace Journalist.EventStore.Notifications
 
         private CancellationTokenSource m_pollingCancellationToken;
         private Task m_processingTask;
+        private int m_processingCount;
+        private int m_maxProcessingCount;
 
         public NotificationHub(
             INotificationsChannel channel,
@@ -69,6 +72,8 @@ namespace Journalist.EventStore.Notifications
 
             if (m_subscriptions.Any())
             {
+                m_maxProcessingCount = Constants.Settings.DEFAULT_MAX_NOTIFICATION_PROCESSING_COUNT * m_subscriptions.Count;
+
                 foreach (var subscriptions in m_subscriptions.Values)
                 {
                     subscriptions.Start(connection);
@@ -114,13 +119,17 @@ namespace Journalist.EventStore.Notifications
             // switch to the background task
             await Task.Yield();
 
+            s_logger.Information("Starting notification processing cycle...");
+
             while (!token.IsCancellationRequested)
             {
-                var notifications = await m_channel.ReceiveNotificationsAsync();
+                var notifications = await ReceiveNotificationsAsync();
+
                 if (notifications.IsEmpty())
                 {
-                    await m_timeout.WaitAsync(token);
+                    s_logger.Debug("No notifications for processing. Request channel after: {Timeout}.", m_timeout);
 
+                    await m_timeout.WaitAsync(token);
                     m_timeout.Increase();
                 }
                 else
@@ -129,25 +138,68 @@ namespace Journalist.EventStore.Notifications
 
                     foreach (var notification in notifications)
                     {
-#pragma warning disable 4014
-                        foreach (var subscription in m_subscriptions.Values)
-                        {
-                            subscription
-                                .HandleNotificationAsync(notification)
-                                .ContinueWith(handlingTask =>
-                                {
-                                    if (handlingTask.Exception != null)
-                                    {
-                                        s_logger.Fatal(
-                                            handlingTask.Exception.GetBaseException(),
-                                            "UNHANDLED EXCEPTION in NotificationListenerSubscription.");
-                                    }
-                                });
-                        }
-#pragma warning restore 4014
+                        ProcessNotification(notification);
                     }
                 }
             }
+
+            s_logger.Information("Notification processing cycle was stopped.");
         }
+
+        private bool RequestNotificationsRequired()
+        {
+            var observedProcessingCount = m_processingCount;
+            if (observedProcessingCount >= m_maxProcessingCount)
+            {
+                s_logger.Debug(
+                    "Number of notification processing ({ProcessingCount}) exceeded maximum value ({MaxProcessingCount}).",
+                    observedProcessingCount,
+                    m_maxProcessingCount);
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task<INotification[]> ReceiveNotificationsAsync()
+        {
+            var notifications = EmptyArray.Get<INotification>();
+            if (RequestNotificationsRequired())
+            {
+                notifications = await m_channel.ReceiveNotificationsAsync();
+
+                s_logger.Debug(
+                    "Receive {NotificationCount} notifications {NotificationIds}.",
+                    notifications.Length,
+                    notifications.Select(n => n.NotificationId));
+            }
+
+            return notifications;
+        }
+
+#pragma warning disable 4014
+        private void ProcessNotification(INotification notification)
+        {
+            foreach (var subscription in m_subscriptions.Values)
+            {
+                Interlocked.Increment(ref m_processingCount);
+
+                subscription
+                    .HandleNotificationAsync(notification)
+                    .ContinueWith(handlingTask =>
+                    {
+                        if (handlingTask.Exception != null)
+                        {
+                            s_logger.Fatal(
+                                handlingTask.Exception.GetBaseException(),
+                                "UNHANDLED EXCEPTION in NotificationListenerSubscription.");
+                        }
+
+                        Interlocked.Decrement(ref m_processingCount);
+                    });
+            }
+        }
+#pragma warning restore 4014
     }
 }

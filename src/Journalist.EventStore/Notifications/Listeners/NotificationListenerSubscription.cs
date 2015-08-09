@@ -12,8 +12,6 @@ namespace Journalist.EventStore.Notifications.Listeners
 {
     public class NotificationListenerSubscription : INotificationListenerSubscription
     {
-        private const int MAX_ATTEMPT_COUNT= 10;
-
         private static readonly ILogger s_logger = Log.ForContext<NotificationListenerSubscription>();
 
         private readonly EventStreamConsumerId m_subscriptionConsumerId;
@@ -90,7 +88,7 @@ namespace Journalist.EventStore.Notifications.Listeners
         {
             Require.NotNull(notification, "notification");
 
-            if (notification.DeliveryCount < MAX_ATTEMPT_COUNT)
+            if (notification.DeliveryCount < Constants.Settings.DEFAULT_MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT)
             {
                 var retryNotification = notification.SendTo(m_subscriptionConsumerId);
 
@@ -120,7 +118,7 @@ namespace Journalist.EventStore.Notifications.Listeners
                     notification.NotificationId,
                     notification.NotificationType,
                     notification.DeliveryCount.ToInvariantString(),
-                    MAX_ATTEMPT_COUNT.ToInvariantString());
+                    Constants.Settings.DEFAULT_MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT.ToInvariantString());
             }
         }
 

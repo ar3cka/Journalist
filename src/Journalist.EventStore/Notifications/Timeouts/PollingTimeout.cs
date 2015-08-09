@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Journalist.Extensions;
 
 namespace Journalist.EventStore.Notifications.Timeouts
 {
@@ -66,6 +67,11 @@ namespace Journalist.EventStore.Notifications.Timeouts
             m_callsCount = 0;
             m_multiplierStep = 1;
             m_value = TimeSpan.FromSeconds(m_initialTimeoutSec);
+        }
+
+        public override string ToString()
+        {
+            return Value.ToInvariantString();
         }
 
         private static TimeSpan CalculateTimeoutValue(double initialTimeout, double multiplier, int callsCount, double maximumTimout)

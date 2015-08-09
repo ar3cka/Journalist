@@ -49,6 +49,31 @@ namespace Journalist.Extensions
             return value.ToString(CultureInfo.InvariantCulture);
         }
 
+        public static string ToInvariantString(this float value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public static string ToInvariantString(this double value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public static string ToInvariantString(this TimeSpan value)
+        {
+            return value.ToString("c");
+        }
+
+        public static string ToInvariantString(this DateTime value)
+        {
+            return value.ToString("O");
+        }
+
+        public static string ToInvariantString(this DateTimeOffset value)
+        {
+            return value.ToString("O");
+        }
+
         public static string ToCsvString<T>(this IEnumerable<T> source, Func<T, string> toString)
         {
             Require.NotNull(source, "source");

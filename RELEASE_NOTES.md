@@ -1,3 +1,7 @@
+### 0.8.1
+* [EventStore][Improvment] Limit number of notification processing.
+* [LanguageExtensions][New] ToInvariantString extension method for TimeSpan, DateTime, DateTimeOffset.
+
 ### 0.8.0
 * [EventStore][New] Stream changes notificaion listneres.
 * [LanguageExtensions][New] IsEmpty extensions methods for collections.

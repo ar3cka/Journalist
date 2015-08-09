@@ -6,6 +6,8 @@ namespace Journalist.EventStore
         {
             public const int DEFAULT_SESSION_LOCK_TIMEOUT_MINUTES = 15;
             public const int DEFAULT_EVENT_SLICE_SIZE = 100;
+            public const int DEFAULT_MAX_NOTIFICATION_PROCESSING_COUNT = 100;
+            public const int DEFAULT_MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT= 10;
         }
 
         public class StorageEntities
