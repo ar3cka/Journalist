@@ -1,3 +1,6 @@
+### 0.8.3
+* [EventStore][New] Stream position property in stream readers and writers.
+
 ### 0.8.2
 * Fixed nuget package
 

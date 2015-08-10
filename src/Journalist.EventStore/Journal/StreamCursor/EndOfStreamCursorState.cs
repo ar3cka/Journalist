@@ -5,6 +5,10 @@ namespace Journalist.EventStore.Journal.StreamCursor
 {
     public class EndOfStreamCursorState : CursorState
     {
+        public EndOfStreamCursorState(EventStreamPosition streamPosition) : base(streamPosition)
+        {
+        }
+
         public override Task<EventStreamSlice> FetchSlice()
         {
             throw new InvalidOperationException("Cursor is on end of event stream.");

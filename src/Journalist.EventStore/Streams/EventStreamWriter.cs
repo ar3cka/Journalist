@@ -67,9 +67,9 @@ namespace Journalist.EventStore.Streams
             m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(StreamName);
         }
 
-        public override StreamVersion StreamVersion
+        public override EventStreamPosition StreamPosition
         {
-            get { return m_endOfStream.Version; }
+            get { return m_endOfStream; }
         }
     }
 }

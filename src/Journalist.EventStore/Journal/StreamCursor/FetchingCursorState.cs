@@ -9,8 +9,9 @@ namespace Journalist.EventStore.Journal.StreamCursor
         private readonly FetchEvents m_fetch;
 
         public FetchingCursorState(
+            EventStreamPosition streamPosition,
             StreamVersion sliceSteamVersion,
-            FetchEvents fetch)
+            FetchEvents fetch) : base(streamPosition)
         {
             Require.NotNull(fetch, "fetch");
 
@@ -24,11 +25,11 @@ namespace Journalist.EventStore.Journal.StreamCursor
             var slice = new EventStreamSlice(fetchResult.Events);
             if (slice.IsEmpty())
             {
-                NextState = new EndOfStreamCursorState();
+                NextState = new EndOfStreamCursorState(StreamPosition);
             }
             else
             {
-                NextState = new FetchingCursorState(slice.ToStreamVersion, m_fetch);
+                NextState = new FetchingCursorState(fetchResult.StreamPosition, slice.ToStreamVersion, m_fetch);
             }
 
             return slice;

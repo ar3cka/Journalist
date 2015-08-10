@@ -10,17 +10,18 @@ namespace Journalist.EventStore.Journal.StreamCursor
         private EventStreamSlice m_slice;
         private CursorState m_state;
 
-        public EventStreamCursor(StreamVersion fromVersion, FetchEvents fetch)
+
+        public EventStreamCursor(EventStreamPosition streamPosition, StreamVersion fromVersion, FetchEvents fetch)
         {
             Require.NotNull(fetch, "fetch");
 
-            m_state = new InitialCursorState(fromVersion, fetch);
+            m_state = new InitialCursorState(streamPosition, fromVersion, fetch);
             m_slice = EventStreamSlice.Empty;
         }
 
         private EventStreamCursor()
         {
-            m_state = new EndOfStreamCursorState();
+            m_state = new EndOfStreamCursorState(EventStreamPosition.Unknown);
             m_slice = EventStreamSlice.Empty;
         }
 
@@ -48,7 +49,23 @@ namespace Journalist.EventStore.Journal.StreamCursor
             }
         }
 
-        public StreamVersion CurrentVersion
+        public EventStreamPosition StreamPosition
+        {
+            get
+            {
+                return m_state.StreamPosition;
+            }
+        }
+
+        public StreamVersion StreamVersion
+        {
+            get
+            {
+                return m_state.StreamPosition.Version;
+            }
+        }
+
+        public StreamVersion CursorStreamVersion
         {
             get
             {
@@ -60,7 +77,10 @@ namespace Journalist.EventStore.Journal.StreamCursor
 
         public bool EndOfStream
         {
-            get { return CursorState.IsEndOfStream(m_state); }
+            get
+            {
+                return CursorState.IsEndOfStream(m_state);
+            }
         }
     }
 }

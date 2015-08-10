@@ -8,7 +8,11 @@ namespace Journalist.EventStore.Journal
 
         IEventStreamSlice Slice { get; }
 
-        StreamVersion CurrentVersion { get; }
+        EventStreamPosition StreamPosition { get; }
+
+        StreamVersion StreamVersion { get; }
+
+        StreamVersion CursorStreamVersion { get; }
 
         bool EndOfStream { get; }
     }

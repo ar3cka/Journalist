@@ -27,7 +27,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         public async Task AppendEventsAsync_WriteEventsToEndOfStream()
         {
             // arrange
-            var position = EventStreamPosition.Start;
+            var position = EventStreamPosition.Unknown;
 
             // act
             position = await AppendEventsAsync(batchNumber: 3);
@@ -40,10 +40,10 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         public async Task AppendEventsAsync_WhenAppendingToStartPositionTwice_Throw()
         {
             // act
-            await AppendEventsAsync(position: EventStreamPosition.Start);
+            await AppendEventsAsync(position: EventStreamPosition.Unknown);
 
             await Assert.ThrowsAsync<EventStreamConcurrencyException>(
-                async () => await AppendEventsAsync(position: EventStreamPosition.Start));
+                async () => await AppendEventsAsync(position: EventStreamPosition.Unknown));
         }
 
         [Fact]

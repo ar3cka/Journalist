@@ -1,3 +1,5 @@
+using Journalist.EventStore.Journal;
+
 namespace Journalist.EventStore.Streams
 {
     public interface IEventStreamInteractionEntity
@@ -5,6 +7,8 @@ namespace Journalist.EventStore.Streams
         string StreamName { get; }
 
         StreamVersion StreamVersion { get; }
+
+        EventStreamPosition StreamPosition { get; }
 
         bool IsClosed { get; }
     }

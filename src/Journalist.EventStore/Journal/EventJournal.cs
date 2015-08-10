@@ -66,6 +66,7 @@ namespace Journalist.EventStore.Journal
             }
 
             return new EventStreamCursor(
+                position,
                 StreamVersion.Start,
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
@@ -82,6 +83,7 @@ namespace Journalist.EventStore.Journal
             }
 
             return new EventStreamCursor(
+                position,
                 fromVersion,
                 from => FetchEvents(streamName, from, position.Version, sliceSize));
         }
@@ -93,7 +95,7 @@ namespace Journalist.EventStore.Journal
             var headProperties = await ReadHeadAsync(streamName);
             if (headProperties == null)
             {
-                return EventStreamPosition.Start;
+                return EventStreamPosition.Unknown;
             }
 
             var timestamp = (string)headProperties[EventJournalTableRowPropertyNames.ETag];
@@ -216,14 +218,15 @@ namespace Journalist.EventStore.Journal
             var queryResult = await query.ExecuteAsync();
 
             var events = new SortedList<StreamVersion, JournaledEvent>(sliceSize);
-            var streamVersion = StreamVersion.Unknown;
+            var streamPosition = EventStreamPosition.Unknown;
             foreach (var properties in queryResult)
             {
                 var rowKey = (string)properties[KnownProperties.RowKey];
                 if (rowKey.EqualsCi("HEAD"))
                 {
-                    streamVersion = StreamVersion.Create(
-                        (int)properties[EventJournalTableRowPropertyNames.Version]);
+                    streamPosition = new EventStreamPosition(
+                        (string)properties[KnownProperties.ETag],
+                        StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]));
                 }
                 else
                 {
@@ -231,7 +234,7 @@ namespace Journalist.EventStore.Journal
                 }
             }
 
-            return new FetchEventsResult(streamVersion, events);
+            return new FetchEventsResult(streamPosition, events);
         }
 
         private static void WriteEvents(string stream, StreamVersion version, IEnumerable<JournaledEvent> events, IBatchOperation batch)

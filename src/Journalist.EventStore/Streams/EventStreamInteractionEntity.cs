@@ -1,4 +1,5 @@
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams
 {
@@ -16,7 +17,12 @@ namespace Journalist.EventStore.Streams
             m_connectionState = connectionState;
         }
 
-        public abstract StreamVersion StreamVersion
+        public StreamVersion StreamVersion
+        {
+            get { return StreamPosition.Version; }
+        }
+
+        public abstract EventStreamPosition StreamPosition
         {
             get;
         }

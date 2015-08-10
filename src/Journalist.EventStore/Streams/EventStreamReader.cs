@@ -62,9 +62,9 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public override StreamVersion StreamVersion
+        public override EventStreamPosition StreamPosition
         {
-            get { return m_streamCursor.CurrentVersion; }
+            get { return m_streamCursor.StreamPosition; }
         }
 
         public bool HasEvents
