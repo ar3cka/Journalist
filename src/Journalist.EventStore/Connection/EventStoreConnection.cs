@@ -52,8 +52,7 @@ namespace Journalist.EventStore.Connection
                 streamName: streamName,
                 connectionState: m_connectionState,
                 streamCursor: await m_journal.OpenEventStreamCursorAsync(streamName),
-                mutationPipeline: m_pipelineFactory.CreateIncomingPipeline(),
-                openCursor: version => m_journal.OpenEventStreamCursorAsync(streamName, version));
+                mutationPipeline: m_pipelineFactory.CreateIncomingPipeline());
 
             return reader;
         }
@@ -68,8 +67,7 @@ namespace Journalist.EventStore.Connection
                 streamName: streamName,
                 connectionState: m_connectionState,
                 streamCursor: await m_journal.OpenEventStreamCursorAsync(streamName, streamVersion),
-                mutationPipeline: m_pipelineFactory.CreateIncomingPipeline(),
-                openCursor: version => m_journal.OpenEventStreamCursorAsync(streamName, version));
+                mutationPipeline: m_pipelineFactory.CreateIncomingPipeline());
 
             return reader;
         }
@@ -114,9 +112,7 @@ namespace Journalist.EventStore.Connection
 
             var consumerId = await EnsureConsumerIsRegistered(configuration);
 
-            var readerVersion = await m_journal.ReadStreamReaderPositionAsync(
-                streamName: configuration.StreamName,
-                readerName: consumerId.ToString());
+            var readerVersion = await ObtainReaderVersionAsync(consumerId, configuration);
 
             var reader = await CreateStreamReaderAsync(
                 streamName: configuration.StreamName,
@@ -144,7 +140,7 @@ namespace Journalist.EventStore.Connection
             Require.NotEmpty(consumerName, "consumerName");
 
             return CreateStreamConsumerAsync(config => config
-                .ReadFromStream(streamName)
+                .ReadStream(streamName)
                 .UseConsumerName(consumerName));
         }
 
@@ -154,7 +150,7 @@ namespace Journalist.EventStore.Connection
             Require.NotNull(consumerId, "consumerId");
 
             return CreateStreamConsumerAsync(config => config
-                .ReadFromStream(streamName)
+                .ReadStream(streamName)
                 .UseConsumerId(consumerId));
         }
 
@@ -162,6 +158,29 @@ namespace Journalist.EventStore.Connection
         {
             m_connectionState.ChangeToClosing();
             m_connectionState.ChangeToClosed();
+        }
+
+        private async Task<StreamVersion> ObtainReaderVersionAsync(
+            EventStreamConsumerId consumerId,
+            EventStreamConsumerConfiguration configuration)
+        {
+            var readerVersion = await m_journal.ReadStreamReaderPositionAsync(
+                streamName: configuration.StreamName,
+                readerName: consumerId.ToString());
+
+            if (readerVersion == StreamVersion.Unknown && configuration.StartReadingStreamFromEnd)
+            {
+                var endOfStream = await m_journal.ReadEndOfStreamPositionAsync(configuration.StreamName);
+
+                await m_journal.CommitStreamReaderPositionAsync(
+                    configuration.StreamName,
+                    consumerId.ToString(),
+                    endOfStream.Version);
+
+                readerVersion = endOfStream.Version;
+            }
+
+            return readerVersion;
         }
 
         private async Task<EventStreamConsumerId> EnsureConsumerIsRegistered(EventStreamConsumerConfiguration configuration)

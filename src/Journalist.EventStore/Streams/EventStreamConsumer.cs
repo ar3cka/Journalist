@@ -13,8 +13,6 @@ namespace Journalist.EventStore.Streams
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
         private readonly EventStreamConsumerStateMachine m_stm;
 
-        private int m_eventSliceOffset;
-
         public EventStreamConsumer(
             EventStreamConsumerId consumerId,
             IEventStreamReader streamReader,
@@ -37,7 +35,6 @@ namespace Journalist.EventStore.Streams
 
         public async Task<ReceivingResultCode> ReceiveEventsAsync()
         {
-
             if (await m_session.PromoteToLeaderAsync())
             {
                 m_stm.ReceivingStarted();
@@ -91,11 +88,11 @@ namespace Journalist.EventStore.Streams
         {
             m_stm.ConsumingStarted();
 
-            for (m_eventSliceOffset = 0; m_eventSliceOffset < m_reader.Events.Count; m_eventSliceOffset++)
+            for (var index = 0; index < m_reader.Events.Count; index++)
             {
                 m_stm.EventProcessingStarted();
 
-                yield return m_reader.Events[m_eventSliceOffset];
+                yield return m_reader.Events[index];
             }
 
             m_stm.ConsumingCompleted();

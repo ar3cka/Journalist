@@ -80,7 +80,7 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             return m_connection.CreateStreamConsumerAsync(config => config
                 .UseConsumerId(m_subscriptionConsumerId)
-                .ReadFromStream(streamName)
+                .ReadStream(streamName)
                 .AutoCommitProcessedStreamPosition(false));
         }
 

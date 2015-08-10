@@ -20,12 +20,10 @@ namespace Journalist.EventStore.Streams
             string streamName,
             IEventStoreConnectionState connectionState,
             IEventStreamCursor streamCursor,
-            IEventMutationPipeline mutationPipeline,
-            Func<StreamVersion, Task<IEventStreamCursor>> openCursor) : base(streamName, connectionState)
+            IEventMutationPipeline mutationPipeline) : base(streamName, connectionState)
         {
             Require.NotNull(streamCursor, "streamCursor");
             Require.NotNull(mutationPipeline, "mutationPipeline");
-            Require.NotNull(openCursor, "openCursor");
 
             m_streamCursor = streamCursor;
             m_mutationPipeline = mutationPipeline;

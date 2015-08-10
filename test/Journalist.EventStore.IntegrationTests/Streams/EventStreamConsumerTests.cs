@@ -49,6 +49,41 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
+        public async Task ReceiveEventsAsync_WhenConsumerConfiguredStartReadingFromTheEnd_SkipsPreviousPublishedEvents(
+            string consumerName,
+            JournaledEvent[] dummyEvents)
+        {
+            await PublishEventsAsync(dummyEvents);
+
+            var consumer = await Connection.CreateStreamConsumerAsync(config => config
+                .ReadStream(StreamName, true)
+                .UseConsumerName(consumerName));
+
+            Assert.Equal(ReceivingResultCode.EmptyStream, await consumer.ReceiveEventsAsync());
+        }
+
+        [Theory, AutoMoqData]
+        public async Task ReceiveEventsAsync_WhenConsumerConfiguredStartReadingFromTheEnd_ContinuesReadingEndOfStream(
+            string consumerName,
+            JournaledEvent[] dummyEvents)
+        {
+            await PublishEventsAsync(dummyEvents);
+
+            var consumer = await Connection.CreateStreamConsumerAsync(config => config
+                .ReadStream(StreamName, true)
+                .UseConsumerName(consumerName));
+
+            await PublishEventsAsync(dummyEvents);
+
+            consumer = await Connection.CreateStreamConsumerAsync(config => config
+                .ReadStream(StreamName, true)
+                .UseConsumerName(consumerName));
+
+            Assert.Equal(ReceivingResultCode.EventsReceived, await consumer.ReceiveEventsAsync());
+            Assert.Equal(dummyEvents, consumer.EnumerateEvents());
+        }
+
+        [Theory, AutoMoqData]
         public async Task CloseAsync_SavesConsumedPositionPosition(
             JournaledEvent[] dummyEvents1,
             JournaledEvent[] dummyEvents2,
@@ -79,7 +114,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await PublishEventsAsync(dummyEvents1);
 
             var consumer = await Connection.CreateStreamConsumerAsync(config => config
-                .ReadFromStream(StreamName)
+                .ReadStream(StreamName)
                 .UseConsumerName(consumerName)
                 .AutoCommitProcessedStreamPosition(false));
 
@@ -103,7 +138,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await PublishEventsAsync(dummyEvents1);
 
             var consumer = await Connection.CreateStreamConsumerAsync(config => config
-                .ReadFromStream(StreamName)
+                .ReadStream(StreamName)
                 .UseConsumerName(consumerName)
                 .AutoCommitProcessedStreamPosition(false));
 

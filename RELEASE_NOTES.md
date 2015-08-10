@@ -1,3 +1,6 @@
+### 0.8.4
+* [EventStore][Improvment] Consumer can start reading from the end of streams.
+
 ### 0.8.3
 * [EventStore][New] Stream position property in stream readers and writers.
 
