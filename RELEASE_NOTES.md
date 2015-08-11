@@ -1,7 +1,8 @@
 ### 0.8.4
+* [WAZ.Storage][New] CloudQueue getting messages operation accept visibility timeout parameter.
 * [EventStore][Improvment] Consumer can start reading from the end of streams.
-* [EventStore][BugFix] Consumer initialize reader only in leader state.
 * [EventStore][Breaking] Notification listener starts reading stream from the end.
+* [EventStore][BugFix] Consumer initialize reader only in leader state.
 
 ### 0.8.3
 * [EventStore][New] Stream position property in stream readers and writers.

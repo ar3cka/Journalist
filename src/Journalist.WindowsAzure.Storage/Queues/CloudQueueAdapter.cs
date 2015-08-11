@@ -46,7 +46,10 @@ namespace Journalist.WindowsAzure.Storage.Queues
 
         public async Task<ICloudQueueMessage> GetMessageAsync(TimeSpan visibilityTimeout)
         {
-            var message = await CloudEntity.GetMessageAsync(visibilityTimeout, null, null);
+            var message = await CloudEntity.GetMessageAsync(
+                visibilityTimeout,
+                null,
+                null);
 
             if (message == null)
             {
@@ -78,7 +81,11 @@ namespace Journalist.WindowsAzure.Storage.Queues
 
         public async Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync(TimeSpan visibilityTimeout)
         {
-            var messages = await CloudEntity.GetMessagesAsync(CloudQueueMessage.MaxNumberOfMessagesToPeek, visibilityTimeout, null, null);
+            var messages = await CloudEntity.GetMessagesAsync(
+                CloudQueueMessage.MaxNumberOfMessagesToPeek,
+                visibilityTimeout,
+                null,
+                null);
 
             var result = new List<ICloudQueueMessage>(CloudQueueMessage.MaxNumberOfMessagesToPeek);
             result.AddRange(

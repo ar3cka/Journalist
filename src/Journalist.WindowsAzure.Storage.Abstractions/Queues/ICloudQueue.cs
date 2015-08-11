@@ -12,7 +12,11 @@ namespace Journalist.WindowsAzure.Storage.Queues
 
         Task<ICloudQueueMessage> GetMessageAsync();
 
+        Task<ICloudQueueMessage> GetMessageAsync(TimeSpan visibilityTimeout);
+
         Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync();
+
+        Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync(TimeSpan visibilityTimeout);
 
         Task UpdateMessageAsync(string messageId, string popReceipt, byte[] content, TimeSpan visibilityTimeout);
 
