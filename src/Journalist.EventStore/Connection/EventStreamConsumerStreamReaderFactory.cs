@@ -41,6 +41,10 @@ namespace Journalist.EventStore.Connection
                 readerVersion = m_streamVersion;
                 await m_commitReaderVersion(readerVersion);
             }
+            else if (readerVersion == StreamVersion.Unknown)
+            {
+                await m_commitReaderVersion(readerVersion);
+            }
 
             return await m_connection.CreateStreamReaderAsync(m_streamName, readerVersion.Increment());
         }

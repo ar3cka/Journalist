@@ -45,6 +45,18 @@ namespace Journalist.EventStore.UnitTests.Connection
             Assert.Equal(streamVersion, commitFuncMock.CommitedVersion);
         }
 
+        [Theory, EventStreamConsumerStreamReaderFactoryData(newReader: true, readFromEnd: false)]
+        public async Task CreateAsync_ForNewReaderWhenReadFromEndIsFalse_CommitsReaderVersion(
+            [Frozen] CommitStreamVersionFMock commitFuncMock,
+            [Frozen] StreamVersion streamVersion,
+            EventStreamConsumerStreamReaderFactory factory)
+        {
+            await factory.CreateAsync();
+
+            Assert.Equal(1, commitFuncMock.CallsCount);
+            Assert.Equal(StreamVersion.Unknown, commitFuncMock.CommitedVersion);
+        }
+
         [Theory, EventStreamConsumerStreamReaderFactoryData()]
         public async Task CreateAsync_ForNotNewReader_DoesNotCommitReaderVersion(
             [Frozen] CommitStreamVersionFMock commitFuncMock,
