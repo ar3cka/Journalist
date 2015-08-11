@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.Collections;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
@@ -13,8 +14,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string filter,
             int? take,
             string[] properties,
-            Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>>
-                fetchEntities,
+            Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> fetchEntities,
             ITableEntityConverter tableEntityConverter)
             : base(take, properties, fetchEntities, tableEntityConverter)
         {
@@ -23,14 +23,32 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_filter = filter;
         }
 
-        public bool HasMore
+        public Task<List<Dictionary<string, object>>> ExecuteAsync()
         {
-            get { return ReadNextSegment; }
+            return FetchEntities(m_filter, EmptyArray.Get<byte>());
         }
 
-        public async Task<List<Dictionary<string, object>>> ExecuteAsync()
+        public Task<List<Dictionary<string, object>>> ExecuteAsync(byte[] continuationToken)
         {
-            return await FetchEntities(m_filter);
+            Require.NotNull(continuationToken, "continuationToken");
+
+            return FetchEntities(m_filter, continuationToken);
+        }
+
+        public bool HasMore
+        {
+            get
+            {
+                return ReadNextSegment;
+            }
+        }
+
+        public byte[] ContinuationToken
+        {
+            get
+            {
+                return GetContinuationTokenBytes();
+            }
         }
     }
 }

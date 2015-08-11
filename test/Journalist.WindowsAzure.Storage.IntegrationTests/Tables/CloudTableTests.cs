@@ -35,6 +35,26 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
         }
 
         [Fact]
+        public async Task SegmentedRangeQueryWithContinuationTokenTest()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+
+            await InsertValues(table, partition);
+
+            var query = table.PrepareEntityFilterSegmentedRangeQuery("PartitionKey eq '{0}'".FormatString(partition));
+            var result = await query.ExecuteAsync();
+            var continuationToken = query.ContinuationToken;
+            Assert.Equal(1000, result.Count);
+            Assert.True(query.HasMore);
+
+            query = table.PrepareEntityFilterSegmentedRangeQuery("PartitionKey eq '{0}'".FormatString(partition));
+            result = await query.ExecuteAsync(continuationToken);
+            Assert.Equal(1000, result.Count);
+            Assert.False(query.HasMore);
+        }
+
+        [Fact]
         public async Task PrepareEntityRangeQueryByPartition_Test()
         {
             var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");

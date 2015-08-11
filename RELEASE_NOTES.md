@@ -1,6 +1,7 @@
 ### 0.8.4
 * [WAZ.Storage][New] CloudQueue getting messages operation accept visibility timeout parameter.
 * [WAZ.Storage][New] CloudQueue getting messages operation accept message count parameter.
+* [WAZ.Storage][New] CloudTable expose and accept table continuation token.
 * [EventStore][Improvment] Consumer can start reading from the end of streams.
 * [EventStore][Breaking] Notification listener starts reading stream from the end.
 * [EventStore][BugFix] Consumer initialize reader only in leader state.

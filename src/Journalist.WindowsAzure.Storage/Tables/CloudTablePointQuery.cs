@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.Collections;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
@@ -31,7 +32,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 TableQuery.CombineFilters(
                     TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, m_partitionKey),
                     TableOperators.And,
-                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, m_rowKey)));
+                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, m_rowKey)),
+                EmptyArray.Get<byte>());
 
             if (entities.Count == 0)
             {

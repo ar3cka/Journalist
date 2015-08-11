@@ -1,13 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Journalist.Collections;
+using Journalist.Extensions;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
     public abstract class CloudTableSegmentedQuery
     {
+        private static readonly char[] s_separators = { ' ' };
+
         private readonly int? m_take;
         private readonly string[] m_properties;
         private readonly Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> m_fetchEntities;
@@ -34,9 +40,10 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_continuationToken = null;
         }
 
-        protected async Task<List<Dictionary<string, object>>> FetchEntities(string filter)
+        protected async Task<List<Dictionary<string, object>>> FetchEntities(string filter, byte[] continuationToken)
         {
             Require.NotEmpty(filter, "filter");
+            Require.NotNull(continuationToken, "continuationToken");
 
             var query = new TableQuery<DynamicTableEntity>()
                 .Select(m_properties)
@@ -53,6 +60,11 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 result = new List<Dictionary<string, object>>();
             }
 
+            if (!m_executionStarted && continuationToken.Any())
+            {
+                m_continuationToken = ParseContinuationTokenBytes(continuationToken);
+            }
+
             var queryResult = await m_fetchEntities(query, m_continuationToken);
             result.AddRange(queryResult.Results.Select(m_tableEntityConverter.CreatePropertiesFromDynamicTableEntity));
 
@@ -62,9 +74,44 @@ namespace Journalist.WindowsAzure.Storage.Tables
             return result;
         }
 
+        protected byte[] GetContinuationTokenBytes()
+        {
+            if (m_continuationToken == null)
+            {
+                return EmptyArray.Get<byte>();
+            }
+
+            return Encoding.UTF8.GetBytes(
+                "{0} {1} {2} {3}".FormatString(
+                    m_continuationToken.NextPartitionKey ?? string.Empty,
+                    m_continuationToken.NextRowKey ?? string.Empty,
+                    m_continuationToken.NextTableName ?? string.Empty,
+                    m_continuationToken.TargetLocation));
+        }
+
+        private TableContinuationToken ParseContinuationTokenBytes(byte[] continuationTokenBytes)
+        {
+            var parts = Encoding.UTF8.GetString(continuationTokenBytes).Split(s_separators);
+
+            Ensure.True<InvalidOperationException>(parts.Length == 4, "Invalid continuation token format.");
+
+            return new TableContinuationToken
+            {
+                NextPartitionKey = parts[0],
+                NextRowKey = parts[1],
+                NextTableName = parts[2],
+                TargetLocation = string.IsNullOrEmpty(parts[3])
+                    ? (StorageLocation?)null
+                    : (StorageLocation)Enum.Parse(typeof(StorageLocation), parts[3])
+            };
+        }
+
         protected bool ReadNextSegment
         {
-            get { return m_executionStarted && m_continuationToken != null; }
+            get
+            {
+                return m_executionStarted && m_continuationToken != null;
+            }
         }
     }
 }
