@@ -21,9 +21,9 @@ namespace Journalist.EventStore
 
         public static StreamVersion Create(int version)
         {
-            Require.Positive(version, "value");
+            Require.ZeroOrGreater(version, "value");
 
-            return new StreamVersion(version);
+            return version == 0 ? Unknown : new StreamVersion(version);
         }
 
         public static StreamVersion Parse(string version)

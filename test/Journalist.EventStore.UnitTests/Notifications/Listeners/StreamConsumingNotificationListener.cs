@@ -51,7 +51,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             await listener.On(notification);
 
             subscriptionMock.Verify(
-                self => self.CreateSubscriptionConsumerAsync(notification.StreamName),
+                self => self.CreateSubscriptionConsumerAsync(notification.StreamName, true),
                 Times.Once());
         }
 
