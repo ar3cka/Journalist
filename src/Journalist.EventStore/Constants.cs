@@ -8,6 +8,7 @@ namespace Journalist.EventStore
             public const int DEFAULT_EVENT_SLICE_SIZE = 100;
             public const int DEFAULT_MAX_NOTIFICATION_PROCESSING_COUNT = 100;
             public const int DEFAULT_MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT= 10;
+            public const int DEFAULT_NOTIFICATION_RETRY_DELIVERY_TIMEOUT_MULTIPLYER_SEC = 2;
         }
 
         public class StorageEntities

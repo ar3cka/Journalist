@@ -52,7 +52,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         {
             Assert.True(listener.Started);
             EventStreamUpdated item;
-            listener.Notifications.TryTake(out item, TimeSpan.FromSeconds(10));
+            listener.Notifications.TryTake(out item, TimeSpan.FromSeconds(30));
 
             return item;
         }

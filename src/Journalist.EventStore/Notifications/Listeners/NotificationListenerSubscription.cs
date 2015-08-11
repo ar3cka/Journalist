@@ -91,19 +91,23 @@ namespace Journalist.EventStore.Notifications.Listeners
             if (notification.DeliveryCount < Constants.Settings.DEFAULT_MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT)
             {
                 var retryNotification = notification.SendTo(m_subscriptionConsumerId);
+                var deliverTimeout = TimeSpan.FromSeconds(
+                    notification.DeliveryCount * Constants.Settings.DEFAULT_NOTIFICATION_RETRY_DELIVERY_TIMEOUT_MULTIPLYER_SEC);
 
                 if (s_logger.IsEnabled(LogEventLevel.Debug))
                 {
                     s_logger.Debug(
-                        "Sending retry notification ({RetryNotificationId}, {NotificationType}) to consumer {SubscriptionConsumerId}. " +
+                        "Sending retry notification ({RetryNotificationId}, {NotificationType}) with timeout {Timeout} " +
+                        "to consumer {SubscriptionConsumerId}. " +
                         "Source notification: {SourceNotificationId}.",
                         retryNotification.NotificationId,
                         retryNotification.NotificationType,
+                        deliverTimeout.ToInvariantString(),
                         m_subscriptionConsumerId,
                         notification.NotificationId);
                 }
 
-                await m_notificationsChannel.SendAsync(retryNotification);
+                await m_notificationsChannel.SendAsync(retryNotification, deliverTimeout);
             }
             else
             {
