@@ -72,7 +72,7 @@ namespace Journalist.EventStore.Notifications.Listeners
             m_connection = null;
         }
 
-        public Task<IEventStreamConsumer> CreateSubscriptionConsumerAsync(string streamName)
+        public Task<IEventStreamConsumer> CreateSubscriptionConsumerAsync(string streamName, bool readFromEnd)
         {
             Require.NotEmpty(streamName, "streamName");
 
@@ -80,7 +80,7 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             return m_connection.CreateStreamConsumerAsync(config => config
                 .UseConsumerId(m_subscriptionConsumerId)
-                .ReadStream(streamName, true)
+                .ReadStream(streamName, readFromEnd)
                 .AutoCommitProcessedStreamPosition(false));
         }
 

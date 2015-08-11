@@ -65,7 +65,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             await Task.Delay(TimeSpan.FromSeconds(5));
             await producer.PublishAsync(events2);
 
-
             var item1 = TakeNotificationFromListener(EventListener, expectedEvents.Length);
             var item2 = TakeNotificationFromListener(BatchEventListener, expectedEvents.Length);
 
