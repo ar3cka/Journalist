@@ -7,53 +7,58 @@ namespace Journalist.EventStore.Streams
 {
     public class EventStreamConsumer : IEventStreamConsumer
     {
-        private readonly IEventStreamReader m_reader;
         private readonly IEventStreamConsumingSession m_session;
+        private readonly IEventStreamConsumerStreamReaderFactory m_readerFactory;
         private readonly bool m_autoCommitProcessedStreamVersion;
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
-        private readonly EventStreamConsumerStateMachine m_stm;
+        private readonly IEventStreamConsumerStateMachine m_stateMachine;
+
+        private IEventStreamReader m_reader;
 
         public EventStreamConsumer(
             EventStreamConsumerId consumerId,
-            IEventStreamReader streamReader,
             IEventStreamConsumingSession session,
+            IEventStreamConsumerStreamReaderFactory readerFactory,
+            IEventStreamConsumerStateMachine stateMachine,
             bool autoCommitProcessedStreamVersion,
-            StreamVersion commitedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
             Require.NotNull(consumerId, "consumerId");
-            Require.NotNull(streamReader, "streamReader");
             Require.NotNull(session, "session");
+            Require.NotNull(readerFactory, "readerFactory");
+            Require.NotNull(stateMachine, "stateMachine");
             Require.NotNull(commitConsumedVersion, "commitConsumedVersion");
 
-            m_reader = streamReader;
             m_session = session;
+            m_readerFactory = readerFactory;
             m_autoCommitProcessedStreamVersion = autoCommitProcessedStreamVersion;
             m_commitConsumedVersion = commitConsumedVersion;
-            m_stm = new EventStreamConsumerStateMachine(commitedStreamVersion);
+            m_stateMachine = stateMachine;
         }
 
         public async Task<ReceivingResultCode> ReceiveEventsAsync()
         {
             if (await m_session.PromoteToLeaderAsync())
             {
-                m_stm.ReceivingStarted();
+                await EnsureStreamReaderInitializedAsync();
 
-                if (m_stm.CommitRequired(m_autoCommitProcessedStreamVersion))
+                m_stateMachine.ReceivingStarted();
+
+                if (m_stateMachine.CommitRequired(m_autoCommitProcessedStreamVersion))
                 {
-                    var version = m_stm.CalculateConsumedStreamVersion(false);
+                    var version = m_stateMachine.CalculateConsumedStreamVersion(false);
                     await m_commitConsumedVersion(version);
                 }
 
                 if (m_reader.HasEvents)
                 {
                     await m_reader.ReadEventsAsync();
-                    m_stm.ReceivingCompleted(m_reader.Events.Count);
+                    m_stateMachine.ReceivingCompleted(m_reader.Events.Count);
                     return ReceivingResultCode.EventsReceived;
 
                 }
 
-                m_stm.ReceivingCompleted(0);
+                m_stateMachine.ReceivingCompleted(0);
                 await m_session.FreeAsync();
 
                 return ReceivingResultCode.EmptyStream;
@@ -64,19 +69,19 @@ namespace Journalist.EventStore.Streams
 
         public async Task CommitProcessedStreamVersionAsync(bool skipCurrent)
         {
-            var version = m_stm.CalculateConsumedStreamVersion(skipCurrent);
-            if (m_stm.CommitedStreamVersion < version)
+            var version = m_stateMachine.CalculateConsumedStreamVersion(skipCurrent);
+            if (m_stateMachine.CommitedStreamVersion < version)
             {
                 await m_commitConsumedVersion(version);
-                m_stm.ConsumedStreamVersionCommited(version, skipCurrent);
+                m_stateMachine.ConsumedStreamVersionCommited(version, skipCurrent);
             }
         }
 
         public async Task CloseAsync()
         {
-            m_stm.ConsumerClosed();
+            m_stateMachine.ConsumerClosed();
 
-            if (m_stm.CommitRequired(m_autoCommitProcessedStreamVersion))
+            if (m_stateMachine.CommitRequired(m_autoCommitProcessedStreamVersion))
             {
                 await CommitProcessedStreamVersionAsync(true);
             }
@@ -86,16 +91,24 @@ namespace Journalist.EventStore.Streams
 
         public IEnumerable<JournaledEvent> EnumerateEvents()
         {
-            m_stm.ConsumingStarted();
+            m_stateMachine.ConsumingStarted();
 
             for (var index = 0; index < m_reader.Events.Count; index++)
             {
-                m_stm.EventProcessingStarted();
+                m_stateMachine.EventProcessingStarted();
 
                 yield return m_reader.Events[index];
             }
 
-            m_stm.ConsumingCompleted();
+            m_stateMachine.ConsumingCompleted();
+        }
+
+        private async Task EnsureStreamReaderInitializedAsync()
+        {
+            if (m_reader == null)
+            {
+                m_reader = await m_readerFactory.CreateAsync();
+            }
         }
 
         public string StreamName

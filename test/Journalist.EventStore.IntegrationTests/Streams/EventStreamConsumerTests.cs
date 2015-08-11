@@ -75,10 +75,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             await PublishEventsAsync(dummyEvents);
 
-            consumer = await Connection.CreateStreamConsumerAsync(config => config
-                .ReadStream(StreamName, true)
-                .UseConsumerName(consumerName));
-
             Assert.Equal(ReceivingResultCode.EventsReceived, await consumer.ReceiveEventsAsync());
             Assert.Equal(dummyEvents, consumer.EnumerateEvents());
         }

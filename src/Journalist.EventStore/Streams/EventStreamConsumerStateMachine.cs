@@ -2,7 +2,7 @@ using System;
 
 namespace Journalist.EventStore.Streams
 {
-    public class EventStreamConsumerStateMachine
+    public class EventStreamConsumerStateMachine : IEventStreamConsumerStateMachine
     {
         private abstract class State
         {

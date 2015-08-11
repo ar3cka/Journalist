@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.Customizations;
 using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
+using Moq;
 using Ploeh.AutoFixture;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
@@ -24,10 +25,10 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
             Fixture.Customize<EventStreamConsumer>(composer => composer.FromFactory(
                 () => new EventStreamConsumer(
                     Fixture.Create<EventStreamConsumerId>(),
-                    Fixture.Create<IEventStreamReader>(),
                     Fixture.Create<IEventStreamConsumingSession>(),
+                    Fixture.Create<IEventStreamConsumerStreamReaderFactory>(),
+                    new EventStreamConsumerStateMachine(Fixture.Create<StreamVersion>()),
                     !disableAutoCommit,
-                    Fixture.Create<StreamVersion>(),
                     Fixture.Create<Func<StreamVersion, Task>>())));
         }
     }
