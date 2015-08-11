@@ -18,19 +18,16 @@ namespace Journalist.EventStore.Connection
             string streamName,
             bool startReadingFromTheEnd,
             StreamVersion readerStreamVersion,
-            StreamVersion streamVersion,
-            Func<StreamVersion, Task> commitReaderVersion)
+            StreamVersion streamVersion)
         {
             Require.NotNull(connection, "connection");
             Require.NotEmpty(streamName, "streamName");
-            Require.NotNull(commitReaderVersion, "commitReaderVersion");
 
             m_connection = connection;
             m_streamName = streamName;
             m_startReadingFromTheEnd = startReadingFromTheEnd;
             m_readerStreamVersion = readerStreamVersion;
             m_streamVersion = streamVersion;
-            m_commitReaderVersion = commitReaderVersion;
         }
 
         public async Task<IEventStreamReader> CreateAsync()
@@ -39,9 +36,9 @@ namespace Journalist.EventStore.Connection
             if (readerVersion == StreamVersion.Unknown && m_startReadingFromTheEnd)
             {
                 readerVersion = m_streamVersion;
+                await m_commitReaderVersion(readerVersion);
             }
 
-            await m_commitReaderVersion(readerVersion);
             return await m_connection.CreateStreamReaderAsync(m_streamName, readerVersion.Increment());
         }
     }
