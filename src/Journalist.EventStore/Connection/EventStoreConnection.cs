@@ -119,6 +119,11 @@ namespace Journalist.EventStore.Connection
                 consumerId: consumerId,
                 streamName: configuration.StreamName);
 
+            Func<StreamVersion, Task> commitReaderVersion = currentVersion => m_journal.CommitStreamReaderPositionAsync(
+                streamName: configuration.StreamName,
+                readerName: consumerId.ToString(),
+                version: currentVersion);
+
             return new EventStreamConsumer(
                 consumerId: consumerId,
                 session: session,
@@ -127,13 +132,11 @@ namespace Journalist.EventStore.Connection
                     streamName: configuration.StreamName,
                     startReadingFromTheEnd: configuration.StartReadingStreamFromEnd,
                     readerStreamVersion: readerVersion,
-                    streamVersion: streamPosition.Version),
+                    streamVersion: streamPosition.Version,
+                    commitReaderVersion: commitReaderVersion),
                 stateMachine: new EventStreamConsumerStateMachine(readerVersion),
                 autoCommitProcessedStreamVersion: configuration.UseAutoCommitProcessedStreamPositionBehavior,
-                commitConsumedVersion: currentVersion => m_journal.CommitStreamReaderPositionAsync(
-                    streamName: configuration.StreamName,
-                    readerName: consumerId.ToString(),
-                    version: currentVersion));
+                commitConsumedVersion: commitReaderVersion);
         }
 
         public Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName)

@@ -41,10 +41,14 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             m_processingCountdown.AddCount();
 
+            var retryProcessing = false;
             try
             {
-                var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
-                await ReceiveAndProcessEventsAsync(notification, consumer);
+                var consumer = await m_subscription.CreateSubscriptionConsumerAsync(
+                    streamName: notification.StreamName,
+                    readFromEnd: notification.FromVersion != StreamVersion.Unknown);
+
+                retryProcessing = await ReceiveAndProcessEventsAsync(notification, consumer);
                 await consumer.CloseAsync();
             }
             catch (Exception exception)
@@ -55,16 +59,23 @@ namespace Journalist.EventStore.Notifications.Listeners
                     notification.NotificationId,
                     notification.NotificationType,
                     notification.StreamName);
+
+                retryProcessing = true;
             }
             finally
             {
                 m_processingCountdown.Signal();
             }
+
+            if (retryProcessing)
+            {
+                await m_subscription.RetryNotificationProcessingAsync(notification);
+            }
         }
 
         protected abstract Task<bool> TryProcessEventFromConsumerAsync(IEventStreamConsumer consumer);
 
-        private async Task ReceiveAndProcessEventsAsync(EventStreamUpdated notification, IEventStreamConsumer consumer)
+        private async Task<bool> ReceiveAndProcessEventsAsync(EventStreamUpdated notification, IEventStreamConsumer consumer)
         {
             var retryProcessing = true;
             var receivingResult = await consumer.ReceiveEventsAsync();
@@ -86,9 +97,9 @@ namespace Journalist.EventStore.Notifications.Listeners
                     notification.NotificationId,
                     notification.NotificationType,
                     receivingResult);
-
-                await m_subscription.RetryNotificationProcessingAsync(notification);
             }
+
+            return retryProcessing;
         }
 
         private void AssertSubscriptionWasNotBound()
