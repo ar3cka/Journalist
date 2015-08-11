@@ -132,7 +132,8 @@ namespace Journalist.EventStore.Connection
                     streamName: configuration.StreamName,
                     startReadingFromTheEnd: configuration.StartReadingStreamFromEnd,
                     readerStreamVersion: readerVersion,
-                    streamVersion: streamPosition.Version),
+                    streamVersion: streamPosition.Version,
+                    commitReaderVersion: commitReaderVersion),
                 stateMachine: new EventStreamConsumerStateMachine(readerVersion),
                 autoCommitProcessedStreamVersion: configuration.UseAutoCommitProcessedStreamPositionBehavior,
                 commitConsumedVersion: commitReaderVersion);

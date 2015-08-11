@@ -46,7 +46,9 @@
     <Compile Include="Configuration\EventStoreConnectionConfigurationTests.cs" />
     <Compile Include="Connection\EventStoreConnectionTests.cs" />
     <Compile Include="Connection\EventStoreConnectionStateTests.cs" />
+    <Compile Include="Connection\EventStreamConsumerStreamReaderFactoryTests.cs" />
     <Compile Include="Events\JournaledEventTests.cs" />
+    <Compile Include="Infrastructure\Customizations\CommitStreamVersionFMockCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\EventStreamConsumerMoqCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\IOStreamCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\EventStreamConsumingSessionCustomization.cs" />
@@ -62,6 +64,7 @@
     <Compile Include="Infrastructure\TestData\BatchEventConsumingNotificationListenerDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\CloudBlockBlobContainerDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventConsumingNotificationListenerDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\EventStreamConsumerStreamReaderFactoryDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamReaderCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamProducerDataCustomizationAttribute.cs" />
     <Compile Include="Infrastructure\TestData\EventStreamReaderDataAttribute.cs" />

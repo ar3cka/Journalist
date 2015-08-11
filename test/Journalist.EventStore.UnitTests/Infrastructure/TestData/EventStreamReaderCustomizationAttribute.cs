@@ -2,8 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.Customizations;
-using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
-using Moq;
 using Ploeh.AutoFixture;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
@@ -18,9 +16,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         {
             Fixture.Customize(new EventStreamReaderCustomization(completed, hasEvents));
             Fixture.Customize(new EventStreamConsumingSessionCustomization(leaderPromotion));
-
-            Fixture.Customize<Func<StreamVersion, Task>>(composer => composer
-                .FromFactory((CommitStreamVersionFMock mock) => mock.Invoke));
+            Fixture.Customize(new CommitStreamVersionFMockCustomization());
 
             Fixture.Customize<EventStreamConsumer>(composer => composer.FromFactory(
                 () => new EventStreamConsumer(

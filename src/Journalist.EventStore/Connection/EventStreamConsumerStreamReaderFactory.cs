@@ -18,16 +18,19 @@ namespace Journalist.EventStore.Connection
             string streamName,
             bool startReadingFromTheEnd,
             StreamVersion readerStreamVersion,
-            StreamVersion streamVersion)
+            StreamVersion streamVersion,
+            Func<StreamVersion, Task> commitReaderVersion)
         {
             Require.NotNull(connection, "connection");
             Require.NotEmpty(streamName, "streamName");
+            Require.NotNull(commitReaderVersion, "commitReaderVersion");
 
             m_connection = connection;
             m_streamName = streamName;
             m_startReadingFromTheEnd = startReadingFromTheEnd;
             m_readerStreamVersion = readerStreamVersion;
             m_streamVersion = streamVersion;
+            m_commitReaderVersion = commitReaderVersion;
         }
 
         public async Task<IEventStreamReader> CreateAsync()
