@@ -174,7 +174,9 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             await subscription.RetryNotificationProcessingAsync(receivedNotificationMock.Object);
 
             channelMock
-                .Verify(self => self.SendAsync(deferredNotification));
+                .Verify(self => self.SendAsync(
+                    deferredNotification,
+                    It.Is<TimeSpan>(v => TimeSpan.FromSeconds(deferredNotification.DeliveryCount * 2) == v)));
         }
     }
 }
