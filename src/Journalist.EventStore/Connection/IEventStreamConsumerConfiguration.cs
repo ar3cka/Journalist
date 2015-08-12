@@ -1,3 +1,4 @@
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 
 namespace Journalist.EventStore.Connection
@@ -8,7 +9,7 @@ namespace Journalist.EventStore.Connection
 
         IEventStreamConsumerConfiguration UseConsumerName(string consumerName);
 
-        IEventStreamConsumerConfiguration UseConsumerId(EventStreamConsumerId consumerId);
+        IEventStreamConsumerConfiguration UseConsumerId(EventStreamReaderId consumerId);
 
         IEventStreamConsumerConfiguration AutoCommitProcessedStreamPosition(bool autoCommit);
     }

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Timeouts;
@@ -17,8 +18,8 @@ namespace Journalist.EventStore.Notifications
     {
         private static readonly ILogger s_logger = Log.ForContext<NotificationHub>();
 
-        private readonly Dictionary<EventStreamConsumerId, NotificationListenerSubscription> m_subscriptions = new Dictionary<EventStreamConsumerId, NotificationListenerSubscription>();
-        private readonly Dictionary<INotificationListener, EventStreamConsumerId> m_listenerSubscriptions = new Dictionary<INotificationListener, EventStreamConsumerId>();
+        private readonly Dictionary<EventStreamReaderId, NotificationListenerSubscription> m_subscriptions = new Dictionary<EventStreamReaderId, NotificationListenerSubscription>();
+        private readonly Dictionary<INotificationListener, EventStreamReaderId> m_listenerSubscriptions = new Dictionary<INotificationListener, EventStreamReaderId>();
         private readonly INotificationsChannel m_channel;
         private readonly IEventStreamConsumersRegistry m_consumersRegistry;
         private readonly IPollingTimeout m_timeout;
@@ -108,7 +109,7 @@ namespace Journalist.EventStore.Notifications
             }
         }
 
-        private EventStreamConsumerId RegisterEventListenerConsumer(INotificationListener listener)
+        private EventStreamReaderId RegisterEventListenerConsumer(INotificationListener listener)
         {
             return Task.Run(() =>
                 m_consumersRegistry.RegisterAsync(listener.GetType().FullName)).Result;

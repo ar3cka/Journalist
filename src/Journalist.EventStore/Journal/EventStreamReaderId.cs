@@ -1,26 +1,26 @@
 using System;
 
-namespace Journalist.EventStore.Streams
+namespace Journalist.EventStore.Journal
 {
-    public sealed class EventStreamConsumerId : IEquatable<EventStreamConsumerId>
+    public sealed class EventStreamReaderId : IEquatable<EventStreamReaderId>
     {
         private readonly Guid m_value;
 
-        public EventStreamConsumerId(Guid value)
+        public EventStreamReaderId(Guid value)
         {
             Require.NotEmpty(value, "value");
 
             m_value = value;
         }
 
-        public static EventStreamConsumerId Create()
+        public static EventStreamReaderId Create()
         {
-            return new EventStreamConsumerId(Guid.NewGuid());
+            return new EventStreamReaderId(Guid.NewGuid());
         }
 
-        public static EventStreamConsumerId Parse(string consumerId)
+        public static EventStreamReaderId Parse(string consumerId)
         {
-            return new EventStreamConsumerId(Guid.Parse(consumerId));
+            return new EventStreamReaderId(Guid.Parse(consumerId));
         }
 
         public override string ToString()
@@ -28,7 +28,7 @@ namespace Journalist.EventStore.Streams
             return m_value.ToString("N").ToUpperInvariant();
         }
 
-        public bool Equals(EventStreamConsumerId other)
+        public bool Equals(EventStreamReaderId other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -41,7 +41,7 @@ namespace Journalist.EventStore.Streams
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
 
-            return obj is EventStreamConsumerId && Equals((EventStreamConsumerId)obj);
+            return obj is EventStreamReaderId && Equals((EventStreamReaderId)obj);
         }
 
         public override int GetHashCode()
@@ -49,12 +49,12 @@ namespace Journalist.EventStore.Streams
             return m_value.GetHashCode();
         }
 
-        public static bool operator ==(EventStreamConsumerId left, EventStreamConsumerId right)
+        public static bool operator ==(EventStreamReaderId left, EventStreamReaderId right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(EventStreamConsumerId left, EventStreamConsumerId right)
+        public static bool operator !=(EventStreamReaderId left, EventStreamReaderId right)
         {
             return !Equals(left, right);
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
@@ -70,7 +71,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             IEventStoreConnection connection,
             NotificationListenerSubscription subscription,
             EventStreamUpdated notification,
-            EventStreamConsumerId consumerId)
+            EventStreamReaderId consumerId)
         {
             subscription.Start(connection);
 
@@ -84,7 +85,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         [Theory, NotificationListenerSubscriptionData]
         public async Task HandleNotificationAsync_WhenNotificationAddressedToConsumer_PropagatesNotificationToTheListener(
             [Frozen] Mock<INotificationListener> listenerMock,
-            [Frozen] EventStreamConsumerId consumerId,
+            [Frozen] EventStreamReaderId consumerId,
             IEventStoreConnection connection,
             NotificationListenerSubscription subscription,
             EventStreamUpdated notification)
@@ -133,7 +134,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
 
         [Theory, NotificationListenerSubscriptionData]
         public void CreateSubscriptionConsumerAsync_WhenSubscriptionWasStarted_UseConnection(
-            [Frozen] EventStreamConsumerId consumerId,
+            [Frozen] EventStreamReaderId consumerId,
             Mock<IEventStoreConnection> connectionMock,
             NotificationListenerSubscription subscription,
             string streamName)
@@ -148,7 +149,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
 
         [Theory, NotificationListenerSubscriptionData]
         public async Task CreateSubscriptionConsumerAsync_WhenSubscriptionWasNotStarted_Throws(
-            [Frozen] EventStreamConsumerId consumerId,
+            [Frozen] EventStreamReaderId consumerId,
             NotificationListenerSubscription subscription,
             string streamName)
         {
@@ -159,7 +160,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         [Theory, NotificationListenerSubscriptionData]
         public async Task DefferNotificationAsync_SendAddressedNotification(
             [Frozen] Mock<INotificationsChannel> channelMock,
-            [Frozen] EventStreamConsumerId consumerId,
+            [Frozen] EventStreamReaderId consumerId,
             Mock<INotification> receivedNotificationMock,
             INotification deferredNotification,
             IEventStoreConnection connection,

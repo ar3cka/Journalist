@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.Serialization;
+using Journalist.EventStore.Journal;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Streams
@@ -11,7 +12,7 @@ namespace Journalist.EventStore.Streams
         {
         }
 
-        public UnknownEventStreamConsumerException(EventStreamConsumerId consumerId)
+        public UnknownEventStreamConsumerException(EventStreamReaderId consumerId)
             : this("Event stream consumer with id \"{0}\" not registered.".FormatString(consumerId))
         {
         }

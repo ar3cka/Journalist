@@ -1,3 +1,4 @@
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.Extensions;
 
@@ -5,7 +6,7 @@ namespace Journalist.EventStore.Connection
 {
     public class EventStreamConsumerConfiguration : IEventStreamConsumerConfiguration
     {
-        private EventStreamConsumerId m_consumerId;
+        private EventStreamReaderId m_consumerId;
         private string m_consumerName;
         private string m_streamName;
         private bool m_useAutoCommitProcessedStreamPositionBehavior;
@@ -37,7 +38,7 @@ namespace Journalist.EventStore.Connection
             return this;
         }
 
-        public IEventStreamConsumerConfiguration UseConsumerId(EventStreamConsumerId consumerId)
+        public IEventStreamConsumerConfiguration UseConsumerId(EventStreamReaderId consumerId)
         {
             Require.NotNull(consumerId, "consumerId");
 
@@ -85,7 +86,7 @@ namespace Journalist.EventStore.Connection
             }
         }
 
-        public EventStreamConsumerId ConsumerId
+        public EventStreamReaderId ConsumerId
         {
             get
             {

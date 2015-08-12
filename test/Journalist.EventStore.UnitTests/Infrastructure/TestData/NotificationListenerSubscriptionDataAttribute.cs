@@ -1,3 +1,4 @@
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
@@ -12,7 +13,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         {
             Fixture.Customize<Mock<INotification>>(composer => composer
                 .Do(mock => mock
-                    .Setup(self => self.SendTo(It.IsAny<EventStreamConsumerId>()))
+                    .Setup(self => self.SendTo(It.IsAny<EventStreamReaderId>()))
                     .ReturnsUsingFixture(Fixture))
                 .Do(mock => mock
                     .SetupGet(self => self.DeliveryCount)

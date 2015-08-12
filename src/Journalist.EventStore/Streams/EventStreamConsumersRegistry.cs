@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Journalist.EventStore.Journal;
 using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Streams
@@ -16,13 +17,13 @@ namespace Journalist.EventStore.Streams
             m_consumerMetadataTable = consumerMetadataTable;
         }
 
-        public async Task<EventStreamConsumerId> RegisterAsync(string consumerName)
+        public async Task<EventStreamReaderId> RegisterAsync(string consumerName)
         {
             Require.NotEmpty(consumerName, "consumerName");
 
             try
             {
-                var consumerId = EventStreamConsumerId.Create();
+                var consumerId = EventStreamReaderId.Create();
                 await InsertConsumerId(consumerName, consumerId);
 
                 return consumerId;
@@ -38,7 +39,7 @@ namespace Journalist.EventStore.Streams
             return await QueryConsumerId(consumerName);
         }
 
-        public async Task<bool> IsResistedAsync(EventStreamConsumerId consumerId)
+        public async Task<bool> IsResistedAsync(EventStreamReaderId consumerId)
         {
             Require.NotNull(consumerId, "consumerId");
 
@@ -47,7 +48,7 @@ namespace Journalist.EventStore.Streams
             return consumerName != null;
         }
 
-        private async Task<EventStreamConsumerId> QueryConsumerId(string consumerName)
+        private async Task<EventStreamReaderId> QueryConsumerId(string consumerName)
         {
             var query = m_consumerMetadataTable.PrepareEntityPointQuery(
                 partitionKey: Constants.StorageEntities.MetadataTable.EVENT_STREAM_CONSUMERS_IDS_PK,
@@ -55,11 +56,11 @@ namespace Journalist.EventStore.Streams
 
             var result = await query.ExecuteAsync();
 
-            return EventStreamConsumerId.Parse(
+            return EventStreamReaderId.Parse(
                 (string)result[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_ID]);
         }
 
-        private async Task<string> QueryConsumerName(EventStreamConsumerId consumerId)
+        private async Task<string> QueryConsumerName(EventStreamReaderId consumerId)
         {
             var query = m_consumerMetadataTable.PrepareEntityPointQuery(
                 partitionKey: Constants.StorageEntities.MetadataTable.EVENT_STREAM_CONSUMERS_IDS_PK,
@@ -74,7 +75,7 @@ namespace Journalist.EventStore.Streams
             return (string)result[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_NAME];
         }
 
-        private async Task InsertConsumerId(string consumerName, EventStreamConsumerId consumerId)
+        private async Task InsertConsumerId(string consumerName, EventStreamReaderId consumerId)
         {
             var operation = m_consumerMetadataTable.PrepareBatchOperation();
 

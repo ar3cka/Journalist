@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Journalist.Tasks;
@@ -47,7 +48,7 @@ namespace Journalist.EventStore.UnitTests.Connection
             [Frozen] Mock<IEventStreamConsumersRegistry> consumerRegistryMock,
             EventStoreConnection eventStoreConnection,
             string streamName,
-            EventStreamConsumerId consumerId)
+            EventStreamReaderId consumerId)
         {
             consumerRegistryMock
                 .Setup(self => self.IsResistedAsync(consumerId))
@@ -62,7 +63,7 @@ namespace Journalist.EventStore.UnitTests.Connection
             [Frozen] Mock<IEventStreamConsumersRegistry> consumerRegistryMock,
             EventStoreConnection eventStoreConnection,
             string streamName,
-            EventStreamConsumerId consumerId)
+            EventStreamReaderId consumerId)
         {
             consumerRegistryMock
                 .Setup(self => self.IsResistedAsync(consumerId))

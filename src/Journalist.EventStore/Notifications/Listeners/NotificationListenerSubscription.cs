@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Streams;
 using Journalist.Extensions;
@@ -14,14 +15,14 @@ namespace Journalist.EventStore.Notifications.Listeners
     {
         private static readonly ILogger s_logger = Log.ForContext<NotificationListenerSubscription>();
 
-        private readonly EventStreamConsumerId m_subscriptionConsumerId;
+        private readonly EventStreamReaderId m_subscriptionConsumerId;
         private readonly INotificationsChannel m_notificationsChannel;
         private readonly INotificationListener m_listener;
         private readonly CountdownEvent m_processingCountdown;
         private IEventStoreConnection m_connection;
 
         public NotificationListenerSubscription(
-            EventStreamConsumerId subscriptionConsumerId,
+            EventStreamReaderId subscriptionConsumerId,
             INotificationsChannel notificationsChannel,
             INotificationListener listener)
         {

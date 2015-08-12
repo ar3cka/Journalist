@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams
 {
     public interface IEventStreamConsumersRegistry
     {
-        Task<EventStreamConsumerId> RegisterAsync(string consumerName);
+        Task<EventStreamReaderId> RegisterAsync(string consumerName);
 
-        Task<bool> IsResistedAsync(EventStreamConsumerId consumerId);
+        Task<bool> IsResistedAsync(EventStreamReaderId consumerId);
     }
 }

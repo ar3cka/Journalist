@@ -84,6 +84,7 @@
     <Compile Include="Journal\StreamCursor\FetchEventsResult.cs" />
     <Compile Include="Journal\StreamCursor\FetchingCursorState.cs" />
     <Compile Include="Journal\StreamCursor\InitialCursorState.cs" />
+    <Compile Include="Journal\EventStreamReaderId.cs" />
     <Compile Include="Notifications\Channels\INotificationsChannel.cs" />
     <Compile Include="Notifications\Channels\NotificationsChannel.cs" />
     <Compile Include="Notifications\Formatters\INotificationFormatter.cs" />
@@ -108,7 +109,6 @@
     <Compile Include="Streams\EventStreamConnectionWasClosedException.cs" />
     <Compile Include="Streams\EventStreamConsumer.cs" />
     <Compile Include="Streams\EventStreamConsumerExtensions.cs" />
-    <Compile Include="Streams\EventStreamConsumerId.cs" />
     <Compile Include="Streams\EventStreamConsumersRegistry.cs" />
     <Compile Include="Streams\EventStreamConsumerStateMachine.cs" />
     <Compile Include="Streams\EventStreamConsumingSession.cs" />

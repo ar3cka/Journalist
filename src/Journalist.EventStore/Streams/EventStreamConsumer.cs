@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams
 {
@@ -16,7 +17,7 @@ namespace Journalist.EventStore.Streams
         private IEventStreamReader m_reader;
 
         public EventStreamConsumer(
-            EventStreamConsumerId consumerId,
+            EventStreamReaderId consumerId,
             IEventStreamConsumingSession session,
             IEventStreamConsumerStreamReaderFactory readerFactory,
             IEventStreamConsumerStateMachine stateMachine,

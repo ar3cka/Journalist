@@ -149,7 +149,7 @@ namespace Journalist.EventStore.Connection
                 .UseConsumerName(consumerName));
         }
 
-        public Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, EventStreamConsumerId consumerId)
+        public Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, EventStreamReaderId consumerId)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(consumerId, "consumerId");
@@ -165,9 +165,9 @@ namespace Journalist.EventStore.Connection
             m_connectionState.ChangeToClosed();
         }
 
-        private async Task<EventStreamConsumerId> EnsureConsumerIsRegistered(EventStreamConsumerConfiguration configuration)
+        private async Task<EventStreamReaderId> EnsureConsumerIsRegistered(EventStreamConsumerConfiguration configuration)
         {
-            EventStreamConsumerId consumerId;
+            EventStreamReaderId consumerId;
             if (configuration.ConsumerRegistrationRequired)
             {
                 consumerId = await m_consumersRegistry.RegisterAsync(configuration.ConsumerName);

@@ -1,4 +1,5 @@
 using System;
+using Journalist.EventStore.Journal;
 using Journalist.WindowsAzure.Storage.Blobs;
 
 namespace Journalist.EventStore.Streams
@@ -15,7 +16,7 @@ namespace Journalist.EventStore.Streams
         }
 
 
-        public IEventStreamConsumingSession CreateSession(EventStreamConsumerId consumerId, string streamName)
+        public IEventStreamConsumingSession CreateSession(EventStreamReaderId consumerId, string streamName)
         {
             Require.NotNull(consumerId, "consumerId");
             Require.NotEmpty(streamName, "streamName");

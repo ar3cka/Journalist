@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Journalist.EventStore.Journal;
 using Journalist.WindowsAzure.Storage.Blobs;
 using Serilog;
 
@@ -10,7 +11,7 @@ namespace Journalist.EventStore.Streams
         private static readonly ILogger s_logger = Log.ForContext<EventStreamConsumingSession>();
 
         private readonly string m_streamName;
-        private readonly EventStreamConsumerId m_consumerId;
+        private readonly EventStreamReaderId m_consumerId;
         private readonly TimeSpan m_leaseTimeout;
         private readonly ICloudBlobContainer m_blobContainer;
 
@@ -20,7 +21,7 @@ namespace Journalist.EventStore.Streams
 
         public EventStreamConsumingSession(
             string streamName,
-            EventStreamConsumerId consumerId,
+            EventStreamReaderId consumerId,
             TimeSpan leaseTimeout,
             ICloudBlobContainer blobContainer)
         {
@@ -120,7 +121,7 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public EventStreamConsumerId ConsumerId
+        public EventStreamReaderId ConsumerId
         {
             get { return m_consumerId; }
         }

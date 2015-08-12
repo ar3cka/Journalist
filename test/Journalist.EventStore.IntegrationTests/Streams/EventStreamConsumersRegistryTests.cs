@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.WindowsAzure.Storage;
 using Xunit;
@@ -35,7 +36,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         }
 
         [Theory, AutoMoqData]
-        public async Task IsResistedAsync_WhenConsumerWasNotRegistered_ReturnsFalse(EventStreamConsumerId consumerId)
+        public async Task IsResistedAsync_WhenConsumerWasNotRegistered_ReturnsFalse(EventStreamReaderId consumerId)
         {
             var result = await Registry.IsResistedAsync(consumerId);
 

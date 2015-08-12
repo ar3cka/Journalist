@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.Extensions;
 
@@ -11,7 +12,7 @@ namespace Journalist.EventStore.Notifications.Types
     {
         private NotificationId m_notificationId;
         private string m_notificationType;
-        private EventStreamConsumerId m_recipient;
+        private EventStreamReaderId m_recipient;
         private int m_deliveryCount;
 
         protected AbstractNotification()
@@ -21,7 +22,7 @@ namespace Journalist.EventStore.Notifications.Types
             m_recipient = null;
         }
 
-        public bool IsAddressedTo(EventStreamConsumerId consumerId)
+        public bool IsAddressedTo(EventStreamReaderId consumerId)
         {
             Require.NotNull(consumerId, "consumerId");
 
@@ -30,7 +31,7 @@ namespace Journalist.EventStore.Notifications.Types
             return m_recipient == consumerId;
         }
 
-        public INotification SendTo(EventStreamConsumerId consumerId)
+        public INotification SendTo(EventStreamReaderId consumerId)
         {
             Require.NotNull(consumerId, "consumerId");
 
@@ -46,7 +47,7 @@ namespace Journalist.EventStore.Notifications.Types
             });
         }
 
-        public INotification RedeliverTo(EventStreamConsumerId consumerId)
+        public INotification RedeliverTo(EventStreamReaderId consumerId)
         {
             Require.NotNull(consumerId, "consumerId");
 
@@ -140,7 +141,7 @@ namespace Journalist.EventStore.Notifications.Types
 
             if (properties.ContainsKey(NotificationPropertyKeys.Common.RECIPIENT))
             {
-                m_recipient = EventStreamConsumerId.Parse(properties[NotificationPropertyKeys.Common.RECIPIENT]);
+                m_recipient = EventStreamReaderId.Parse(properties[NotificationPropertyKeys.Common.RECIPIENT]);
             }
 
             if (channelDelivery)

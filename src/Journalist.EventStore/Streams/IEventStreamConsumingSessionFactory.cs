@@ -1,7 +1,9 @@
+using Journalist.EventStore.Journal;
+
 namespace Journalist.EventStore.Streams
 {
     public interface IEventStreamConsumingSessionFactory
     {
-        IEventStreamConsumingSession CreateSession(EventStreamConsumerId consumerId, string streamName);
+        IEventStreamConsumingSession CreateSession(EventStreamReaderId consumerId, string streamName);
     }
 }
