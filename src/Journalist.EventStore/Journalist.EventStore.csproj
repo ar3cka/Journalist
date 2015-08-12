@@ -114,7 +114,7 @@
     <Compile Include="Streams\EventStreamConnectionWasClosedException.cs" />
     <Compile Include="Streams\EventStreamConsumer.cs" />
     <Compile Include="Streams\EventStreamConsumerExtensions.cs" />
-    <Compile Include="Streams\EventStreamConsumersRegistry.cs" />
+    <Compile Include="Streams\EventStreamConsumers.cs" />
     <Compile Include="Streams\EventStreamConsumerStateMachine.cs" />
     <Compile Include="Streams\EventStreamConsumingSession.cs" />
     <Compile Include="Streams\EventStreamConsumingSessionFactory.cs" />
@@ -123,7 +123,7 @@
     <Compile Include="Streams\EventStreamReader.cs" />
     <Compile Include="Streams\EventStreamWriter.cs" />
     <Compile Include="Streams\IEventStreamConsumer.cs" />
-    <Compile Include="Streams\IEventStreamConsumersRegistry.cs" />
+    <Compile Include="Streams\IEventStreamConsumers.cs" />
     <Compile Include="Streams\IEventStreamConsumerStateMachine.cs" />
     <Compile Include="Streams\IEventStreamConsumerStreamReaderFactory.cs" />
     <Compile Include="Streams\IEventStreamConsumingSession.cs" />

@@ -6,11 +6,11 @@ using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Streams
 {
-    public class EventStreamConsumersRegistry : IEventStreamConsumersRegistry
+    public class EventStreamConsumers : IEventStreamConsumers
     {
         private readonly ICloudTable m_consumerMetadataTable;
 
-        public EventStreamConsumersRegistry(ICloudTable consumerMetadataTable)
+        public EventStreamConsumers(ICloudTable consumerMetadataTable)
         {
             Require.NotNull(consumerMetadataTable, "consumerMetadataTable");
 

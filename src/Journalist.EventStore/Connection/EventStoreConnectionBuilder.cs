@@ -64,7 +64,7 @@ namespace Journalist.EventStore.Connection
                 m_configuration.StorageConnectionString,
                 m_configuration.NotificationQueueName);
 
-            var consumersRegistry = new EventStreamConsumersRegistry(deploymentTable);
+            var consumersRegistry = new EventStreamConsumers(deploymentTable);
 
             var notificationHub = new NotificationHub(
                 new NotificationsChannel(notificationQueue, new NotificationFormatter()),

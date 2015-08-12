@@ -3,7 +3,7 @@ using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams
 {
-    public interface IEventStreamConsumersRegistry
+    public interface IEventStreamConsumers
     {
         Task<EventStreamReaderId> RegisterAsync(string consumerName);
     }

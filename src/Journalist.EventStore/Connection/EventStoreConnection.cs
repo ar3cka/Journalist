@@ -12,7 +12,7 @@ namespace Journalist.EventStore.Connection
     {
         private readonly IEventJournal m_journal;
         private readonly IEventJournalReaders m_journalReaders;
-        private readonly IEventStreamConsumersRegistry m_consumersRegistry;
+        private readonly IEventStreamConsumers m_consumers;
         private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
         private readonly IEventMutationPipelineFactory m_pipelineFactory;
         private readonly INotificationHub m_notificationHub;
@@ -23,7 +23,7 @@ namespace Journalist.EventStore.Connection
             IEventJournal journal,
             IEventJournalReaders journalReaders,
             INotificationHub notificationHub,
-            IEventStreamConsumersRegistry consumersRegistry,
+            IEventStreamConsumers consumers,
             IEventStreamConsumingSessionFactory sessionFactory,
             IEventMutationPipelineFactory pipelineFactory)
         {
@@ -31,7 +31,7 @@ namespace Journalist.EventStore.Connection
             Require.NotNull(journal, "journal");
             Require.NotNull(journalReaders, "journalReaders");
             Require.NotNull(notificationHub, "notificationHub");
-            Require.NotNull(consumersRegistry, "consumersRegistry");
+            Require.NotNull(consumers, "consumers");
             Require.NotNull(sessionFactory, "sessionFactory");
             Require.NotNull(pipelineFactory, "pipelineFactory");
 
@@ -39,7 +39,7 @@ namespace Journalist.EventStore.Connection
             m_journal = journal;
             m_journalReaders = journalReaders;
             m_notificationHub = notificationHub;
-            m_consumersRegistry = consumersRegistry;
+            m_consumers = consumers;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
 
@@ -114,7 +114,7 @@ namespace Journalist.EventStore.Connection
 
             m_connectionState.EnsureConnectionIsActive();
 
-            var readerId = await m_consumersRegistry.RegisterAsync(configuration.ConsumerName);
+            var readerId = await m_consumers.RegisterAsync(configuration.ConsumerName);
             var session = m_sessionFactory.CreateSession(readerId, configuration.StreamName);
 
             Func<StreamVersion, Task> commitReaderVersion = version => m_journal.CommitStreamReaderPositionAsync(

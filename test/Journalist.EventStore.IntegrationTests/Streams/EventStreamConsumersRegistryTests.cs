@@ -10,7 +10,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
     {
         public EventStreamConsumersRegistryTests()
         {
-            Registry = new EventStreamConsumersRegistry(
+            Registry = new EventStreamConsumers(
                 new StorageFactory().CreateTable(
                 "UseDevelopmentStorage=true",
                 "EventStreamConsumersRegistryTests"));
@@ -34,7 +34,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             Assert.Equal(consumerId1, consumerId2);
         }
 
-        public EventStreamConsumersRegistry Registry
+        public EventStreamConsumers Registry
         {
             get; set;
         }

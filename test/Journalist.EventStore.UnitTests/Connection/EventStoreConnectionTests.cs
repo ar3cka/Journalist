@@ -43,7 +43,7 @@ namespace Journalist.EventStore.UnitTests.Connection
 
         [Theory, AutoMoqData]
         public async Task CreateStreamConsumerAsync_WhenConsumerExists_CreatesIt(
-            [Frozen] Mock<IEventStreamConsumersRegistry> consumerRegistryMock,
+            [Frozen] Mock<IEventStreamConsumers> consumerRegistryMock,
             EventStoreConnection eventStoreConnection,
             string streamName,
             string consumerName)
