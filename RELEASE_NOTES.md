@@ -1,3 +1,6 @@
+### 0.8.5
+* [EventStore][Improvment] Caching data in EventJournalReaders and EventStreamConsumers
+
 ### 0.8.4
 * [EventStore][New] EventJournal support reader streams.
 * [WAZ.Storage][New] CloudQueue getting messages operation accept visibility timeout parameter.

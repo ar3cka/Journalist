@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace Journalist.EventStore.Streams
 {
     public class EventStreamConsumers : IEventStreamConsumers
     {
+        private readonly ConcurrentDictionary<string, EventStreamReaderId> m_cache = new ConcurrentDictionary<string, EventStreamReaderId>();
         private readonly ICloudTable m_consumerMetadataTable;
 
         public EventStreamConsumers(ICloudTable consumerMetadataTable)
@@ -21,12 +23,16 @@ namespace Journalist.EventStore.Streams
         {
             Require.NotEmpty(consumerName, "consumerName");
 
+            EventStreamReaderId consumerId;
+            if (m_cache.TryGetValue(consumerName, out consumerId))
+            {
+                return consumerId;
+            }
+
             try
             {
-                var consumerId = EventStreamReaderId.Create();
+                consumerId = EventStreamReaderId.Create();
                 await InsertConsumerId(consumerName, consumerId);
-
-                return consumerId;
             }
             catch (BatchOperationException exception)
             {
@@ -36,7 +42,14 @@ namespace Journalist.EventStore.Streams
                 }
             }
 
-            return await QueryConsumerId(consumerName);
+            if (consumerId == null)
+            {
+                consumerId = await QueryConsumerId(consumerName);
+            }
+
+            m_cache.TryAdd(consumerName, consumerId);
+
+            return consumerId;
         }
 
         private async Task<EventStreamReaderId> QueryConsumerId(string consumerName)
