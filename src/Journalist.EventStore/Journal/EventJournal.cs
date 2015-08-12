@@ -84,6 +84,20 @@ namespace Journalist.EventStore.Journal
                 from => m_table.FetchStreamEvents(streamName, from, position.Version, sliceSize));
         }
 
+        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, EventStreamReaderId readerId, int sliceSize)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.Positive(sliceSize, "sliceSize");
+
+            var position = await ReadEndOfStreamPositionAsync(streamName);
+            var fromVersion = await ReadStreamReaderPositionAsync(streamName, readerId);
+
+            return new EventStreamCursor(
+                position,
+                fromVersion,
+                from => m_table.FetchStreamEvents(streamName, from, position.Version, sliceSize));
+        }
+
         public async Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
@@ -105,13 +119,13 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(readerId, "readerId");
 
-            var referenceRow = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
-            if (referenceRow == null)
+            var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
+            if (properties == null)
             {
-                return StreamVersion.Unknown;
+                throw new EventStreamReaderNotRegisteredException(streamName, readerId);
             }
 
-            return StreamVersion.Create((int)referenceRow[EventJournalTableRowPropertyNames.Version]);
+            return StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]);
         }
 
         public async Task CommitStreamReaderPositionAsync(

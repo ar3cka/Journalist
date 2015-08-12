@@ -75,6 +75,7 @@
     <Compile Include="Journal\EventStreamAppendOperationFailedException.cs" />
     <Compile Include="Journal\EventStreamConcurrencyException.cs" />
     <Compile Include="Journal\EventStreamPosition.cs" />
+    <Compile Include="Journal\EventStreamReaderNotRegisteredException.cs" />
     <Compile Include="Journal\IEventJournal.cs" />
     <Compile Include="Journal\IEventJournalTable.cs" />
     <Compile Include="Journal\IEventStreamCursor.cs" />
