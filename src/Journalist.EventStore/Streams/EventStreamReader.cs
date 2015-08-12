@@ -47,6 +47,14 @@ namespace Journalist.EventStore.Streams
             }
         }
 
+        public StreamVersion ReaderStreamVersion
+        {
+            get
+            {
+                return m_streamCursor.CursorStreamVersion;
+            }
+        }
+
         public IReadOnlyList<JournaledEvent> Events
         {
             get
@@ -62,7 +70,10 @@ namespace Journalist.EventStore.Streams
 
         public override EventStreamPosition StreamPosition
         {
-            get { return m_streamCursor.StreamPosition; }
+            get
+            {
+                return m_streamCursor.StreamPosition;
+            }
         }
 
         public bool HasEvents

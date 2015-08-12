@@ -21,6 +21,7 @@ namespace Journalist.EventStore
             public class MetadataTable
             {
                 public const string EVENT_STREAM_CONSUMERS_IDS_PK = "event-stream-consumer-ids";
+                public const string EVENT_STREAM_READERS_IDS_PK = "event-stream-reader-ids";
             }
 
             public class MetadataTableProperties

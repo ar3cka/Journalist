@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
-using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams
 {
@@ -12,29 +11,23 @@ namespace Journalist.EventStore.Streams
         private readonly IEventStreamConsumerStreamReaderFactory m_readerFactory;
         private readonly bool m_autoCommitProcessedStreamVersion;
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
-        private readonly IEventStreamConsumerStateMachine m_stateMachine;
-
+        private IEventStreamConsumerStateMachine m_stateMachine;
         private IEventStreamReader m_reader;
 
         public EventStreamConsumer(
-            EventStreamReaderId consumerId,
             IEventStreamConsumingSession session,
             IEventStreamConsumerStreamReaderFactory readerFactory,
-            IEventStreamConsumerStateMachine stateMachine,
             bool autoCommitProcessedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
-            Require.NotNull(consumerId, "consumerId");
             Require.NotNull(session, "session");
             Require.NotNull(readerFactory, "readerFactory");
-            Require.NotNull(stateMachine, "stateMachine");
             Require.NotNull(commitConsumedVersion, "commitConsumedVersion");
 
             m_session = session;
             m_readerFactory = readerFactory;
             m_autoCommitProcessedStreamVersion = autoCommitProcessedStreamVersion;
             m_commitConsumedVersion = commitConsumedVersion;
-            m_stateMachine = stateMachine;
         }
 
         public async Task<ReceivingResultCode> ReceiveEventsAsync()
@@ -80,6 +73,11 @@ namespace Journalist.EventStore.Streams
 
         public async Task CloseAsync()
         {
+            if (m_stateMachine == null)
+            {
+                return;
+            }
+
             m_stateMachine.ConsumerClosed();
 
             if (m_stateMachine.CommitRequired(m_autoCommitProcessedStreamVersion))
@@ -92,6 +90,8 @@ namespace Journalist.EventStore.Streams
 
         public IEnumerable<JournaledEvent> EnumerateEvents()
         {
+            Ensure.True(m_reader != null, "Reading was not started.");
+
             m_stateMachine.ConsumingStarted();
 
             for (var index = 0; index < m_reader.Events.Count; index++)
@@ -109,6 +109,10 @@ namespace Journalist.EventStore.Streams
             if (m_reader == null)
             {
                 m_reader = await m_readerFactory.CreateAsync();
+
+                m_stateMachine = m_reader.HasEvents
+                    ? new EventStreamConsumerStateMachine(m_reader.ReaderStreamVersion.Decrement())
+                    : new EventStreamConsumerStateMachine(m_reader.ReaderStreamVersion);
             }
         }
 

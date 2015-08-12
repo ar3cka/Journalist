@@ -20,6 +20,9 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
 
             fixture.Customize<Mock<IEventStreamReader>>(composer => composer
                 .Do(mock => mock
+                    .Setup(self => self.StreamName)
+                    .ReturnsUsingFixture(fixture))
+                .Do(mock => mock
                     .Setup(self => self.HasEvents)
                     .Returns(HasEvents))
                 .Do(mock => mock
@@ -30,7 +33,10 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                     .ReturnsUsingFixture(fixture))
                 .Do(mock => mock
                     .Setup(self => self.Events)
-                    .ReturnsUsingFixture(fixture)));
+                    .ReturnsUsingFixture(fixture))
+                .Do(mock => mock
+                    .Setup(self => self.ReaderStreamVersion)
+                    .Returns(() => fixture.Create<StreamVersion>().Increment())));
         }
 
         public bool Completed { get; private set; }

@@ -6,7 +6,6 @@ using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Types;
-using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;
@@ -75,7 +74,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         {
             subscription.Start(connection);
 
-            await subscription.HandleNotificationAsync(notification.SendTo(consumerId));
+            await subscription.HandleNotificationAsync(notification.SendTo(listenerMock.Object));
 
             listenerMock.Verify(
                 self => self.On(notification),
@@ -90,7 +89,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             NotificationListenerSubscription subscription,
             EventStreamUpdated notification)
         {
-            var addressedNotification = (EventStreamUpdated)notification.SendTo(consumerId);
+            var addressedNotification = (EventStreamUpdated)notification.SendTo(listenerMock.Object);
 
             subscription.Start(connection);
 
@@ -160,14 +159,14 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         [Theory, NotificationListenerSubscriptionData]
         public async Task DefferNotificationAsync_SendAddressedNotification(
             [Frozen] Mock<INotificationsChannel> channelMock,
-            [Frozen] EventStreamReaderId consumerId,
-            Mock<INotification> receivedNotificationMock,
+            [Frozen] Mock<INotification> receivedNotificationMock,
             INotification deferredNotification,
             IEventStoreConnection connection,
+            INotificationListener listener,
             NotificationListenerSubscription subscription)
         {
             receivedNotificationMock
-                .Setup(self => self.SendTo(consumerId))
+                .Setup(self => self.SendTo(listener))
                 .Returns(deferredNotification);
 
             subscription.Start(connection);

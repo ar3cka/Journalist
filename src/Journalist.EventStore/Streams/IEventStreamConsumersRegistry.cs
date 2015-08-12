@@ -6,7 +6,5 @@ namespace Journalist.EventStore.Streams
     public interface IEventStreamConsumersRegistry
     {
         Task<EventStreamReaderId> RegisterAsync(string consumerName);
-
-        Task<bool> IsResistedAsync(EventStreamReaderId consumerId);
     }
 }

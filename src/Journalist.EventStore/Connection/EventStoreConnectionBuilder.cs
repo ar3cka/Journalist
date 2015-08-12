@@ -47,7 +47,7 @@ namespace Journalist.EventStore.Connection
                 m_configuration.StorageConnectionString,
                 m_configuration.JournalTableName);
 
-            var journalMetadataTable = m_factory.CreateTable(
+            var deploymentTable = m_factory.CreateTable(
                 m_configuration.StorageConnectionString,
                 m_configuration.EventStoreDeploymentTableName);
 
@@ -64,11 +64,10 @@ namespace Journalist.EventStore.Connection
                 m_configuration.StorageConnectionString,
                 m_configuration.NotificationQueueName);
 
-            var consumersRegistry = new EventStreamConsumersRegistry(journalMetadataTable);
+            var consumersRegistry = new EventStreamConsumersRegistry(deploymentTable);
 
             var notificationHub = new NotificationHub(
                 new NotificationsChannel(notificationQueue, new NotificationFormatter()),
-                consumersRegistry,
                 new PollingTimeout());
 
             connectivityState.ConnectionCreated += (sender, args) =>
@@ -94,9 +93,12 @@ namespace Journalist.EventStore.Connection
                 }
             };
 
+            var journalReaders = new EventJournalReaders(deploymentTable);
+
             return new EventStoreConnection(
                 connectivityState,
-                new EventJournal(new EventJournalTable(journalTable)),
+                new EventJournal(journalReaders, new EventJournalTable(journalTable)),
+                journalReaders,
                 notificationHub,
                 consumersRegistry,
                 sessionFactory,

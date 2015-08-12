@@ -1,7 +1,5 @@
-using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
-using Journalist.EventStore.Notifications.Types;
-using Journalist.EventStore.Streams;
+using Journalist.EventStore.Notifications.Listeners;
 using Moq;
 using Ploeh.AutoFixture.AutoMoq;
 
@@ -13,7 +11,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         {
             Fixture.Customize<Mock<INotification>>(composer => composer
                 .Do(mock => mock
-                    .Setup(self => self.SendTo(It.IsAny<EventStreamReaderId>()))
+                    .Setup(self => self.SendTo(It.IsAny<INotificationListener>()))
                     .ReturnsUsingFixture(Fixture))
                 .Do(mock => mock
                     .SetupGet(self => self.DeliveryCount)

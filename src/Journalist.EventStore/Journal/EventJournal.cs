@@ -10,12 +10,15 @@ namespace Journalist.EventStore.Journal
 {
     public class EventJournal : IEventJournal
     {
+        private readonly IEventJournalReaders m_readers;
         private readonly IEventJournalTable m_table;
 
-        public EventJournal(IEventJournalTable table)
+        public EventJournal(IEventJournalReaders readers, IEventJournalTable table)
         {
             Require.NotNull(table, "table");
+            Require.NotNull(readers, "readers");
 
+            m_readers = readers;
             m_table = table;
         }
 
@@ -89,12 +92,17 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
 
-            var position = await ReadEndOfStreamPositionAsync(streamName);
             var fromVersion = await ReadStreamReaderPositionAsync(streamName, readerId);
+            var position = await ReadEndOfStreamPositionAsync(streamName);
+
+            if (fromVersion == position.Version)
+            {
+                return EventStreamCursor.Empty;
+            }
 
             return new EventStreamCursor(
                 position,
-                fromVersion,
+                fromVersion.Increment(),
                 from => m_table.FetchStreamEvents(streamName, from, position.Version, sliceSize));
         }
 
@@ -119,13 +127,18 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(readerId, "readerId");
 
-            var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
-            if (properties == null)
+            if (await m_readers.IsRegisteredAsync(readerId))
             {
-                throw new EventStreamReaderNotRegisteredException(streamName, readerId);
+                var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
+                if (properties == null)
+                {
+                    return StreamVersion.Unknown;
+                }
+
+                return StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]);
             }
 
-            return StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]);
+            throw new EventStreamReaderNotRegisteredException(streamName, readerId);
         }
 
         public async Task CommitStreamReaderPositionAsync(
@@ -136,22 +149,33 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(readerId, "readerId");
 
-            var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
-            if (properties == null)
+            if (await m_readers.IsRegisteredAsync(readerId))
             {
-                await m_table.InserStreamReaderPropertiesAsync(
-                    streamName,
-                    readerId,
-                    readerVersion);
+                var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
+                if (properties == null)
+                {
+                    await m_table.InserStreamReaderPropertiesAsync(
+                        streamName,
+                        readerId,
+                        readerVersion);
+                }
+                else
+                {
+                    var readerVersionValue = (int)readerVersion;
+                    var savedVersionValue = (int)properties[EventJournalTableRowPropertyNames.Version];
+                    var etag = (string)properties[KnownProperties.ETag];
+                    Ensure.True(savedVersionValue <= readerVersionValue, "Saved reader stream version is greater then passed value.");
+
+                    if (readerVersionValue != savedVersionValue)
+                    {
+                        await m_table.UpdateStreamReaderPropertiesAsync(streamName, readerId, readerVersion, etag);
+                    }
+                }
+
+                return;
             }
-            else
-            {
-                await m_table.UpdateStreamReaderPropertiesAsync(
-                    streamName,
-                    readerId,
-                    readerVersion,
-                    (string)properties[KnownProperties.ETag]);
-            }
+
+            throw new EventStreamReaderNotRegisteredException(streamName, readerId);
         }
 
         private static bool IsConcurrencyException(BatchOperationException exception)

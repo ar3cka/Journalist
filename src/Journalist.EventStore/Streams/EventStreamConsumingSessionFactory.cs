@@ -16,14 +16,14 @@ namespace Journalist.EventStore.Streams
         }
 
 
-        public IEventStreamConsumingSession CreateSession(EventStreamReaderId consumerId, string streamName)
+        public IEventStreamConsumingSession CreateSession(EventStreamReaderId readerId, string streamName)
         {
-            Require.NotNull(consumerId, "consumerId");
+            Require.NotNull(readerId, "readerId");
             Require.NotEmpty(streamName, "streamName");
 
             return new EventStreamConsumingSession(
                streamName,
-               consumerId,
+               readerId,
                TimeSpan.FromMinutes(Constants.Settings.DEFAULT_SESSION_LOCK_TIMEOUT_MINUTES),
                m_sessionsBlob);
         }

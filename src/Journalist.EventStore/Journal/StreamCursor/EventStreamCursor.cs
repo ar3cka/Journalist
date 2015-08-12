@@ -7,9 +7,9 @@ namespace Journalist.EventStore.Journal.StreamCursor
     {
         public static readonly EventStreamCursor Empty = new EventStreamCursor();
 
+        private readonly StreamVersion m_cursorStreamVersion;
         private EventStreamSlice m_slice;
         private CursorState m_state;
-
 
         public EventStreamCursor(EventStreamPosition streamPosition, StreamVersion fromVersion, FetchEvents fetch)
         {
@@ -17,6 +17,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
 
             m_state = new InitialCursorState(streamPosition, fromVersion, fetch);
             m_slice = EventStreamSlice.Empty;
+            m_cursorStreamVersion = fromVersion;
         }
 
         private EventStreamCursor()
@@ -69,9 +70,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
         {
             get
             {
-                AssertCursorWasInitialized();
-
-                return m_slice.ToStreamVersion;
+                return m_cursorStreamVersion;
             }
         }
 

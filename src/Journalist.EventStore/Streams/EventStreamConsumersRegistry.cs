@@ -39,15 +39,6 @@ namespace Journalist.EventStore.Streams
             return await QueryConsumerId(consumerName);
         }
 
-        public async Task<bool> IsResistedAsync(EventStreamReaderId consumerId)
-        {
-            Require.NotNull(consumerId, "consumerId");
-
-            var consumerName = await QueryConsumerName(consumerId);
-
-            return consumerName != null;
-        }
-
         private async Task<EventStreamReaderId> QueryConsumerId(string consumerName)
         {
             var query = m_consumerMetadataTable.PrepareEntityPointQuery(
@@ -58,21 +49,6 @@ namespace Journalist.EventStore.Streams
 
             return EventStreamReaderId.Parse(
                 (string)result[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_ID]);
-        }
-
-        private async Task<string> QueryConsumerName(EventStreamReaderId consumerId)
-        {
-            var query = m_consumerMetadataTable.PrepareEntityPointQuery(
-                partitionKey: Constants.StorageEntities.MetadataTable.EVENT_STREAM_CONSUMERS_IDS_PK,
-                rowKey: consumerId.ToString());
-
-            var result = await query.ExecuteAsync();
-            if (result == null)
-            {
-                return null;
-            }
-
-            return (string)result[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_NAME];
         }
 
         private async Task InsertConsumerId(string consumerName, EventStreamReaderId consumerId)

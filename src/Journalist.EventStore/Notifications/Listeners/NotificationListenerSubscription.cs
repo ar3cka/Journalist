@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
-using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Streams;
 using Journalist.Extensions;
@@ -15,22 +14,18 @@ namespace Journalist.EventStore.Notifications.Listeners
     {
         private static readonly ILogger s_logger = Log.ForContext<NotificationListenerSubscription>();
 
-        private readonly EventStreamReaderId m_subscriptionConsumerId;
         private readonly INotificationsChannel m_notificationsChannel;
         private readonly INotificationListener m_listener;
         private readonly CountdownEvent m_processingCountdown;
         private IEventStoreConnection m_connection;
 
         public NotificationListenerSubscription(
-            EventStreamReaderId subscriptionConsumerId,
             INotificationsChannel notificationsChannel,
             INotificationListener listener)
         {
-            Require.NotNull(subscriptionConsumerId, "subscriptionConsumerId");
             Require.NotNull(notificationsChannel, "notificationsChannel");
             Require.NotNull(listener, "listener");
 
-            m_subscriptionConsumerId = subscriptionConsumerId;
             m_notificationsChannel = notificationsChannel;
             m_listener = listener;
             m_processingCountdown = new CountdownEvent(0);
@@ -42,7 +37,7 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             if (notification.IsAddressed)
             {
-                if (notification.IsAddressedTo(m_subscriptionConsumerId))
+                if (notification.IsAddressedTo(m_listener))
                 {
                     await ProcessNotificationAsync(notification);
                 }
@@ -80,7 +75,7 @@ namespace Journalist.EventStore.Notifications.Listeners
             Ensure.False(m_processingCountdown.IsSet, "Subscription is not activated.");
 
             return m_connection.CreateStreamConsumerAsync(config => config
-                .UseConsumerId(m_subscriptionConsumerId)
+                .WithName(GetConsumerId())
                 .ReadStream(streamName, readFromEnd)
                 .AutoCommitProcessedStreamPosition(false));
         }
@@ -91,7 +86,7 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             if (notification.DeliveryCount < Constants.Settings.DEFAULT_MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT)
             {
-                var retryNotification = notification.SendTo(m_subscriptionConsumerId);
+                var retryNotification = notification.SendTo(m_listener);
                 var deliverTimeout = TimeSpan.FromSeconds(
                     notification.DeliveryCount * Constants.Settings.DEFAULT_NOTIFICATION_RETRY_DELIVERY_TIMEOUT_MULTIPLYER_SEC);
 
@@ -99,12 +94,12 @@ namespace Journalist.EventStore.Notifications.Listeners
                 {
                     s_logger.Debug(
                         "Sending retry notification ({RetryNotificationId}, {NotificationType}) with timeout {Timeout} " +
-                        "to consumer {SubscriptionConsumerId}. " +
+                        "to consumer {ListenerType}. " +
                         "Source notification: {SourceNotificationId}.",
                         retryNotification.NotificationId,
                         retryNotification.NotificationType,
                         deliverTimeout.ToInvariantString(),
-                        m_subscriptionConsumerId,
+                        GetConsumerId(),
                         notification.NotificationId);
                 }
 
@@ -137,15 +132,15 @@ namespace Journalist.EventStore.Notifications.Listeners
                 }
                 else
                 {
-                    var redeliveredNotification = notification.RedeliverTo(m_subscriptionConsumerId);
+                    var redeliveredNotification = notification.RedeliverTo(m_listener);
 
                     s_logger.Warning(
                         "Trying to redeliver notification (RedeliverNotificationId}, {NotificationType}) " +
-                        "to consumer {SubscriptionConsumerId} because subscription is stopping. " +
+                        "to consumer {ListenerType} because subscription is stopping. " +
                         "Source notification: {SourceNotificationId}.",
                         redeliveredNotification.NotificationId,
                         redeliveredNotification.NotificationType,
-                        m_subscriptionConsumerId,
+                        GetConsumerId(),
                         notification.NotificationId);
 
                     await m_notificationsChannel.SendAsync(redeliveredNotification);
@@ -162,6 +157,11 @@ namespace Journalist.EventStore.Notifications.Listeners
                     m_processingCountdown.Signal();
                 }
             }
+        }
+
+        private string GetConsumerId()
+        {
+            return m_listener.GetType().FullName;
         }
     }
 }

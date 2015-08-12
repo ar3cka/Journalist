@@ -8,6 +8,8 @@ namespace Journalist.EventStore.Streams
     {
         Task ReadEventsAsync();
 
+        StreamVersion ReaderStreamVersion { get; }
+
         IReadOnlyList<JournaledEvent> Events { get; }
 
         bool HasEvents { get; }

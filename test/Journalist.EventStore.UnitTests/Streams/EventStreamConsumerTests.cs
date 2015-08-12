@@ -93,7 +93,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             await consumer.ReceiveEventsAsync(); // continues receiving and commits previous events
 
             Assert.Equal(1, commitStreamVersionMock.CallsCount);
-            Assert.Equal(reader.StreamVersion.Increment(reader.Events.Count), commitStreamVersionMock.CommitedVersion);
+            Assert.Equal(streamVersion.Increment(reader.Events.Count), commitStreamVersionMock.CommitedVersion);
         }
 
         [Theory]
@@ -160,6 +160,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             [Frozen] Mock<IEventStreamConsumingSession> sessionMock,
             EventStreamConsumer consumer)
         {
+            await consumer.ReceiveEventsAsync();
             await consumer.CloseAsync();
 
             sessionMock.Verify(self => self.FreeAsync(), Times.Once());

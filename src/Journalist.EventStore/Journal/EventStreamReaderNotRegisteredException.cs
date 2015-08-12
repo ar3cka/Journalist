@@ -8,7 +8,7 @@ namespace Journalist.EventStore.Journal
     public class EventStreamReaderNotRegisteredException : Exception
     {
         public EventStreamReaderNotRegisteredException(string streamName, EventStreamReaderId readerId)
-            : this("Stream \"{0}\" reader \"{0}\" has not been registered.".FormatString(streamName, readerId))
+            : this("Stream \"{0}\" reader \"{1}\" has not been registered.".FormatString(streamName, readerId))
         {
         }
 

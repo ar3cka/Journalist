@@ -57,7 +57,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             var consumer = await Connection.CreateStreamConsumerAsync(config => config
                 .ReadStream(StreamName, true)
-                .UseConsumerName(consumerName));
+                .WithName(consumerName));
 
             Assert.Equal(ReceivingResultCode.EmptyStream, await consumer.ReceiveEventsAsync());
         }
@@ -71,9 +71,15 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             var consumer = await Connection.CreateStreamConsumerAsync(config => config
                 .ReadStream(StreamName, true)
-                .UseConsumerName(consumerName));
+                .WithName(consumerName));
+
+            Assert.Equal(ReceivingResultCode.EmptyStream, await consumer.ReceiveEventsAsync());
 
             await PublishEventsAsync(dummyEvents);
+
+            consumer = await Connection.CreateStreamConsumerAsync(config => config
+                .ReadStream(StreamName, true)
+                .WithName(consumerName));
 
             Assert.Equal(ReceivingResultCode.EventsReceived, await consumer.ReceiveEventsAsync());
             Assert.Equal(dummyEvents, consumer.EnumerateEvents());
@@ -111,7 +117,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             var consumer = await Connection.CreateStreamConsumerAsync(config => config
                 .ReadStream(StreamName)
-                .UseConsumerName(consumerName)
+                .WithName(consumerName)
                 .AutoCommitProcessedStreamPosition(false));
 
             await consumer.ReceiveEventsAsync();
@@ -135,7 +141,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             var consumer = await Connection.CreateStreamConsumerAsync(config => config
                 .ReadStream(StreamName)
-                .UseConsumerName(consumerName)
+                .WithName(consumerName)
                 .AutoCommitProcessedStreamPosition(false));
 
             await consumer.ReceiveEventsAsync();

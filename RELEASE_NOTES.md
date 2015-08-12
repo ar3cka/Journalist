@@ -5,8 +5,12 @@
 * [WAZ.Storage][New] CloudTable expose and accept table continuation token.
 * [EventStore][Improvment] Consumer can start reading from the end of streams.
 * [EventStore][Improvment] Retry notification delivery timeout.
+* [EventStore][Improvment] Journal commit reader version methods skip update when version are equal.
 * [EventStore][Breaking] Notification listener starts reading stream from the end.
 * [EventStore][Breaking] EventJournal.ReadStreamReaderPositionAsync throw exception, if reader is not registered.
+* [EventStore][Breaking] Consumer creations methods with EventStreamConsumerId parameter were removed.
+* [EventStore][Breaking] Notifications address by listener type instead of consumer identifier.
+* [EventStore][Breaking] Journal commit reader version method throws when passed version is less then existing.
 * [EventStore][BugFix] Consumer initialize reader only in leader state.
 
 ### 0.8.3

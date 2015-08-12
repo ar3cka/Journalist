@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
-using Journalist.EventStore.Journal;
 using Journalist.EventStore.Streams;
 using Journalist.WindowsAzure.Storage;
 using Xunit;
@@ -33,23 +32,6 @@ namespace Journalist.EventStore.IntegrationTests.Streams
             var consumerId2 = await Registry.RegisterAsync(consumerName);
 
             Assert.Equal(consumerId1, consumerId2);
-        }
-
-        [Theory, AutoMoqData]
-        public async Task IsResistedAsync_WhenConsumerWasNotRegistered_ReturnsFalse(EventStreamReaderId consumerId)
-        {
-            var result = await Registry.IsResistedAsync(consumerId);
-
-            Assert.False(result);
-        }
-
-        [Theory, AutoMoqData]
-        public async Task IsResistedAsync_WhenConsumerWasRegistered_ReturnsTrue(string consumerName)
-        {
-            var consumerId = await Registry.RegisterAsync(consumerName);
-            var result = await Registry.IsResistedAsync(consumerId);
-
-            Assert.True(result);
         }
 
         public EventStreamConsumersRegistry Registry

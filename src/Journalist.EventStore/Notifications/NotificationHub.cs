@@ -1,14 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Connection;
-using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Timeouts;
-using Journalist.EventStore.Streams;
 using Journalist.Extensions;
 using Serilog;
 
@@ -18,10 +17,8 @@ namespace Journalist.EventStore.Notifications
     {
         private static readonly ILogger s_logger = Log.ForContext<NotificationHub>();
 
-        private readonly Dictionary<EventStreamReaderId, NotificationListenerSubscription> m_subscriptions = new Dictionary<EventStreamReaderId, NotificationListenerSubscription>();
-        private readonly Dictionary<INotificationListener, EventStreamReaderId> m_listenerSubscriptions = new Dictionary<INotificationListener, EventStreamReaderId>();
+        private readonly Dictionary<Type, NotificationListenerSubscription> m_subscriptions = new Dictionary<Type, NotificationListenerSubscription>();
         private readonly INotificationsChannel m_channel;
-        private readonly IEventStreamConsumersRegistry m_consumersRegistry;
         private readonly IPollingTimeout m_timeout;
 
         private CancellationTokenSource m_pollingCancellationToken;
@@ -29,17 +26,12 @@ namespace Journalist.EventStore.Notifications
         private int m_processingCount;
         private int m_maxProcessingCount;
 
-        public NotificationHub(
-            INotificationsChannel channel,
-            IEventStreamConsumersRegistry consumersRegistry,
-            IPollingTimeout timeout)
+        public NotificationHub(INotificationsChannel channel, IPollingTimeout timeout)
         {
             Require.NotNull(channel, "channel");
-            Require.NotNull(consumersRegistry, "consumersRegistry");
             Require.NotNull(timeout, "timeout");
 
             m_channel = channel;
-            m_consumersRegistry = consumersRegistry;
             m_timeout = timeout;
         }
 
@@ -54,17 +46,14 @@ namespace Journalist.EventStore.Notifications
         {
             Require.NotNull(listener, "listener");
 
-            var consumerId = RegisterEventListenerConsumer(listener);
-            m_subscriptions.Add(consumerId, new NotificationListenerSubscription(consumerId, m_channel, listener));
-            m_listenerSubscriptions.Add(listener, consumerId);
+            m_subscriptions.Add(listener.GetType(), new NotificationListenerSubscription(m_channel, listener));
         }
 
         public void Unsubscribe(INotificationListener listener)
         {
             Require.NotNull(listener, "listener");
 
-            var subscriptionId = m_listenerSubscriptions[listener];
-            m_subscriptions.Remove(subscriptionId);
+            m_subscriptions.Remove(listener.GetType());
         }
 
         public void StartNotificationProcessing(IEventStoreConnection connection)
@@ -107,12 +96,6 @@ namespace Journalist.EventStore.Notifications
                     subscription.Stop();
                 }
             }
-        }
-
-        private EventStreamReaderId RegisterEventListenerConsumer(INotificationListener listener)
-        {
-            return Task.Run(() =>
-                m_consumersRegistry.RegisterAsync(listener.GetType().FullName)).Result;
         }
 
         private async Task ProcessNotificationFromChannel(CancellationToken token)

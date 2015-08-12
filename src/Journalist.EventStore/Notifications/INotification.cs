@@ -1,16 +1,15 @@
 using System.IO;
-using Journalist.EventStore.Journal;
-using Journalist.EventStore.Streams;
+using Journalist.EventStore.Notifications.Listeners;
 
 namespace Journalist.EventStore.Notifications
 {
     public interface INotification
     {
-        bool IsAddressedTo(EventStreamReaderId consumerId);
+        bool IsAddressedTo(INotificationListener listener);
 
-        INotification SendTo(EventStreamReaderId consumerId);
+        INotification SendTo(INotificationListener listener);
 
-        INotification RedeliverTo(EventStreamReaderId consumerId);
+        INotification RedeliverTo(INotificationListener listener);
 
         void SaveTo(StreamWriter writer);
 
