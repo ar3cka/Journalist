@@ -14,8 +14,8 @@ namespace Journalist.EventStore.Journal
 
         Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName);
 
-        Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, string readerName);
+        Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, EventStreamReaderId readerId);
 
-        Task CommitStreamReaderPositionAsync(string streamName, string readerName, StreamVersion version);
+        Task CommitStreamReaderPositionAsync(string streamName, EventStreamReaderId readerId, StreamVersion version);
     }
 }

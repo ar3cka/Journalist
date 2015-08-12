@@ -25,7 +25,7 @@ namespace Journalist.EventStore.Journal
 
         public override string ToString()
         {
-            return m_value.ToString("N").ToUpperInvariant();
+            return m_value.ToString("N");
         }
 
         public bool Equals(EventStreamReaderId other)

@@ -110,22 +110,22 @@ namespace Journalist.EventStore.Connection
 
             m_connectionState.EnsureConnectionIsActive();
 
-            var consumerId = await EnsureConsumerIsRegistered(configuration);
+            var readerId = await EnsureReaderIsRegistered(configuration);
 
             var streamPosition = await m_journal.ReadEndOfStreamPositionAsync(configuration.StreamName);
-            var readerVersion = await m_journal.ReadStreamReaderPositionAsync(configuration.StreamName, consumerId.ToString());
+            var readerVersion = await m_journal.ReadStreamReaderPositionAsync(configuration.StreamName, readerId);
 
             var session = m_sessionFactory.CreateSession(
-                consumerId: consumerId,
+                consumerId: readerId,
                 streamName: configuration.StreamName);
 
             Func<StreamVersion, Task> commitReaderVersion = currentVersion => m_journal.CommitStreamReaderPositionAsync(
                 streamName: configuration.StreamName,
-                readerName: consumerId.ToString(),
+                readerId: readerId,
                 version: currentVersion);
 
             return new EventStreamConsumer(
-                consumerId: consumerId,
+                consumerId: readerId,
                 session: session,
                 readerFactory: new EventStreamConsumerStreamReaderFactory(
                     connection: this,
@@ -165,7 +165,7 @@ namespace Journalist.EventStore.Connection
             m_connectionState.ChangeToClosed();
         }
 
-        private async Task<EventStreamReaderId> EnsureConsumerIsRegistered(EventStreamConsumerConfiguration configuration)
+        private async Task<EventStreamReaderId> EnsureReaderIsRegistered(EventStreamConsumerConfiguration configuration)
         {
             EventStreamReaderId consumerId;
             if (configuration.ConsumerRegistrationRequired)

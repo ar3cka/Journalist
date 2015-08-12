@@ -104,14 +104,14 @@ namespace Journalist.EventStore.Journal
             return new EventStreamPosition(timestamp, version);
         }
 
-        public async Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, string readerName)
+        public async Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, EventStreamReaderId readerId)
         {
             Require.NotEmpty(streamName, "streamName");
-            Require.NotEmpty(readerName, "readerName");
+            Require.NotNull(readerId, "readerId");
 
             var referenceRow = await ReadReferenceRowHeadAsync(
                 streamName,
-                "RDR_" + readerName);
+                "RDR_" + readerId);
 
             if (referenceRow == null)
             {
@@ -123,22 +123,24 @@ namespace Journalist.EventStore.Journal
 
         public async Task CommitStreamReaderPositionAsync(
             string streamName,
-            string readerName,
+            EventStreamReaderId readerId,
             StreamVersion readerVersion)
         {
             Require.NotEmpty(streamName, "streamName");
-            Require.NotEmpty(readerName, "readerName");
+            Require.NotNull(readerId, "readerId");
+
+            var rowKey = "RDR_" + readerId;
 
             var referenceRow = await ReadReferenceRowHeadAsync(
                 streamName,
-                "RDR_" + readerName);
+                rowKey);
 
             var operation = m_table.PrepareBatchOperation();
             if (referenceRow == null)
             {
                 operation.Insert(
                     streamName,
-                    "RDR_" + readerName,
+                    rowKey,
                     new Dictionary<string, object>
                     {
                         { EventJournalTableRowPropertyNames.Version, (int)readerVersion }
@@ -148,7 +150,7 @@ namespace Journalist.EventStore.Journal
             {
                 operation.Merge(
                     streamName,
-                    "RDR_" + readerName,
+                    rowKey,
                     (string)referenceRow[KnownProperties.ETag],
                     new Dictionary<string, object>
                     {
