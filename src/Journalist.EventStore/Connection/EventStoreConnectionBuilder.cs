@@ -96,7 +96,7 @@ namespace Journalist.EventStore.Connection
 
             return new EventStoreConnection(
                 connectivityState,
-                new EventJournal(journalTable),
+                new EventJournal(new EventJournalTable(journalTable)),
                 notificationHub,
                 consumersRegistry,
                 sessionFactory,
