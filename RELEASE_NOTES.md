@@ -1,5 +1,6 @@
 ### 0.8.5
-* [EventStore][Improvment] Caching data in EventJournalReaders and EventStreamConsumers
+* [EventStore][Improvment] Caching data in EventJournalReaders and EventStreamConsumers.
+* [WAZ.Storage][BugFix] Support for Boolean, DateTimeOffset properties in table storage.
 
 ### 0.8.4
 * [EventStore][New] EventJournal support reader streams.
