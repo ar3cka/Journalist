@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Journalist.Collections;
@@ -221,6 +222,34 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
             var query = table.PrepareEntityPointQuery(partition, row);
 
             Assert.Null(await query.ExecuteAsync());
+        }
+
+        [InlineData(1)]
+        [InlineData(1L)]
+        [InlineData("1")]
+        [InlineData(true)]
+        [Theory]
+        public async Task PropertyTest<T>(T data)
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
+            var partition = Guid.NewGuid().ToString();
+            var row = Guid.NewGuid().ToString();
+
+            var operation = table.PrepareBatchOperation();
+            operation.Insert(
+                partition,
+                row,
+                new Dictionary<string, object>
+                {
+                    { "a", data }
+                });
+
+            await operation.ExecuteAsync();
+
+            var query = table.PrepareEntityPointQuery(partition, row);
+            var result = await query.ExecuteAsync();
+
+            Assert.Equal(data, result["a"]);
         }
 
         private static async Task InsertValues(ICloudTable table, string partition)
