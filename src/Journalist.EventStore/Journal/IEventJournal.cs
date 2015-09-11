@@ -6,7 +6,7 @@ namespace Journalist.EventStore.Journal
 {
     public interface IEventJournal
     {
-        Task<EventStreamPosition> AppendEventsAsync(string streamName, EventStreamPosition position, IReadOnlyCollection<JournaledEvent> events);
+        Task<EventStreamHeader> AppendEventsAsync(string streamName, EventStreamHeader header, IReadOnlyCollection<JournaledEvent> events);
 
         Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize);
 
@@ -14,7 +14,7 @@ namespace Journalist.EventStore.Journal
 
         Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, EventStreamReaderId readerId, int sliceSize);
 
-        Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName);
+        Task<EventStreamHeader> ReadEndOfStreamPositionAsync(string streamName);
 
         Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, EventStreamReaderId readerId);
 

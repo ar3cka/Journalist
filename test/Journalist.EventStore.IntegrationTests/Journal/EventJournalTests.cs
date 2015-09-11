@@ -27,7 +27,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         public async Task AppendEventsAsync_WriteEventsToEndOfStream()
         {
             // arrange
-            var position = EventStreamPosition.Unknown;
+            var position = EventStreamHeader.Unknown;
 
             // act
             position = await AppendEventsAsync(batchNumber: 3);
@@ -40,10 +40,10 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         public async Task AppendEventsAsync_WhenAppendingToStartPositionTwice_Throw()
         {
             // act
-            await AppendEventsAsync(position: EventStreamPosition.Unknown);
+            await AppendEventsAsync(header: EventStreamHeader.Unknown);
 
             await Assert.ThrowsAsync<EventStreamConcurrencyException>(
-                async () => await AppendEventsAsync(position: EventStreamPosition.Unknown));
+                async () => await AppendEventsAsync(header: EventStreamHeader.Unknown));
         }
 
         [Fact]
@@ -53,9 +53,9 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             var position = await AppendEventsAsync();
 
             // act
-            await AppendEventsAsync(position: position);
+            await AppendEventsAsync(header: position);
 
-           await Assert.ThrowsAsync<EventStreamConcurrencyException>(async () => await AppendEventsAsync(position: position));
+           await Assert.ThrowsAsync<EventStreamConcurrencyException>(async () => await AppendEventsAsync(header: position));
         }
 
         [Fact]
@@ -71,14 +71,14 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             Assert.Equal(200, events.Count);
         }
 
-        private async Task<EventStreamPosition> AppendEventsAsync(
-            EventStreamPosition position,
+        private async Task<EventStreamHeader> AppendEventsAsync(
+            EventStreamHeader header,
             int batchSize = EVENTS_COUNT,
             int batchNumber = BATCH_NUMBER)
         {
             var batches = PrepareBatch(batchSize, batchNumber);
 
-            var currentPosition = position;
+            var currentPosition = header;
             while (batches.Any())
             {
                 currentPosition = await Journal.AppendEventsAsync(StreamName, currentPosition, batches.Dequeue());
@@ -87,7 +87,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             return currentPosition;
         }
 
-        private async Task<EventStreamPosition> AppendEventsAsync(
+        private async Task<EventStreamHeader> AppendEventsAsync(
             int batchSize = EVENTS_COUNT,
             int batchNumber = BATCH_NUMBER)
         {

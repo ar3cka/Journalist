@@ -22,23 +22,23 @@ namespace Journalist.EventStore.Journal
             m_table = table;
         }
 
-        public async Task<EventStreamPosition> AppendEventsAsync(
+        public async Task<EventStreamHeader> AppendEventsAsync(
             string streamName,
-            EventStreamPosition position,
+            EventStreamHeader header,
             IReadOnlyCollection<JournaledEvent> events)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(events, "events");
 
-            var targetVersion = position.Version.Increment(events.Count);
+            var targetVersion = header.Version.Increment(events.Count);
             try
             {
                 var result = await m_table.InsertEventsAsync(
                     streamName,
-                    position,
+                    header,
                     events);
 
-                return new EventStreamPosition(result.ETag, targetVersion);
+                return new EventStreamHeader(result.ETag, targetVersion);
             }
             catch (BatchOperationException exception)
             {
@@ -59,7 +59,7 @@ namespace Journalist.EventStore.Journal
             Require.Positive(sliceSize, "sliceSize");
 
             var position = await ReadEndOfStreamPositionAsync(streamName);
-            if (EventStreamPosition.IsNewStream(position))
+            if (EventStreamHeader.IsNewStream(position))
             {
                 return EventStreamCursor.Empty;
             }
@@ -106,20 +106,20 @@ namespace Journalist.EventStore.Journal
                 from => m_table.FetchStreamEvents(streamName, from, position.Version, sliceSize));
         }
 
-        public async Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName)
+        public async Task<EventStreamHeader> ReadEndOfStreamPositionAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 
             var headProperties = await m_table.ReadStreamHeadPropertiesAsync(streamName);
             if (headProperties == null)
             {
-                return EventStreamPosition.Unknown;
+                return EventStreamHeader.Unknown;
             }
 
             var timestamp = (string)headProperties[EventJournalTableRowPropertyNames.ETag];
             var version = StreamVersion.Create((int)headProperties[EventJournalTableRowPropertyNames.Version]);
 
-            return new EventStreamPosition(timestamp, version);
+            return new EventStreamHeader(timestamp, version);
         }
 
         public async Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, EventStreamReaderId readerId)

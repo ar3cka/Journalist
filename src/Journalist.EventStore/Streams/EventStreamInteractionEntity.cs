@@ -20,10 +20,10 @@ namespace Journalist.EventStore.Streams
 
         public StreamVersion StreamVersion
         {
-            get { return StreamPosition.Version; }
+            get { return StreamHeader.Version; }
         }
 
-        public abstract EventStreamPosition StreamPosition
+        public abstract EventStreamHeader StreamHeader
         {
             get;
         }

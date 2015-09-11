@@ -8,25 +8,25 @@ namespace Journalist.EventStore.Journal.StreamCursor
 
     public class FetchEventsResult
     {
-        private readonly EventStreamPosition m_streamPosition;
+        private readonly EventStreamHeader m_streamHeader;
         private readonly SortedList<StreamVersion, JournaledEvent> m_events;
 
-        public FetchEventsResult(EventStreamPosition streamPosition, SortedList<StreamVersion, JournaledEvent> events)
+        public FetchEventsResult(EventStreamHeader streamHeader, SortedList<StreamVersion, JournaledEvent> events)
         {
             Require.NotNull(events, "events");
 
-            m_streamPosition = streamPosition;
+            m_streamHeader = streamHeader;
             m_events = events;
         }
 
         public StreamVersion SteamVersion
         {
-            get { return m_streamPosition.Version; }
+            get { return m_streamHeader.Version; }
         }
 
-        public EventStreamPosition StreamPosition
+        public EventStreamHeader StreamHeader
         {
-            get { return m_streamPosition; }
+            get { return m_streamHeader; }
         }
 
         public SortedList<StreamVersion, JournaledEvent> Events

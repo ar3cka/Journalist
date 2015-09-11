@@ -9,7 +9,7 @@ namespace Journalist.EventStore.Journal
 
         IEventStreamSlice Slice { get; }
 
-        EventStreamPosition StreamPosition { get; }
+        EventStreamHeader StreamHeader { get; }
 
         StreamVersion StreamVersion { get; }
 

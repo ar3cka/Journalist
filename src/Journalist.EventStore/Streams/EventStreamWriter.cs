@@ -16,12 +16,12 @@ namespace Journalist.EventStore.Streams
         private readonly IEventMutationPipeline m_mutationPipeline;
         private readonly INotificationHub m_notificationHub;
 
-        private EventStreamPosition m_endOfStream;
+        private EventStreamHeader m_endOfStream;
 
         public EventStreamWriter(
             string streamName,
             IEventStoreConnectionState connectionState,
-            EventStreamPosition endOfStream,
+            EventStreamHeader endOfStream,
             IEventJournal journal,
             IEventMutationPipeline mutationPipeline,
             INotificationHub notificationHub) : base(streamName, connectionState)
@@ -67,7 +67,7 @@ namespace Journalist.EventStore.Streams
             m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(StreamName);
         }
 
-        public override EventStreamPosition StreamPosition
+        public override EventStreamHeader StreamHeader
         {
             get { return m_endOfStream; }
         }

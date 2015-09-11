@@ -16,7 +16,7 @@ namespace Journalist.EventStore.Journal
 
         Task UpdateStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId, StreamVersion version, string etag);
 
-        Task<OperationResult> InsertEventsAsync(string streamName, EventStreamPosition position, IReadOnlyCollection<JournaledEvent> events);
+        Task<OperationResult> InsertEventsAsync(string streamName, EventStreamHeader header, IReadOnlyCollection<JournaledEvent> events);
 
         Task<FetchEventsResult> FetchStreamEvents(string stream, StreamVersion fromVersion, StreamVersion toVersion, int sliceSize);
     }

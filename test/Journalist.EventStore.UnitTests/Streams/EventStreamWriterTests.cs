@@ -20,7 +20,7 @@ namespace Journalist.EventStore.UnitTests.Streams
     {
         [Theory, EventStreamWriterData]
         public async Task AppendEvents_AppendEventsToJournal(
-            [Frozen] EventStreamPosition position,
+            [Frozen] EventStreamHeader header,
             [Frozen] Mock<IEventJournal> journalMock,
             EventStreamWriter writer,
             JournaledEvent[] events)
@@ -29,7 +29,7 @@ namespace Journalist.EventStore.UnitTests.Streams
 
             journalMock.Verify(journal => journal.AppendEventsAsync(
                 writer.StreamName,
-                position,
+                header,
                 It.Is<IReadOnlyCollection<JournaledEvent>>(e => e.Count == events.Length)));
         }
 
@@ -92,7 +92,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             journalMock.Verify(
                 self => self.AppendEventsAsync(
                     It.IsAny<string>(),
-                    It.IsAny<EventStreamPosition>(),
+                    It.IsAny<EventStreamHeader>(),
                     mutatedEvents));
         }
 
@@ -117,28 +117,28 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory, EventStreamWriterData]
-        public void StreamPosition_ReturnsStreamVersionValue([Frozen] EventStreamPosition position, EventStreamWriter writer)
+        public void StreamPosition_ReturnsStreamVersionValue([Frozen] EventStreamHeader header, EventStreamWriter writer)
         {
-            Assert.Equal(position.Version, writer.StreamVersion);
+            Assert.Equal(header.Version, writer.StreamVersion);
         }
 
         [Theory, EventStreamWriterData]
         public async Task StreamPosition_AfterWriteAsyncCall_UpdatedStreamVersionValue(
             [Frozen] Mock<IEventJournal> journalMock,
-            EventStreamPosition position,
+            EventStreamHeader header,
             EventStreamWriter writer,
             JournaledEvent[] events)
         {
             journalMock
                 .Setup(self => self.AppendEventsAsync(
                     It.IsAny<string>(),
-                    It.IsAny<EventStreamPosition>(),
+                    It.IsAny<EventStreamHeader>(),
                     It.IsAny<IReadOnlyCollection<JournaledEvent>>()))
-                .Returns(position.YieldTask());
+                .Returns(header.YieldTask());
 
             await writer.AppendEventsAsync(events);
 
-            Assert.Equal(position.Version, writer.StreamVersion);
+            Assert.Equal(header.Version, writer.StreamVersion);
         }
     }
 }

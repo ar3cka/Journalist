@@ -3,14 +3,14 @@ using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Journal
 {
-    public struct EventStreamPosition : IEquatable<EventStreamPosition>
+    public struct EventStreamHeader : IEquatable<EventStreamHeader>
     {
-        public static readonly EventStreamPosition Unknown = new EventStreamPosition(string.Empty, StreamVersion.Unknown);
+        public static readonly EventStreamHeader Unknown = new EventStreamHeader(string.Empty, StreamVersion.Unknown);
 
         private readonly string m_etag;
         private readonly StreamVersion m_version;
 
-        public EventStreamPosition(string etag, StreamVersion version)
+        public EventStreamHeader(string etag, StreamVersion version)
         {
             Require.NotNull(etag, "etag");
 
@@ -18,12 +18,12 @@ namespace Journalist.EventStore.Journal
             m_version = version;
         }
 
-        public static bool IsNewStream(EventStreamPosition position)
+        public static bool IsNewStream(EventStreamHeader header)
         {
-            return StreamVersion.IsUnknown(position.Version);
+            return StreamVersion.IsUnknown(header.Version);
         }
 
-        public bool Equals(EventStreamPosition other)
+        public bool Equals(EventStreamHeader other)
         {
             return string.Equals(m_etag, other.m_etag) && m_version.Equals(other.m_version);
         }
@@ -35,7 +35,7 @@ namespace Journalist.EventStore.Journal
                 return false;
             }
 
-            return obj is EventStreamPosition && Equals((EventStreamPosition) obj);
+            return obj is EventStreamHeader && Equals((EventStreamHeader) obj);
         }
 
         public override int GetHashCode()
@@ -46,12 +46,12 @@ namespace Journalist.EventStore.Journal
             }
         }
 
-        public static bool operator ==(EventStreamPosition left, EventStreamPosition right)
+        public static bool operator ==(EventStreamHeader left, EventStreamHeader right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(EventStreamPosition left, EventStreamPosition right)
+        public static bool operator !=(EventStreamHeader left, EventStreamHeader right)
         {
             return !left.Equals(right);
         }

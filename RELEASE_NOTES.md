@@ -1,5 +1,6 @@
 ### 0.9.0
 * [EventStore][Breaking] Move StreamVersion to the Events namespace.
+* [EventStore][Breaking] Rename EventStreamPosition to EventStreamHeader.
 
 ### 0.8.5
 * [EventStore][Improvment] Caching data in EventJournalReaders and EventStreamConsumers.

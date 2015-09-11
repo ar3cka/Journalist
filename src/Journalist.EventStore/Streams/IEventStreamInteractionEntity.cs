@@ -9,7 +9,7 @@ namespace Journalist.EventStore.Streams
 
         StreamVersion StreamVersion { get; }
 
-        EventStreamPosition StreamPosition { get; }
+        EventStreamHeader StreamHeader { get; }
 
         bool IsClosed { get; }
     }

@@ -68,11 +68,11 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public override EventStreamPosition StreamPosition
+        public override EventStreamHeader StreamHeader
         {
             get
             {
-                return m_streamCursor.StreamPosition;
+                return m_streamCursor.StreamHeader;
             }
         }
 

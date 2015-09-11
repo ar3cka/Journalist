@@ -5,7 +5,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
 {
     public class EndOfStreamCursorState : CursorState
     {
-        public EndOfStreamCursorState(EventStreamPosition streamPosition) : base(streamPosition)
+        public EndOfStreamCursorState(EventStreamHeader streamHeader) : base(streamHeader)
         {
         }
 

@@ -63,7 +63,7 @@ namespace Journalist.EventStore.Journal
 
         public async Task<OperationResult> InsertEventsAsync(
             string streamName,
-            EventStreamPosition position,
+            EventStreamHeader header,
             IReadOnlyCollection<JournaledEvent> events)
         {
             Require.NotEmpty(streamName, "streamName");
@@ -71,9 +71,9 @@ namespace Journalist.EventStore.Journal
 
             var batch = m_table.PrepareBatchOperation();
 
-            var targetVersion = position.Version.Increment(events.Count);
-            WriteHeadProperty(streamName, position, (int)targetVersion, batch);
-            WriteEvents(streamName, position.Version, events, batch);
+            var targetVersion = header.Version.Increment(events.Count);
+            WriteHeadProperty(streamName, header, (int)targetVersion, batch);
+            WriteEvents(streamName, header.Version, events, batch);
 
             var batchResult = await batch.ExecuteAsync();
             return batchResult[0];
@@ -104,13 +104,13 @@ namespace Journalist.EventStore.Journal
             var queryResult = await query.ExecuteAsync();
 
             var events = new SortedList<StreamVersion, JournaledEvent>(sliceSize);
-            var streamPosition = EventStreamPosition.Unknown;
+            var streamPosition = EventStreamHeader.Unknown;
             foreach (var properties in queryResult)
             {
                 var rowKey = (string)properties[KnownProperties.RowKey];
                 if (rowKey.EqualsCi("HEAD"))
                 {
-                    streamPosition = new EventStreamPosition(
+                    streamPosition = new EventStreamHeader(
                         (string)properties[KnownProperties.ETag],
                         StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]));
                 }
@@ -135,20 +135,20 @@ namespace Journalist.EventStore.Journal
             return headProperties;
         }
 
-        private static void WriteHeadProperty(string stream, EventStreamPosition position, int targetVersion, IBatchOperation batch)
+        private static void WriteHeadProperty(string stream, EventStreamHeader header, int targetVersion, IBatchOperation batch)
         {
             var headProperties = new Dictionary<string, object>
             {
                 {EventJournalTableRowPropertyNames.Version, targetVersion}
             };
 
-            if (EventStreamPosition.IsNewStream(position))
+            if (EventStreamHeader.IsNewStream(header))
             {
                 batch.Insert(stream, "HEAD", headProperties);
             }
             else
             {
-                batch.Merge(stream, "HEAD", position.ETag, headProperties);
+                batch.Merge(stream, "HEAD", header.ETag, headProperties);
             }
         }
 
