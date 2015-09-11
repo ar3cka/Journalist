@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using Journalist.EventStore.Events;
+using Xunit;
 
 namespace Journalist.EventStore.UnitTests
 {

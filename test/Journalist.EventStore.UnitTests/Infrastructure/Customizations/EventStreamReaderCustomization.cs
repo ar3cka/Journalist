@@ -1,3 +1,4 @@
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Streams;
 using Journalist.Tasks;
 using Moq;

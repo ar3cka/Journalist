@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Journal
 {

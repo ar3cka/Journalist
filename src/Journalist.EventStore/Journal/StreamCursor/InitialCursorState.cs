@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Journal.StreamCursor

@@ -1,4 +1,5 @@
 using Journalist.EventStore.Connection;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams

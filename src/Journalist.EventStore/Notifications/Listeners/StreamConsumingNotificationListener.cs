@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 using Serilog;

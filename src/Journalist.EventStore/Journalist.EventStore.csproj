@@ -68,6 +68,7 @@
     <Compile Include="Events\Mutation\IEventMutationPipelineFactory.cs" />
     <Compile Include="Events\Mutation\IEventMutator.cs" />
     <Compile Include="Connection\IEventStoreConnection.cs" />
+    <Compile Include="Events\StreamVersion.cs" />
     <Compile Include="Journal\EventJournal.cs" />
     <Compile Include="Journal\EventJournalExtensions.cs" />
     <Compile Include="Journal\EventJournalReaders.cs" />
@@ -133,7 +134,6 @@
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
     <Compile Include="Streams\ReceivingResultCode.cs" />
-    <Compile Include="StreamVersion.cs" />
     <Compile Include="Utils\IRetryPolicy.cs" />
     <Compile Include="Utils\RetryPolicy.cs" />
   </ItemGroup>

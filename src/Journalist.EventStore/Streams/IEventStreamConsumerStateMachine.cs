@@ -1,3 +1,5 @@
+using Journalist.EventStore.Events;
+
 namespace Journalist.EventStore.Streams
 {
     public interface IEventStreamConsumerStateMachine

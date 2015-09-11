@@ -1,4 +1,5 @@
 using System;
+using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Streams
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Journalist.EventStore
+namespace Journalist.EventStore.Events
 {
     public struct StreamVersion : IEquatable<StreamVersion>, IComparable<StreamVersion>
     {

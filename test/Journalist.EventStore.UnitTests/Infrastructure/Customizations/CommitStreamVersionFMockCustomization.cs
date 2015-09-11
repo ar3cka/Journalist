@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Ploeh.AutoFixture;
 

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 using Journalist.Tasks;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.Stubs

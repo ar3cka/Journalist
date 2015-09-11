@@ -1,3 +1,6 @@
+### 0.9.0
+* [EventStore][Breaking] Move StreamVersion to the Events namespace.
+
 ### 0.8.5
 * [EventStore][Improvment] Caching data in EventJournalReaders and EventStreamConsumers.
 * [WAZ.Storage][BugFix] Support for Boolean, DateTimeOffset properties in table storage.
