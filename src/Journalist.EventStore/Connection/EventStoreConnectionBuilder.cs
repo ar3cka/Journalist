@@ -2,6 +2,7 @@ using System;
 using Journalist.EventStore.Configuration;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
+using Journalist.EventStore.Journal.Persistence;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;

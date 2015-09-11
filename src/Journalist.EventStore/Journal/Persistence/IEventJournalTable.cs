@@ -4,7 +4,7 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal.StreamCursor;
 using Journalist.WindowsAzure.Storage.Tables;
 
-namespace Journalist.EventStore.Journal
+namespace Journalist.EventStore.Journal.Persistence
 {
     public interface IEventJournalTable
     {

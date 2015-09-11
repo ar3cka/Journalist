@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
+using Journalist.EventStore.Journal.Persistence;
 using Journalist.WindowsAzure.Storage;
 using Ploeh.AutoFixture;
 using Xunit;

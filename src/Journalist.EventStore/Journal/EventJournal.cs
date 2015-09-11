@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Journal.Persistence;
 using Journalist.EventStore.Journal.StreamCursor;
 using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
