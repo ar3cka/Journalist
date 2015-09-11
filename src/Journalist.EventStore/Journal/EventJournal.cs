@@ -31,15 +31,12 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(events, "events");
 
-            var targetVersion = header.Version.Increment(events.Count);
             try
             {
-                var result = await m_table.InsertEventsAsync(
-                    streamName,
-                    header,
-                    events);
+                var operation = m_table.CreateAppendOperation(streamName, header);
+                operation.Prepare(events);
 
-                return new EventStreamHeader(result.ETag, targetVersion);
+                return await operation.ExecuteAsync();
             }
             catch (BatchOperationException exception)
             {

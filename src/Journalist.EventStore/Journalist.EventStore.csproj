@@ -73,7 +73,6 @@
     <Compile Include="Journal\EventJournalExtensions.cs" />
     <Compile Include="Journal\EventJournalReaders.cs" />
     <Compile Include="Journal\EventJournalTableRowPropertyNames.cs" />
-    <Compile Include="Journal\EventStreamAppendOperationFailedException.cs" />
     <Compile Include="Journal\EventStreamConcurrencyException.cs" />
     <Compile Include="Journal\EventStreamHeader.cs" />
     <Compile Include="Journal\EventStreamReaderNotRegisteredException.cs" />
@@ -83,6 +82,7 @@
     <Compile Include="Journal\IEventStreamSlice.cs" />
     <Compile Include="Journal\Persistence\EventJournalTable.cs" />
     <Compile Include="Journal\Persistence\IEventJournalTable.cs" />
+    <Compile Include="Journal\Persistence\Operations\AppendOperation.cs" />
     <Compile Include="Journal\StreamCursor\CursorState.cs" />
     <Compile Include="Journal\StreamCursor\EndOfStreamCursorState.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursor.cs" />

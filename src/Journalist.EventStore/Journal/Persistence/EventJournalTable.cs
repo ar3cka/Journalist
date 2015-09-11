@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Journal.Persistence.Operations;
 using Journalist.EventStore.Journal.StreamCursor;
 using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
@@ -18,6 +18,11 @@ namespace Journalist.EventStore.Journal.Persistence
             Require.NotNull(table, "table");
 
             m_table = table;
+        }
+
+        public AppendOperation CreateAppendOperation(string streamName, EventStreamHeader header)
+        {
+            return new AppendOperation(m_table, streamName, header);
         }
 
         public Task<IDictionary<string, object>> ReadStreamHeadPropertiesAsync(string streamName)
@@ -59,24 +64,6 @@ namespace Journalist.EventStore.Journal.Persistence
                 });
 
             await operation.ExecuteAsync();
-        }
-
-        public async Task<OperationResult> InsertEventsAsync(
-            string streamName,
-            EventStreamHeader header,
-            IReadOnlyCollection<JournaledEvent> events)
-        {
-            Require.NotEmpty(streamName, "streamName");
-            Require.NotEmpty(events, "events");
-
-            var batch = m_table.PrepareBatchOperation();
-
-            var targetVersion = header.Version.Increment(events.Count);
-            WriteHeadProperty(streamName, header, (int)targetVersion, batch);
-            WriteEvents(streamName, header.Version, events, batch);
-
-            var batchResult = await batch.ExecuteAsync();
-            return batchResult[0];
         }
 
         public async Task<FetchEventsResult> FetchStreamEvents(
@@ -133,42 +120,6 @@ namespace Journalist.EventStore.Journal.Persistence
             var headProperties = await query.ExecuteAsync();
 
             return headProperties;
-        }
-
-        private static void WriteHeadProperty(string stream, EventStreamHeader header, int targetVersion, IBatchOperation batch)
-        {
-            var headProperties = new Dictionary<string, object>
-            {
-                {EventJournalTableRowPropertyNames.Version, targetVersion}
-            };
-
-            if (EventStreamHeader.IsNewStream(header))
-            {
-                batch.Insert(stream, "HEAD", headProperties);
-            }
-            else
-            {
-                batch.Merge(stream, "HEAD", header.ETag, headProperties);
-            }
-        }
-
-        private static void WriteEvents(string stream, StreamVersion version, IEnumerable<JournaledEvent> events, IBatchOperation batch)
-        {
-            var currentVersion = version;
-            foreach (var journaledEvent in events)
-            {
-                currentVersion = currentVersion.Increment(1);
-
-                // InsertOrReplace is faster then Insert operation, because storage engine
-                // can skip etag checking.
-                batch.InsertOrReplace(stream, currentVersion.ToString(), journaledEvent.ToDictionary());
-            }
-        }
-
-        private static bool IsConcurrencyException(BatchOperationException exception)
-        {
-            return exception.HttpStatusCode == HttpStatusCode.Conflict ||         // Inserting twice HEAD record.
-                   exception.HttpStatusCode == HttpStatusCode.PreconditionFailed; // Stream concurrent update occured. Head ETag header was changed.
         }
     }
 }
