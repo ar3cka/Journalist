@@ -2,28 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Journalist.Collections;
 using Journalist.EventStore.Events;
 using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Journal.Persistence.Operations
 {
-    public class AppendOperation : IStreamOperation<EventStreamHeader>
+    public class AppendOperation : JournalTableOperation, IStreamOperation<EventStreamHeader>
     {
-        private readonly ICloudTable m_table;
-        private readonly string m_streamName;
         private readonly EventStreamHeader m_header;
-
-        private IBatchOperation m_operation;
         private StreamVersion m_targetVersion;
 
         public AppendOperation(ICloudTable table, string streamName, EventStreamHeader header)
+            : base(table, streamName)
         {
-            Require.NotNull(table, "table");
-            Require.NotEmpty(streamName, "steamName");
-
-            m_table = table;
-            m_streamName = streamName;
             m_header = header;
         }
 
@@ -31,8 +24,7 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
         {
             Require.NotNull(events, "events");
 
-            m_operation = m_table.PrepareBatchOperation();
-
+            PrepareBatchOperation();
             IncrementStreamVersion(events);
             UpdateHead();
             AppendEvents(events);
@@ -41,13 +33,9 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
 
         public async Task<EventStreamHeader> ExecuteAsync()
         {
-            Ensure.True(m_operation != null, "Operation was not prepared.");
+            var batchResult = await ExecuteBatchOperationAsync();
 
-            var batchResult = await m_operation.ExecuteAsync();
-
-            return new EventStreamHeader(
-                batchResult[0].ETag,
-                m_targetVersion);
+            return new EventStreamHeader(batchResult[0].ETag, m_targetVersion);
         }
 
         public void Handle(Exception exception)
@@ -59,7 +47,7 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
                     IsConcurrencyException(batchOperationException))
                 {
                     throw new EventStreamConcurrencyException(
-                        "Event stream '{0}' was concurrently updated.".FormatString(m_streamName),
+                        "Event stream '{0}' was concurrently updated.".FormatString(StreamName),
                         exception);
                 }
             }
@@ -79,11 +67,11 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
 
             if (EventStreamHeader.IsNewStream(m_header))
             {
-                m_operation.Insert(m_streamName, "HEAD", headProperties);
+                Insert("HEAD", headProperties);
             }
             else
             {
-                m_operation.Merge(m_streamName, "HEAD", m_header.ETag, headProperties);
+                Merge("HEAD", m_header.ETag, headProperties);
             }
         }
 
@@ -94,16 +82,13 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             {
                 currentVersion = currentVersion.Increment(1);
 
-                m_operation.Insert(
-                    m_streamName,
-                    currentVersion.ToString(),
-                    journaledEvent.ToDictionary());
+                Insert(currentVersion.ToString(), journaledEvent.ToDictionary());
             }
         }
 
         private void AppendUnpublishedVersionRecord()
         {
-           m_operation.Insert(m_streamName, "PNDNTF|" + m_targetVersion);
+            Insert("PNDNTF|" + m_targetVersion, EmptyDictionary.Get<string, object>());
         }
 
         private static bool IsConcurrencyException(BatchOperationException exception)
