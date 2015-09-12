@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Journalist.Collections;
 using Journalist.EventStore.Events;
 using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Journal.Persistence.Operations
 {
-    public class AppendOperation : JournalTableOperation, IStreamOperation<EventStreamHeader>
+    public class AppendOperation : JournalTableOperation<EventStreamHeader>
     {
         private readonly EventStreamHeader m_header;
         private StreamVersion m_targetVersion;
@@ -31,14 +30,14 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             AppendUnpublishedVersionRecord();
         }
 
-        public async Task<EventStreamHeader> ExecuteAsync()
+        public async override Task<EventStreamHeader> ExecuteAsync()
         {
             var batchResult = await ExecuteBatchOperationAsync();
 
             return new EventStreamHeader(batchResult[0].ETag, m_targetVersion);
         }
 
-        public void Handle(Exception exception)
+        public override void Handle(Exception exception)
         {
             var batchOperationException = exception as BatchOperationException;
             if (batchOperationException != null)
@@ -67,11 +66,11 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
 
             if (EventStreamHeader.IsNewStream(m_header))
             {
-                Insert("HEAD", headProperties);
+                Insert(EventJournalTableKeys.Header, headProperties);
             }
             else
             {
-                Merge("HEAD", m_header.ETag, headProperties);
+                Merge(EventJournalTableKeys.Header, m_header.ETag, headProperties);
             }
         }
 
@@ -88,7 +87,7 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
 
         private void AppendUnpublishedVersionRecord()
         {
-            Insert("PNDNTF|" + m_targetVersion, EmptyDictionary.Get<string, object>());
+            Insert(EventJournalTableKeys.PendingNotificationPrefix + m_targetVersion);
         }
 
         private static bool IsConcurrencyException(BatchOperationException exception)

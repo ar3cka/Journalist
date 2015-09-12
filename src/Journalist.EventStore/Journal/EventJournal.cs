@@ -37,6 +37,16 @@ namespace Journalist.EventStore.Journal
             return ExecuteOperationAsync(operation);
         }
 
+        public Task DeletePendingNotificationAsync(string streamName, StreamVersion version)
+        {
+            Require.NotEmpty(streamName, "streamName");
+
+            var operation = m_table.CreateDeletePendingNotificationOperation(streamName);
+            operation.Prepare(version);
+
+            return ExecuteOperationAsync(operation);
+        }
+
         public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");

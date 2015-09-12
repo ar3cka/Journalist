@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Journalist.EventStore.UnitTests.Journal.Persistence.Operations
 {
-    public class AppendOperationTests
+    public class AppendOperationTests : OperationFixture
     {
         [Theory]
         [AutoMoqData]
@@ -130,34 +130,6 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Operations
             var result = await operation.ExecuteAsync();
 
             Assert.Equal(targetVersion, result.Version);
-        }
-
-        private static void VerifyInsertOperation(
-            Mock<IBatchOperation> operationMock,
-            string partitionKey,
-            string rowKey,
-            Func<IReadOnlyDictionary<string, object>, bool> verifyColumns)
-        {
-            operationMock.Verify(
-                self => self.Insert(
-                    partitionKey,
-                    rowKey,
-                    It.Is<IReadOnlyDictionary<string, object>>(columns => verifyColumns(columns))));
-        }
-
-        private static void VerifyMergeOperation(
-            Mock<IBatchOperation> operationMock,
-            string partitionKey,
-            string rowKey,
-            string etag,
-            Func<IReadOnlyDictionary<string, object>, bool> verifyColumns)
-        {
-            operationMock.Verify(
-                self => self.Merge(
-                    partitionKey,
-                    rowKey,
-                    etag,
-                    It.Is<IReadOnlyDictionary<string, object>>(columns => verifyColumns(columns))));
         }
     }
 }

@@ -25,6 +25,11 @@ namespace Journalist.EventStore.Journal.Persistence
             return new AppendOperation(m_table, streamName, header);
         }
 
+        public DeletePendingNotificationOperation CreateDeletePendingNotificationOperation(string streamName)
+        {
+            return new DeletePendingNotificationOperation(m_table, streamName);
+        }
+
         public Task<IDictionary<string, object>> ReadStreamHeadPropertiesAsync(string streamName)
         {
             return ReadReferenceRowHeadAsync(streamName, "HEAD");
@@ -41,7 +46,7 @@ namespace Journalist.EventStore.Journal.Persistence
 
             operation.Insert(
                 streamName,
-                "RDR_" + readerId,
+                "RDR|" + readerId,
                 new Dictionary<string, object>
                 {
                     { EventJournalTableRowPropertyNames.Version, (int)version }
@@ -56,7 +61,7 @@ namespace Journalist.EventStore.Journal.Persistence
 
             operation.Merge(
                 streamName,
-                "RDR_" + readerId,
+                "RDR|" + readerId,
                 etag,
                 new Dictionary<string, object>
                 {

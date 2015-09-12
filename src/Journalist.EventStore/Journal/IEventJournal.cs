@@ -8,6 +8,8 @@ namespace Journalist.EventStore.Journal
     {
         Task<EventStreamHeader> AppendEventsAsync(string streamName, EventStreamHeader header, IReadOnlyCollection<JournaledEvent> events);
 
+        Task DeletePendingNotificationAsync(string streamName, StreamVersion version);
+
         Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize);
 
         Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize);

@@ -58,6 +58,8 @@ namespace Journalist.EventStore.Streams
                 StreamName,
                 fromVersion,
                 m_endOfStream.Version));
+
+            await m_journal.DeletePendingNotificationAsync(StreamName, m_endOfStream.Version);
         }
 
         public async Task MoveToEndOfStreamAsync()

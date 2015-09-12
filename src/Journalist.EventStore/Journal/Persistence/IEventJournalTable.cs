@@ -10,6 +10,8 @@ namespace Journalist.EventStore.Journal.Persistence
     {
         AppendOperation CreateAppendOperation(string streamName, EventStreamHeader header);
 
+        DeletePendingNotificationOperation CreateDeletePendingNotificationOperation(string streamName);
+
         Task<IDictionary<string, object>> ReadStreamHeadPropertiesAsync(string streamName);
 
         Task<IDictionary<string, object>> ReadStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId);

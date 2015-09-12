@@ -34,6 +34,27 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory, EventStreamWriterData]
+        public async Task AppendEvents_DeletesPendingNotificationFromJournal(
+            [Frozen] Mock<IEventJournal> journalMock,
+            EventStreamHeader header,
+            EventStreamWriter writer,
+            JournaledEvent[] events)
+        {
+            journalMock
+                .Setup(self => self.AppendEventsAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<EventStreamHeader>(),
+                    It.IsAny<IReadOnlyCollection<JournaledEvent>>()))
+                .Returns(header.YieldTask());
+
+            await writer.AppendEventsAsync(events);
+
+            journalMock.Verify(journal => journal.DeletePendingNotificationAsync(
+                writer.StreamName,
+                header.Version));
+        }
+
+        [Theory, EventStreamWriterData]
         public async Task AppendEvents_EnsureConnectivityStateIsActive(
             [Frozen] Mock<IEventStoreConnectionState> stateMock,
             EventStreamWriter writer,

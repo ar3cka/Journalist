@@ -81,8 +81,10 @@
     <Compile Include="Journal\IEventStreamCursor.cs" />
     <Compile Include="Journal\IEventStreamSlice.cs" />
     <Compile Include="Journal\Persistence\EventJournalTable.cs" />
+    <Compile Include="Journal\Persistence\EventJournalTableKeys.cs" />
     <Compile Include="Journal\Persistence\IEventJournalTable.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperation.cs" />
+    <Compile Include="Journal\Persistence\Operations\DeletePendingNotificationOperation.cs" />
     <Compile Include="Journal\Persistence\Operations\IStreamOperation.cs" />
     <Compile Include="Journal\Persistence\Operations\JournalTableOperation.cs" />
     <Compile Include="Journal\StreamCursor\CursorState.cs" />
@@ -137,6 +139,7 @@
     <Compile Include="Streams\IEventStreamWriter.cs" />
     <Compile Include="Streams\ReceivingResultCode.cs" />
     <Compile Include="Utils\IRetryPolicy.cs" />
+    <Compile Include="Utils\Nothing.cs" />
     <Compile Include="Utils\RetryPolicy.cs" />
   </ItemGroup>
   <ItemGroup>
