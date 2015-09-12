@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Journal.Persistence.Operations
 {
-    public class AppendOperation
+    public class AppendOperation : IStreamOperation<EventStreamHeader>
     {
         private readonly ICloudTable m_table;
         private readonly string m_streamName;
@@ -46,6 +49,21 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
                 m_targetVersion);
         }
 
+        public void Handle(Exception exception)
+        {
+            var batchOperationException = exception as BatchOperationException;
+            if (batchOperationException != null)
+            {
+                if (batchOperationException.OperationBatchNumber == 0 &&
+                    IsConcurrencyException(batchOperationException))
+                {
+                    throw new EventStreamConcurrencyException(
+                        "Event stream '{0}' was concurrently updated.".FormatString(m_streamName),
+                        exception);
+                }
+            }
+        }
+
         private void WriteHeadProperty()
         {
             var headProperties = new Dictionary<string, object>
@@ -77,6 +95,12 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
                     currentVersion.ToString(),
                     journaledEvent.ToDictionary());
             }
+        }
+
+        private static bool IsConcurrencyException(BatchOperationException exception)
+        {
+            return exception.HttpStatusCode == HttpStatusCode.Conflict ||         // Inserting twice HEAD record.
+                   exception.HttpStatusCode == HttpStatusCode.PreconditionFailed; // Stream concurrent update occured. Head ETag header was changed.
         }
     }
 }

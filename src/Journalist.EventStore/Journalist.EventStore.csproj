@@ -83,6 +83,7 @@
     <Compile Include="Journal\Persistence\EventJournalTable.cs" />
     <Compile Include="Journal\Persistence\IEventJournalTable.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperation.cs" />
+    <Compile Include="Journal\Persistence\Operations\IStreamOperation.cs" />
     <Compile Include="Journal\StreamCursor\CursorState.cs" />
     <Compile Include="Journal\StreamCursor\EndOfStreamCursorState.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursor.cs" />

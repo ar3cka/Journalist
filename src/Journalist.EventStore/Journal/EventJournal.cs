@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal.Persistence;
+using Journalist.EventStore.Journal.Persistence.Operations;
 using Journalist.EventStore.Journal.StreamCursor;
-using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Journal
@@ -23,7 +23,7 @@ namespace Journalist.EventStore.Journal
             m_table = table;
         }
 
-        public async Task<EventStreamHeader> AppendEventsAsync(
+        public Task<EventStreamHeader> AppendEventsAsync(
             string streamName,
             EventStreamHeader header,
             IReadOnlyCollection<JournaledEvent> events)
@@ -31,24 +31,10 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(events, "events");
 
-            try
-            {
-                var operation = m_table.CreateAppendOperation(streamName, header);
-                operation.Prepare(events);
+            var operation = m_table.CreateAppendOperation(streamName, header);
+            operation.Prepare(events);
 
-                return await operation.ExecuteAsync();
-            }
-            catch (BatchOperationException exception)
-            {
-                if (exception.OperationBatchNumber == 0 && IsConcurrencyException(exception))
-                {
-                    throw new EventStreamConcurrencyException(
-                        "Event stream '{0}' was concurrently updated.".FormatString(streamName),
-                        exception);
-                }
-
-                throw;
-            }
+            return ExecuteOperationAsync(operation);
         }
 
         public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize)
@@ -176,10 +162,18 @@ namespace Journalist.EventStore.Journal
             throw new EventStreamReaderNotRegisteredException(streamName, readerId);
         }
 
-        private static bool IsConcurrencyException(BatchOperationException exception)
+        private static async Task<TResult> ExecuteOperationAsync<TResult>(IStreamOperation<TResult> operation)
         {
-            return exception.HttpStatusCode == HttpStatusCode.Conflict ||         // Inserting twice HEAD record.
-                   exception.HttpStatusCode == HttpStatusCode.PreconditionFailed; // Stream concurrent update occured. Head ETag header was changed.
+            try
+            {
+                return await operation.ExecuteAsync();
+            }
+            catch (Exception exception)
+            {
+                operation.Handle(exception);
+
+                throw;
+            }
         }
     }
 }
