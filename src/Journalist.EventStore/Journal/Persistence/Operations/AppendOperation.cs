@@ -33,9 +33,10 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
 
             m_operation = m_table.PrepareBatchOperation();
 
-            m_targetVersion = m_header.Version.Increment(events.Count);
-            WriteHeadProperty();
-            WriteEvents(events);
+            IncrementStreamVersion(events);
+            UpdateHead();
+            AppendEvents(events);
+            AppendUnpublishedVersionRecord();
         }
 
         public async Task<EventStreamHeader> ExecuteAsync()
@@ -64,7 +65,12 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             }
         }
 
-        private void WriteHeadProperty()
+        private void IncrementStreamVersion(IReadOnlyCollection<JournaledEvent> events)
+        {
+            m_targetVersion = m_header.Version.Increment(events.Count);
+        }
+
+        private void UpdateHead()
         {
             var headProperties = new Dictionary<string, object>
             {
@@ -81,20 +87,23 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             }
         }
 
-        private void WriteEvents(IEnumerable<JournaledEvent> events)
+        private void AppendEvents(IEnumerable<JournaledEvent> events)
         {
             var currentVersion = m_header.Version;
             foreach (var journaledEvent in events)
             {
                 currentVersion = currentVersion.Increment(1);
 
-                // InsertOrReplace is faster then Insert operation, because storage engine
-                // can skip etag checking.
-                m_operation.InsertOrReplace(
+                m_operation.Insert(
                     m_streamName,
                     currentVersion.ToString(),
                     journaledEvent.ToDictionary());
             }
+        }
+
+        private void AppendUnpublishedVersionRecord()
+        {
+           m_operation.Insert(m_streamName, "PNDNTF|" + m_targetVersion);
         }
 
         private static bool IsConcurrencyException(BatchOperationException exception)

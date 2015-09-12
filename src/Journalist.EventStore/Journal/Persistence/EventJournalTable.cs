@@ -32,7 +32,7 @@ namespace Journalist.EventStore.Journal.Persistence
 
         public Task<IDictionary<string, object>> ReadStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId)
         {
-            return ReadReferenceRowHeadAsync(streamName, "RDR_" + readerId);
+            return ReadReferenceRowHeadAsync(streamName, "RDR|" + readerId);
         }
 
         public async Task InserStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId, StreamVersion version)
