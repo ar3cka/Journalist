@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Journalist.EventStore.Configuration;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
@@ -61,14 +62,15 @@ namespace Journalist.EventStore.Connection
                 m_configuration.IncomingMessageMutators,
                 m_configuration.OutgoingMessageMutators);
 
-            var notificationQueue = m_factory.CreateQueue(
-                m_configuration.StorageConnectionString,
-                m_configuration.NotificationQueueName);
+            var queues = Enumerable
+                .Range(0, m_configuration.NotificationQueuePartitionCount)
+                .Select(index => m_factory.CreateQueue(m_configuration.StorageConnectionString, m_configuration.NotificationQueueName + "-" + index.ToString("D3")))
+                .ToArray();
 
             var consumersRegistry = new EventStreamConsumers(deploymentTable);
 
             var notificationHub = new NotificationHub(
-                new NotificationsChannel(notificationQueue, new NotificationFormatter()),
+                new NotificationsChannel(queues, new NotificationFormatter()),
                 new PollingTimeout());
 
             connectivityState.ConnectionCreated += (sender, args) =>

@@ -46,6 +46,7 @@
     <Compile Include="Infrastructure\Customizations\Customizations\JournaledEventCustomization.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
     <Compile Include="Journal\EventJournalTests.cs" />
+    <Compile Include="Notifications\Channel\NotificationsChannelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\DummyEvent.cs" />
     <Compile Include="Streams\EventStreamConsumersRegistryTests.cs" />

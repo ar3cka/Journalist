@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Journalist.Collections;
 using Journalist.EventStore.Notifications.Formatters;
 using Journalist.WindowsAzure.Storage.Queues;
 using Serilog;
@@ -12,16 +15,25 @@ namespace Journalist.EventStore.Notifications.Channels
     {
         private static readonly ILogger s_logger = Log.ForContext<NotificationsChannel>();
 
-        private readonly ICloudQueue m_queue;
+        private readonly ICloudQueue[] m_queues;
         private readonly INotificationFormatter m_formatter;
 
-        public NotificationsChannel(ICloudQueue queue, INotificationFormatter formatter)
+        private readonly int m_queueCount;
+        private int m_incomingQueueIndex;
+        private int m_outgoingQueueIndex;
+
+        public NotificationsChannel(ICloudQueue[] queues, INotificationFormatter formatter)
         {
-            Require.NotNull(queue, "queue");
+            Require.NotNull(queues, "queue");
             Require.NotNull(formatter, "formatter");
 
-            m_queue = queue;
+            m_queues = queues;
             m_formatter = formatter;
+            m_queueCount = queues.Length;
+
+            var random = new Random();
+            m_incomingQueueIndex = random.Next(0, m_queueCount);
+            m_outgoingQueueIndex = random.Next(0, m_queueCount);
         }
 
         public Task SendAsync(INotification notification)
@@ -40,8 +52,66 @@ namespace Journalist.EventStore.Notifications.Channels
 
         public async Task<INotification[]> ReceiveNotificationsAsync()
         {
-            var messages = await m_queue.GetMessagesAsync();
+            var readedQueue = 0;
+            do
+            {
+                var queue = ChooseIncomingQueue();
+                var result = await ReadNotificationsFromQueueAsync(queue);
 
+                if (result.Any())
+                {
+                    return result.ToArray();
+                }
+
+                readedQueue++;
+
+            }
+            while (readedQueue < m_queueCount);
+
+            return EmptyArray.Get<INotification>();
+        }
+
+        private ICloudQueue ChooseIncomingQueue()
+        {
+            var originalIndex = 0;
+            var chosenIndex = 0;
+            do
+            {
+                originalIndex = m_incomingQueueIndex;
+                chosenIndex = originalIndex + 1;
+
+                if (chosenIndex == m_queueCount)
+                {
+                    chosenIndex = 0;
+                }
+            }
+            while (Interlocked.CompareExchange(ref m_incomingQueueIndex, chosenIndex, originalIndex) != originalIndex);
+
+            return m_queues[chosenIndex];
+        }
+
+        private ICloudQueue ChooseOutgoingQueue()
+        {
+            var originalIndex = 0;
+            var chosenIndex = 0;
+            do
+            {
+                originalIndex = m_outgoingQueueIndex;
+                chosenIndex = originalIndex + 1;
+
+                if (chosenIndex == m_queueCount)
+                {
+                    chosenIndex = 0;
+                }
+            }
+            while (Interlocked.CompareExchange(ref m_outgoingQueueIndex, chosenIndex, originalIndex) != originalIndex);
+
+            return m_queues[chosenIndex];
+        }
+
+        private async Task<List<INotification>> ReadNotificationsFromQueueAsync(ICloudQueue queue)
+        {
+            var messages = await queue.GetMessagesAsync();
             var result = new List<INotification>();
             foreach (var message in messages)
             {
@@ -52,7 +122,7 @@ namespace Journalist.EventStore.Notifications.Channels
                         result.Add(m_formatter.FromBytes(memory));
                     }
 
-                    await m_queue.DeleteMessageAsync(message);
+                    await queue.DeleteMessageAsync(message);
                 }
                 catch (Exception exception)
                 {
@@ -62,23 +132,24 @@ namespace Journalist.EventStore.Notifications.Channels
                         message.Content);
                 }
             }
-
-            return result.ToArray();
+            return result;
         }
 
         private async Task SendInternalAsync(INotification notification, TimeSpan? visibilityTimeout)
         {
             try
             {
+                var queue = ChooseOutgoingQueue();
+
                 using (var notificationBytes = m_formatter.ToBytes(notification))
                 {
                     if (visibilityTimeout.HasValue)
                     {
-                        await m_queue.AddMessageAsync(notificationBytes.ToArray(), visibilityTimeout.Value);
+                        await queue.AddMessageAsync(notificationBytes.ToArray(), visibilityTimeout.Value);
                     }
                     else
                     {
-                        await m_queue.AddMessageAsync(notificationBytes.ToArray());
+                        await queue.AddMessageAsync(notificationBytes.ToArray());
                     }
                 }
             }
