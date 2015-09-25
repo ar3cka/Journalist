@@ -67,7 +67,7 @@ namespace Journalist.EventStore.Connection
                 await m_journal.OpenEventStreamCursorAsync(
                     streamName,
                     readerId,
-                    Constants.Settings.DEFAULT_EVENT_SLICE_SIZE),
+                    Constants.Settings.EVENT_SLICE_SIZE),
                 m_mutationPipeline);
         }
     }

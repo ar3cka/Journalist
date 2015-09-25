@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Journalist.EventStore.Notifications.Formatters;
-using Journalist.EventStore.Notifications.Types;
 using Journalist.WindowsAzure.Storage.Queues;
 using Serilog;
 

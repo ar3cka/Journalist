@@ -58,18 +58,21 @@ namespace Journalist.EventStore.Configuration
             string journalTableName,
             string eventStoreDeploymentTableName,
             string notificationQueueName,
+            int notificationQueuePartitionCount,
             string streamConsumerSessionsBlobName)
         {
             Require.NotEmpty(storageConnectionString, "storageConnectionString");
             Require.NotEmpty(journalTableName, "journalTableName");
             Require.NotEmpty(eventStoreDeploymentTableName, "eventStoreDeploymentTableName");
             Require.NotEmpty(notificationQueueName, "notificationQueueName");
+            Require.Positive(notificationQueuePartitionCount, "notificationQueuePartitionCount");
             Require.NotEmpty(streamConsumerSessionsBlobName, "streamConsumerSessionsBlobName");
 
             StorageConnectionString = storageConnectionString;
             JournalTableName = journalTableName;
             EventStoreDeploymentTableName = eventStoreDeploymentTableName;
             NotificationQueueName = notificationQueueName;
+            NotificationQueuePartitionCount = notificationQueuePartitionCount;
             StreamConsumerSessionsBlobName = streamConsumerSessionsBlobName;
 
             return this;
@@ -107,6 +110,11 @@ namespace Journalist.EventStore.Configuration
         {
             get;
             private set;
+        }
+
+        public int NotificationQueuePartitionCount
+        {
+            get; private set;
         }
 
         public string StreamConsumerSessionsBlobName

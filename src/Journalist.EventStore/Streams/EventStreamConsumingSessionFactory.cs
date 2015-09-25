@@ -24,7 +24,7 @@ namespace Journalist.EventStore.Streams
             return new EventStreamConsumingSession(
                streamName,
                readerId,
-               TimeSpan.FromMinutes(Constants.Settings.DEFAULT_SESSION_LOCK_TIMEOUT_MINUTES),
+               TimeSpan.FromMinutes(Constants.Settings.SESSION_LOCK_TIMEOUT_MINUTES),
                m_sessionsBlob);
         }
     }

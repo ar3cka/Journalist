@@ -84,11 +84,11 @@ namespace Journalist.EventStore.Notifications.Listeners
         {
             Require.NotNull(notification, "notification");
 
-            if (notification.DeliveryCount < Constants.Settings.DEFAULT_MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT)
+            if (notification.DeliveryCount < Constants.Settings.MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT)
             {
                 var retryNotification = notification.SendTo(m_listener);
                 var deliverTimeout = TimeSpan.FromSeconds(
-                    notification.DeliveryCount * Constants.Settings.DEFAULT_NOTIFICATION_RETRY_DELIVERY_TIMEOUT_MULTIPLYER_SEC);
+                    notification.DeliveryCount * Constants.Settings.NOTIFICATION_RETRY_DELIVERY_TIMEOUT_MULTIPLYER_SEC);
 
                 if (s_logger.IsEnabled(LogEventLevel.Debug))
                 {
@@ -118,7 +118,7 @@ namespace Journalist.EventStore.Notifications.Listeners
                     notification.NotificationId,
                     notification.NotificationType,
                     notification.DeliveryCount.ToInvariantString(),
-                    Constants.Settings.DEFAULT_MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT.ToInvariantString());
+                    Constants.Settings.MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT.ToInvariantString());
             }
         }
 

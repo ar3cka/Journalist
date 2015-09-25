@@ -7,6 +7,7 @@ namespace Journalist.EventStore.Configuration
             string journalTableName = Constants.StorageEntities.EVENT_JOURNAL_TABLE_NAME,
             string eventStoreDeploymentTableName = Constants.StorageEntities.EVENT_STORE_DEPLOYMENT_TABLE_NAME,
             string notificationQueueName = Constants.StorageEntities.NOTIFICATION_QUEUE_NAME,
+            int notificationQueuePartitionCount = Constants.Settings.NOTIFICATION_QUEUE_PARTITION_COUNT,
             string streamConsumerSessionsBlobName = Constants.StorageEntities.EVENT_STREAM_CONSUMER_SESSIONS_BLOB_NAME);
 
         IEventMutationPipelineConfiguration Mutate { get; }

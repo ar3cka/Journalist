@@ -62,7 +62,7 @@ namespace Journalist.EventStore.Notifications
 
             if (m_subscriptions.Any())
             {
-                m_maxProcessingCount = Constants.Settings.DEFAULT_MAX_NOTIFICATION_PROCESSING_COUNT * m_subscriptions.Count;
+                m_maxProcessingCount = Constants.Settings.MAX_NOTIFICATION_PROCESSING_COUNT * m_subscriptions.Count;
 
                 foreach (var subscriptions in m_subscriptions.Values)
                 {

@@ -15,7 +15,7 @@ namespace Journalist.EventStore.Journal
             return journal.OpenEventStreamCursorAsync(
                 streamName,
                 fromVersion,
-                Constants.Settings.DEFAULT_EVENT_SLICE_SIZE);
+                Constants.Settings.EVENT_SLICE_SIZE);
         }
 
         public static Task<IEventStreamCursor> OpenEventStreamCursorAsync(
@@ -26,7 +26,7 @@ namespace Journalist.EventStore.Journal
 
             return journal.OpenEventStreamCursorAsync(
                 streamName,
-                Constants.Settings.DEFAULT_EVENT_SLICE_SIZE);
+                Constants.Settings.EVENT_SLICE_SIZE);
         }
     }
 }
