@@ -146,9 +146,9 @@ namespace Journalist.EventStore.Notifications
             return true;
         }
 
-        private async Task<INotification[]> ReceiveNotificationsAsync()
+        private async Task<IReceivedNotification[]> ReceiveNotificationsAsync()
         {
-            var notifications = EmptyArray.Get<INotification>();
+            var notifications = EmptyArray.Get<IReceivedNotification>();
             if (RequestNotificationsRequired())
             {
                 notifications = await m_channel.ReceiveNotificationsAsync();
@@ -156,33 +156,51 @@ namespace Journalist.EventStore.Notifications
                 s_logger.Debug(
                     "Receive {NotificationCount} notifications {NotificationIds}.",
                     notifications.Length,
-                    notifications.Select(n => n.NotificationId));
+                    notifications.Select(n => n.Notification.NotificationId));
             }
 
             return notifications;
         }
 
 #pragma warning disable 4014
-        private void ProcessNotification(INotification notification)
+        private void ProcessNotification(IReceivedNotification notification)
         {
+            var processingTasks = new List<Task<bool>>();
             foreach (var subscription in m_subscriptions.Values)
             {
                 Interlocked.Increment(ref m_processingCount);
 
-                subscription
-                    .HandleNotificationAsync(notification)
+                processingTasks.Add(subscription
+                    .HandleNotificationAsync(notification.Notification)
                     .ContinueWith(handlingTask =>
                     {
+                        var hasError = false;
                         if (handlingTask.Exception != null)
                         {
                             s_logger.Fatal(
                                 handlingTask.Exception.GetBaseException(),
                                 "UNHANDLED EXCEPTION in NotificationListenerSubscription.");
+
+                            hasError = true;
                         }
 
                         Interlocked.Decrement(ref m_processingCount);
-                    });
+                        return hasError;
+                    }));
             }
+
+            Task.WhenAll(processingTasks)
+                .ContinueWith(async resultTask =>
+                {
+                    if (resultTask.Result.Any(hasError => hasError))
+                    {
+                        await notification.RetryAsync();
+                    }
+                    else
+                    {
+                        await notification.CompleteAsync();
+                    }
+                });
         }
 #pragma warning restore 4014
     }

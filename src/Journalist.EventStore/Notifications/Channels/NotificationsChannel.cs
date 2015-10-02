@@ -50,7 +50,7 @@ namespace Journalist.EventStore.Notifications.Channels
             return SendInternalAsync(notification, visibilityTimeout);
         }
 
-        public async Task<INotification[]> ReceiveNotificationsAsync()
+        public async Task<IReceivedNotification[]> ReceiveNotificationsAsync()
         {
             var readedQueue = 0;
             do
@@ -68,7 +68,7 @@ namespace Journalist.EventStore.Notifications.Channels
             }
             while (readedQueue < m_queueCount);
 
-            return EmptyArray.Get<INotification>();
+            return EmptyArray.Get<IReceivedNotification>();
         }
 
         private ICloudQueue ChooseIncomingQueue()
@@ -109,20 +109,21 @@ namespace Journalist.EventStore.Notifications.Channels
             return m_queues[chosenIndex];
         }
 
-        private async Task<List<INotification>> ReadNotificationsFromQueueAsync(ICloudQueue queue)
+        private async Task<List<IReceivedNotification>> ReadNotificationsFromQueueAsync(ICloudQueue queue)
         {
             var messages = await queue.GetMessagesAsync();
-            var result = new List<INotification>();
+            var result = new List<IReceivedNotification>();
             foreach (var message in messages)
             {
                 try
                 {
                     using (var memory = new MemoryStream(message.Content))
                     {
-                        result.Add(m_formatter.FromBytes(memory));
+                        result.Add(new ReceivedNotification(
+                            queue,
+                            message,
+                            m_formatter.FromBytes(memory)));
                     }
-
-                    await queue.DeleteMessageAsync(message);
                 }
                 catch (Exception exception)
                 {

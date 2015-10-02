@@ -146,10 +146,6 @@ namespace Journalist.EventStore.Notifications.Listeners
                     await m_notificationsChannel.SendAsync(redeliveredNotification);
                 }
             }
-            catch (Exception exception)
-            {
-                s_logger.Error(exception, "Processing notification {@Notification} failed.", notification);
-            }
             finally
             {
                 if (!m_processingCountdown.IsSet)

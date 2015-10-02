@@ -44,7 +44,11 @@ namespace Journalist.EventStore.IntegrationTests.Notifications.Channel
             var receivedNotification = new List<INotification>();
             foreach (var _ in Enumerable.Range(0, notifications.Count()))
             {
-                receivedNotification.AddRange(await m_channel.ReceiveNotificationsAsync());
+                foreach (var notification in await m_channel.ReceiveNotificationsAsync())
+                {
+                    receivedNotification.Add(notification.Notification);
+                    await notification.CompleteAsync();
+                }
             }
 
             Assert.Equal(notifications.Count(), receivedNotification.Count);

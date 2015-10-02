@@ -19,15 +19,15 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
     {
         public NotificationHubDataAttribute(bool emptyChannel = false)
         {
-            Fixture.Customize<INotification[]>(composer => composer
-                .FromFactory((EventStreamUpdated[] notifications) => notifications));
+            Fixture.Customize<INotification>(composer => composer
+                .FromFactory((EventStreamUpdated notification) => notification));
 
             Fixture.Customize<Mock<INotificationsChannel>>(composer => composer
                 .Do(mock => mock
                     .Setup(self => self.ReceiveNotificationsAsync())
                     .Returns(() => emptyChannel
-                        ? EmptyArray.Get<INotification>().YieldTask()
-                        : Fixture.Create<INotification[]>().YieldTask()))
+                        ? EmptyArray.Get<IReceivedNotification>().YieldTask()
+                        : Fixture.Create<IReceivedNotification[]>().YieldTask()))
                 .Do(mock => mock
                     .Setup(self => self.SendAsync(It.IsAny<INotification>()))
                     .Returns(TaskDone.Done)));

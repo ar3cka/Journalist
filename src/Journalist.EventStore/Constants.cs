@@ -8,6 +8,7 @@ namespace Journalist.EventStore
             public const int EVENT_SLICE_SIZE = 100;
             public const int MAX_NOTIFICATION_PROCESSING_COUNT = 100;
             public const int MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT= 10;
+            public const int NOTIFICATION_MESSAGE_LOCK_TIMEOUT_MINUTES = 15;
             public const int NOTIFICATION_RETRY_DELIVERY_TIMEOUT_MULTIPLYER_SEC = 2;
             public const int NOTIFICATION_QUEUE_PARTITION_COUNT = 32;
         }
