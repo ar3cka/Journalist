@@ -88,7 +88,7 @@ namespace Journalist.EventStore.Connection
                 notificationHub.StopNotificationProcessing();
             };
 
-            connectivityState.ConnectionClosing += (sender, args) =>
+            connectivityState.ConnectionClosed += (sender, args) =>
             {
                 foreach (var notificationListener in m_configuration.NotificationListeners)
                 {
