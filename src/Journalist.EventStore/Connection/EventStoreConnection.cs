@@ -5,7 +5,6 @@ using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Streams;
-using Journalist.EventStore.Utils;
 using Journalist.EventStore.Utils.RetryPolicies;
 
 namespace Journalist.EventStore.Connection
@@ -18,6 +17,7 @@ namespace Journalist.EventStore.Connection
         private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
         private readonly IEventMutationPipelineFactory m_pipelineFactory;
         private readonly INotificationHub m_notificationHub;
+        private readonly IPendingNotifications m_pendingNotifications;
         private readonly IEventStoreConnectionState m_connectionState;
 
         public EventStoreConnection(
@@ -25,6 +25,7 @@ namespace Journalist.EventStore.Connection
             IEventJournal journal,
             IEventJournalReaders journalReaders,
             INotificationHub notificationHub,
+            IPendingNotifications pendingNotifications,
             IEventStreamConsumers consumers,
             IEventStreamConsumingSessionFactory sessionFactory,
             IEventMutationPipelineFactory pipelineFactory)
@@ -33,6 +34,7 @@ namespace Journalist.EventStore.Connection
             Require.NotNull(journal, "journal");
             Require.NotNull(journalReaders, "journalReaders");
             Require.NotNull(notificationHub, "notificationHub");
+            Require.NotNull(pendingNotifications, "pendingNotifications");
             Require.NotNull(consumers, "consumers");
             Require.NotNull(sessionFactory, "sessionFactory");
             Require.NotNull(pipelineFactory, "pipelineFactory");
@@ -41,6 +43,7 @@ namespace Journalist.EventStore.Connection
             m_journal = journal;
             m_journalReaders = journalReaders;
             m_notificationHub = notificationHub;
+            m_pendingNotifications = pendingNotifications;
             m_consumers = consumers;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
@@ -92,7 +95,8 @@ namespace Journalist.EventStore.Connection
                 endOfStream: endOfStream,
                 journal: m_journal,
                 mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(),
-                notificationHub: m_notificationHub);
+                notificationHub: m_notificationHub,
+                pendingNotification: m_pendingNotifications);
         }
 
         public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)

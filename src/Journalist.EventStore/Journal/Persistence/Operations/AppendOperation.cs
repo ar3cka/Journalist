@@ -27,7 +27,7 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             IncrementStreamVersion(events);
             UpdateHead();
             AppendEvents(events);
-            AppendUnpublishedVersionRecord();
+            InsertPendingNotification();
         }
 
         public async override Task<EventStreamHeader> ExecuteAsync()
@@ -85,9 +85,16 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             }
         }
 
-        private void AppendUnpublishedVersionRecord()
+        private void InsertPendingNotification()
         {
-            Insert(EventJournalTableKeys.PendingNotificationPrefix + m_targetVersion);
+            var rowKey = EventJournalTableKeys.PendingNotificationPrefix + m_header.Version;
+
+            var properties = new Dictionary<string, object>
+            {
+                { EventJournalTableRowPropertyNames.Version, (int)m_targetVersion }
+            };
+
+            Insert(rowKey, properties);
         }
 
         private static bool IsConcurrencyException(BatchOperationException exception)

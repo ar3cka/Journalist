@@ -15,6 +15,7 @@ namespace Journalist.EventStore.Streams
         private readonly IEventJournal m_journal;
         private readonly IEventMutationPipeline m_mutationPipeline;
         private readonly INotificationHub m_notificationHub;
+        private readonly IPendingNotifications m_pendingNotification;
 
         private EventStreamHeader m_endOfStream;
 
@@ -24,17 +25,20 @@ namespace Journalist.EventStore.Streams
             EventStreamHeader endOfStream,
             IEventJournal journal,
             IEventMutationPipeline mutationPipeline,
-            INotificationHub notificationHub) : base(streamName, connectionState)
+            INotificationHub notificationHub,
+            IPendingNotifications pendingNotification) : base(streamName, connectionState)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(journal, "journal");
             Require.NotNull(mutationPipeline, "mutationPipeline");
             Require.NotNull(notificationHub, "notificationHub");
+            Require.NotNull(pendingNotification, "pendingNotification");
 
             m_endOfStream = endOfStream;
             m_journal = journal;
             m_mutationPipeline = mutationPipeline;
             m_notificationHub = notificationHub;
+            m_pendingNotification = pendingNotification;
         }
 
         public async Task AppendEventsAsync(IReadOnlyCollection<JournaledEvent> events)
@@ -59,7 +63,7 @@ namespace Journalist.EventStore.Streams
                 fromVersion,
                 m_endOfStream.Version));
 
-            await m_journal.DeletePendingNotificationAsync(StreamName, m_endOfStream.Version);
+            await m_pendingNotification.DeleteAsync(StreamName, fromVersion);
         }
 
         public async Task MoveToEndOfStreamAsync()

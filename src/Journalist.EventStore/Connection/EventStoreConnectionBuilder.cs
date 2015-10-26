@@ -45,9 +45,9 @@ namespace Journalist.EventStore.Connection
 
             var connectivityState = new EventStoreConnectionState();
 
-            var journalTable = m_factory.CreateTable(
+            var journalTable = new EventJournalTable(m_factory.CreateTable(
                 m_configuration.StorageConnectionString,
-                m_configuration.JournalTableName);
+                m_configuration.JournalTableName));
 
             var deploymentTable = m_factory.CreateTable(
                 m_configuration.StorageConnectionString,
@@ -72,6 +72,8 @@ namespace Journalist.EventStore.Connection
             var notificationHub = new NotificationHub(
                 new NotificationsChannel(queues, new NotificationFormatter()),
                 new PollingTimeout());
+
+            var pendingNotifications = new PendingNotifications(journalTable);
 
             connectivityState.ConnectionCreated += (sender, args) =>
             {
@@ -100,9 +102,10 @@ namespace Journalist.EventStore.Connection
 
             return new EventStoreConnection(
                 connectivityState,
-                new EventJournal(journalReaders, new EventJournalTable(journalTable)),
+                new EventJournal(journalReaders, journalTable),
                 journalReaders,
                 notificationHub,
+                pendingNotifications,
                 consumersRegistry,
                 sessionFactory,
                 pipelineFactory);

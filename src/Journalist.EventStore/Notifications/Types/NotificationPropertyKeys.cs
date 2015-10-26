@@ -13,7 +13,7 @@ namespace Journalist.EventStore.Notifications.Types
 
         public static class EventStreamUpdated
         {
-            public const string FROM_VERSION = "FromVersion";
+            public const string FROM_VERSION = "FromFromVersion";
             public const string TO_VERSION = "ToVersion";
         }
     }

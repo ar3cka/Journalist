@@ -58,15 +58,15 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Operations
             JournaledEvent[] events,
             AppendOperation operation)
         {
-            var targetVersion = header.Version.Increment(events.Count());
+            var targetVersion = (int)header.Version.Increment(events.Count());
 
             operation.Prepare(events);
 
             VerifyInsertOperation(
                 operationMock,
                 streamName,
-                "PNDNTF|" + targetVersion,
-                columns => columns.IsEmpty());
+                "PNDNTF|" + header.Version,
+                columns => columns["Version"].Equals(targetVersion));
         }
 
         [Theory]

@@ -34,9 +34,10 @@ namespace Journalist.EventStore.UnitTests.Streams
         }
 
         [Theory, EventStreamWriterData]
-        public async Task AppendEvents_DeletesPendingNotificationFromJournal(
+        public async Task AppendEvents_DeletesPendingNotification(
             [Frozen] Mock<IEventJournal> journalMock,
-            EventStreamHeader header,
+            [Frozen] Mock<IPendingNotifications> pendingNotificationMock,
+            [Frozen] EventStreamHeader header,
             EventStreamWriter writer,
             JournaledEvent[] events)
         {
@@ -49,7 +50,7 @@ namespace Journalist.EventStore.UnitTests.Streams
 
             await writer.AppendEventsAsync(events);
 
-            journalMock.Verify(journal => journal.DeletePendingNotificationAsync(
+            pendingNotificationMock.Verify(notifications => notifications.DeleteAsync(
                 writer.StreamName,
                 header.Version));
         }

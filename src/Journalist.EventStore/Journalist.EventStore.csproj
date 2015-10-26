@@ -103,6 +103,7 @@
     <Compile Include="Notifications\Formatters\NotificationFormatter.cs" />
     <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Notifications\INotificationHub.cs" />
+    <Compile Include="Notifications\IPendingNotifications.cs" />
     <Compile Include="Notifications\Listeners\BatchEventConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\EventConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\INotificationListener.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Notifications\Listeners\StreamConsumingNotificationListener.cs" />
     <Compile Include="Notifications\NotificationHub.cs" />
     <Compile Include="Notifications\NotificationId.cs" />
+    <Compile Include="Notifications\PendingNotifications.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Timeouts\IPollingTimeout.cs" />
@@ -163,6 +165,7 @@
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
