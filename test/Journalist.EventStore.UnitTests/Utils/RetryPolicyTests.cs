@@ -1,5 +1,6 @@
 ﻿using Journalist.EventStore.UnitTests.Infrastructure.TestData;
 using Journalist.EventStore.Utils;
+using Journalist.EventStore.Utils.RetryPolicies;
 using Xunit;
 
 namespace Journalist.EventStore.UnitTests.Utils

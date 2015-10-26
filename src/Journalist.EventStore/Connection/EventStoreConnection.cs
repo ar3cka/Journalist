@@ -6,6 +6,7 @@ using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils;
+using Journalist.EventStore.Utils.RetryPolicies;
 
 namespace Journalist.EventStore.Connection
 {

@@ -140,9 +140,9 @@
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
     <Compile Include="Streams\ReceivingResultCode.cs" />
-    <Compile Include="Utils\IRetryPolicy.cs" />
     <Compile Include="Utils\Nothing.cs" />
-    <Compile Include="Utils\RetryPolicy.cs" />
+    <Compile Include="Utils\RetryPolicies\IRetryPolicy.cs" />
+    <Compile Include="Utils\RetryPolicies\RetryPolicy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Journalist.LanguageExtensions\Journalist.LanguageExtensions.csproj">

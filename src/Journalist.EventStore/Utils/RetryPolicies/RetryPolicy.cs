@@ -1,4 +1,4 @@
-namespace Journalist.EventStore.Utils
+namespace Journalist.EventStore.Utils.RetryPolicies
 {
     public class RetryPolicy : IRetryPolicy
     {
