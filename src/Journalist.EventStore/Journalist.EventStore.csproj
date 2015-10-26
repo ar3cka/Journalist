@@ -140,6 +140,7 @@
     <Compile Include="Streams\IEventStreamReader.cs" />
     <Compile Include="Streams\IEventStreamWriter.cs" />
     <Compile Include="Streams\ReceivingResultCode.cs" />
+    <Compile Include="Utils\Cloud\Azure\Storage\Blobs\Lease.cs" />
     <Compile Include="Utils\Nothing.cs" />
     <Compile Include="Utils\RetryPolicies\IRetryPolicy.cs" />
     <Compile Include="Utils\RetryPolicies\RetryPolicy.cs" />

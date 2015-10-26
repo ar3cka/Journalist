@@ -57,6 +57,7 @@
     <Compile Include="Streams\EventStreamsTests.cs" />
     <Compile Include="Streams\MessageMutator.cs" />
     <Compile Include="Streams\NotificationListener.cs" />
+    <Compile Include="Utils\Cloud\Azure\Storage\Blobs\LeaseTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -79,7 +80,6 @@
       <Name>Journalist.WindowsAzure.Storage</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
