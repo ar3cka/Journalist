@@ -14,6 +14,7 @@ namespace Journalist.EventStore.Notifications.Channels
     public class NotificationsChannel : INotificationsChannel
     {
         private static readonly ILogger s_logger = Log.ForContext<NotificationsChannel>();
+        private static readonly TimeSpan s_lockTimeout = TimeSpan.FromMinutes(Constants.Settings.NOTIFICATION_MESSAGE_LOCK_TIMEOUT_MINUTES);
 
         private readonly ICloudQueue[] m_queues;
         private readonly INotificationFormatter m_formatter;
@@ -111,7 +112,7 @@ namespace Journalist.EventStore.Notifications.Channels
 
         private async Task<List<IReceivedNotification>> ReadNotificationsFromQueueAsync(ICloudQueue queue)
         {
-            var messages = await queue.GetMessagesAsync();
+            var messages = await queue.GetMessagesAsync(s_lockTimeout);
             var result = new List<IReceivedNotification>();
             foreach (var message in messages)
             {
