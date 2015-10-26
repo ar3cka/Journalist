@@ -8,6 +8,7 @@ namespace Journalist.EventStore.Events
 
         public static readonly StreamVersion Unknown = new StreamVersion(0);
         public static readonly StreamVersion Start = new StreamVersion(1);
+        public static readonly StreamVersion Max = new StreamVersion(int.MaxValue);
 
         private StreamVersion(int value)
         {

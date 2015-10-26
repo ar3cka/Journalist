@@ -31,7 +31,9 @@ namespace Journalist.EventStore.Notifications
 
         public Task<IReadOnlyList<EventStreamUpdated>> LoadAsync()
         {
-            throw new System.NotImplementedException();
+            var query = m_table.CreatePendingNotificationsQuery();
+
+            return query.ExecuteAsync();
         }
 
         private static async Task<TResult> ExecuteOperationAsync<TResult>(IStreamOperation<TResult> operation)

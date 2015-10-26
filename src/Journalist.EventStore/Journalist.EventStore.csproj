@@ -87,6 +87,8 @@
     <Compile Include="Journal\Persistence\Operations\DeletePendingNotificationOperation.cs" />
     <Compile Include="Journal\Persistence\Operations\IStreamOperation.cs" />
     <Compile Include="Journal\Persistence\Operations\JournalTableOperation.cs" />
+    <Compile Include="Journal\Persistence\Queries\IStreamQuery.cs" />
+    <Compile Include="Journal\Persistence\Queries\PendingNotificationsQuery.cs" />
     <Compile Include="Journal\StreamCursor\CursorState.cs" />
     <Compile Include="Journal\StreamCursor\EndOfStreamCursorState.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursor.cs" />
