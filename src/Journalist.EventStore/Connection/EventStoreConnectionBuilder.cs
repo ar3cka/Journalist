@@ -7,8 +7,8 @@ using Journalist.EventStore.Journal.Persistence;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
-using Journalist.EventStore.Notifications.Timeouts;
 using Journalist.EventStore.Streams;
+using Journalist.EventStore.Utils.Polling;
 using Journalist.WindowsAzure.Storage;
 
 namespace Journalist.EventStore.Connection

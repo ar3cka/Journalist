@@ -119,8 +119,6 @@
     <Compile Include="Notifications\PendingNotificationsChaser.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
-    <Compile Include="Notifications\Timeouts\IPollingTimeout.cs" />
-    <Compile Include="Notifications\Timeouts\PollingTimeout.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyKeys.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -148,6 +146,8 @@
     <Compile Include="Streams\ReceivingResultCode.cs" />
     <Compile Include="Utils\Cloud\Azure\Storage\Blobs\Lease.cs" />
     <Compile Include="Utils\Nothing.cs" />
+    <Compile Include="Utils\Polling\IPollingTimeout.cs" />
+    <Compile Include="Utils\Polling\PollingTimeout.cs" />
     <Compile Include="Utils\RetryPolicies\IRetryPolicy.cs" />
     <Compile Include="Utils\RetryPolicies\RetryPolicy.cs" />
   </ItemGroup>

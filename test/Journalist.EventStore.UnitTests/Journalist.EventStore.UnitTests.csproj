@@ -80,7 +80,6 @@
     <Compile Include="Notifications\Listeners\StreamConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\NotificationListenerSubscriptionTest.cs" />
     <Compile Include="Notifications\NotificationHubTests.cs" />
-    <Compile Include="Notifications\Timeouts\PollingTimeoutTests.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdatedTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\EventStreamConsumerStateMachineTests.cs" />
@@ -90,6 +89,7 @@
     <Compile Include="Streams\EventStreamReaderTests.cs" />
     <Compile Include="Streams\EventStreamWriterTests.cs" />
     <Compile Include="StreamVersionTests.cs" />
+    <Compile Include="Utils\Polling\PollingTimeoutTests.cs" />
     <Compile Include="Utils\RetryPolicyTests.cs" />
   </ItemGroup>
   <ItemGroup>

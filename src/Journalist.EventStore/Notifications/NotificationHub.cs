@@ -7,7 +7,7 @@ using Journalist.Collections;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
-using Journalist.EventStore.Notifications.Timeouts;
+using Journalist.EventStore.Utils.Polling;
 using Journalist.Extensions;
 using Serilog;
 

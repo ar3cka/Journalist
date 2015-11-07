@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Journalist.Extensions;
 
-namespace Journalist.EventStore.Notifications.Timeouts
+namespace Journalist.EventStore.Utils.Polling
 {
     public class PollingTimeout : IPollingTimeout
     {

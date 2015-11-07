@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Journalist.EventStore.Notifications.Timeouts
+namespace Journalist.EventStore.Utils.Polling
 {
     public interface IPollingTimeout
     {

@@ -1,8 +1,8 @@
-﻿using System;
-using Journalist.EventStore.Notifications.Timeouts;
+using System;
+using Journalist.EventStore.Utils.Polling;
 using Xunit;
 
-namespace Journalist.EventStore.UnitTests.Notifications.Timeouts
+namespace Journalist.EventStore.UnitTests.Utils.Polling
 {
     public class PollingTimeoutTests
     {
