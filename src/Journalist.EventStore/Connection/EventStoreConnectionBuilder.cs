@@ -64,7 +64,9 @@ namespace Journalist.EventStore.Connection
 
             var queues = Enumerable
                 .Range(0, m_configuration.NotificationQueuePartitionCount)
-                .Select(index => m_factory.CreateQueue(m_configuration.StorageConnectionString, m_configuration.NotificationQueueName + "-" + index.ToString("D3")))
+                .Select(index => m_factory.CreateQueue(
+                    m_configuration.StorageConnectionString,
+                    m_configuration.NotificationQueueName + "-" + index.ToString("D3")))
                 .ToArray();
 
             var consumersRegistry = new EventStreamConsumers(deploymentTable);
@@ -74,6 +76,7 @@ namespace Journalist.EventStore.Connection
                 new PollingTimeout());
 
             var pendingNotifications = new PendingNotifications(journalTable);
+            var pendingNotificationsChaser = new PendingNotificationsChaser(pendingNotifications, notificationHub);
 
             connectivityState.ConnectionCreated += (sender, args) =>
             {
@@ -83,11 +86,13 @@ namespace Journalist.EventStore.Connection
                 }
 
                 notificationHub.StartNotificationProcessing(args.Connection);
+                pendingNotificationsChaser.Start();
             };
 
             connectivityState.ConnectionClosing += (sender, args) =>
             {
                 notificationHub.StopNotificationProcessing();
+                pendingNotificationsChaser.Stop();
             };
 
             connectivityState.ConnectionClosed += (sender, args) =>

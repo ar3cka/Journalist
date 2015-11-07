@@ -106,6 +106,7 @@
     <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Notifications\INotificationHub.cs" />
     <Compile Include="Notifications\IPendingNotifications.cs" />
+    <Compile Include="Notifications\IPendingNotificationsChaser.cs" />
     <Compile Include="Notifications\Listeners\BatchEventConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\EventConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\INotificationListener.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Notifications\NotificationHub.cs" />
     <Compile Include="Notifications\NotificationId.cs" />
     <Compile Include="Notifications\PendingNotifications.cs" />
+    <Compile Include="Notifications\PendingNotificationsChaser.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Timeouts\IPollingTimeout.cs" />
