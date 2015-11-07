@@ -90,7 +90,7 @@
     <Compile Include="Streams\EventStreamWriterTests.cs" />
     <Compile Include="StreamVersionTests.cs" />
     <Compile Include="Utils\Polling\PollingTimeoutTests.cs" />
-    <Compile Include="Utils\RetryPolicyTests.cs" />
+    <Compile Include="Utils\RetryPolicies\RetryPolicyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Journalist.EventStore\Journalist.EventStore.csproj">
