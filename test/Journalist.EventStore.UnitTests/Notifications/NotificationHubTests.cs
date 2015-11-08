@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
 using Journalist.EventStore.Notifications.Listeners;
+using Journalist.EventStore.Notifications.Processing;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
@@ -62,6 +64,18 @@ namespace Journalist.EventStore.UnitTests.Notifications
             Assert.False(jobStub.JobStoped);
         }
 
+        [Theory, NotificationHubData(startHub: false)]
+        public void StartNotificationProcessing_RegistersNotificationHandlers(
+            [Frozen] Mock<IReceivedNotificationProcessor> processorMock,
+            IEventStoreConnection connection,
+            NotificationHub hub)
+        {
+            hub.StartNotificationProcessing(connection);
+
+            processorMock.Verify(self => self.RegisterHandlers(
+                It.IsAny<IEnumerable<INotificationHandler>>()));
+        }
+
         [Theory, NotificationHubData]
         public void StoptNotificationProcessing_StopsPollingJob(
             [Frozen] PollingJobStub jobStub,
@@ -101,41 +115,17 @@ namespace Journalist.EventStore.UnitTests.Notifications
         }
 
         [Theory, NotificationHubData]
-        public async Task PollingFunc_WhenChannelIsNotEmpty_SendsNotificationsToListener(
+        public async Task PollingFunc_WhenChannelIsNotEmpty_SendsNotificationsToProcessor(
             [Frozen] Mock<INotificationListener> listenerMock,
+            [Frozen] Mock<IReceivedNotificationProcessor> processorMock,
             [Frozen] PollingJobStub jobStub,
             NotificationHub hub)
         {
             await jobStub.Poll();
 
-            listenerMock.Verify(self => self.On(It.IsAny<EventStreamUpdated>()), Times.AtLeastOnce());
-        }
-
-        [Theory, NotificationHubData]
-        public async Task PollingFunc_WhenNotificationProcessingWasSuccessfullyCompleted_CompletesNotification(
-            [Frozen] Mock<IReceivedNotification> notificationMock,
-            [Frozen] PollingJobStub jobStub,
-            NotificationHub hub)
-        {
-            await jobStub.Poll();
-
-            notificationMock.Verify(self => self.CompleteAsync(), Times.AtLeastOnce());
-        }
-
-        [Theory, NotificationHubData]
-        public async Task PollingFunc_WhenNotificationProcessingFailed_RetriesNotification(
-            [Frozen] Mock<INotificationListener> listenerMock,
-            [Frozen] Mock<IReceivedNotification> notificationMock,
-            [Frozen] PollingJobStub jobStub,
-            NotificationHub hub)
-        {
-            listenerMock
-                .Setup(self => self.On(It.IsAny<EventStreamUpdated>()))
-                .Throws<NotImplementedException>();
-
-            await jobStub.Poll();
-
-            notificationMock.Verify(self => self.RetryAsync(), Times.AtLeastOnce());
+            processorMock.Verify(self => self.Process(
+                It.IsAny<IReceivedNotification>()),
+                Times.AtLeastOnce());
         }
 
         [Theory, NotificationHubData(hasSubscriber: false, startHub: false)]

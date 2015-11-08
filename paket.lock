@@ -21,7 +21,7 @@ NUGET
     Serilog (1.5.6)
     System.Spatial (5.6.2)
     WindowsAzure.Storage (4.3.0)
-      Microsoft.Data.OData (>= 5.6.2) - framework: winv4.5, wpv8.1, wpv8.0, >= net40
+      Microsoft.Data.OData (>= 5.6.2) - framework: winv4.5, wpv8.0, >= net40
       Microsoft.Data.Services.Client (>= 5.6.2) - framework: >= net40
       Microsoft.WindowsAzure.ConfigurationManager (>= 1.8.0.0) - framework: >= net40
       Newtonsoft.Json (>= 5.0.8) - framework: wpv8.0, >= net40

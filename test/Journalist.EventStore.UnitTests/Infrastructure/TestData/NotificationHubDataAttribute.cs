@@ -8,6 +8,7 @@ using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
 using Journalist.EventStore.Notifications.Listeners;
+using Journalist.EventStore.Notifications.Processing;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Journalist.EventStore.Utils.Polling;
@@ -31,6 +32,11 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 
             Fixture.Customize<IReceivedNotification[]>(composer => composer
                 .FromFactory((IReceivedNotification n) => n.YieldArray()));
+
+            Fixture.Customize<Mock<IReceivedNotificationProcessor>>(composer => composer
+                .Do(mock => mock
+                    .Setup(self => self.ProcessingCount)
+                    .Returns(0)));
 
             Fixture.Customize<Mock<INotificationsChannel>>(composer => composer
                 .Do(mock => mock

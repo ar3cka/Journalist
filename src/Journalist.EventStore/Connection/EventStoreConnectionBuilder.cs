@@ -7,6 +7,7 @@ using Journalist.EventStore.Journal.Persistence;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Processing;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils.Polling;
 using Journalist.WindowsAzure.Storage;
@@ -73,7 +74,8 @@ namespace Journalist.EventStore.Connection
 
             var notificationHub = new NotificationHub(
                 new PollingJob(new PollingTimeout()),
-                new NotificationsChannel(queues, new NotificationFormatter()));
+                new NotificationsChannel(queues, new NotificationFormatter()),
+                new ReceivedNotificationProcessor());
 
             var pendingNotifications = new PendingNotifications(journalTable);
             var pendingNotificationsChaser = new PendingNotificationsChaser(pendingNotifications, notificationHub);

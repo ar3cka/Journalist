@@ -45,7 +45,7 @@ namespace Journalist.EventStore.UnitTests.Configuration
         }
 
         [Theory, AutoMoqData]
-        public void NotificationsSubscribe_ReturnsInstanceOfConnectionConfiguration(
+        public void NotificationsSubscriber_ReturnsInstanceOfConnectionConfiguration(
             INotificationListener listener,
             EventStoreConnectionConfiguration connectionConfiguration)
         {
@@ -53,7 +53,7 @@ namespace Journalist.EventStore.UnitTests.Configuration
         }
 
         [Theory, AutoMoqData]
-        public void NotificationsSubscribe_WhenProcessingIsEnabled_AddsListenerToCollection(
+        public void NotificationsSubscriber_WhenProcessingIsEnabled_AddsListenerToCollection(
             INotificationListener listener,
             EventStoreConnectionConfiguration connectionConfiguration)
         {
@@ -65,7 +65,7 @@ namespace Journalist.EventStore.UnitTests.Configuration
         }
 
         [Theory, AutoMoqData]
-        public void NotificationsSubscribe_WhenProcessingIsNotEnabled_AddsListenerToCollection(
+        public void NotificationsSubscriber_WhenProcessingIsNotEnabled_AddsListenerToCollection(
             INotificationListener listener,
             EventStoreConnectionConfiguration connectionConfiguration)
         {

@@ -117,6 +117,9 @@
     <Compile Include="Notifications\NotificationId.cs" />
     <Compile Include="Notifications\PendingNotifications.cs" />
     <Compile Include="Notifications\PendingNotificationsChaser.cs" />
+    <Compile Include="Notifications\Processing\INotificationHandler.cs" />
+    <Compile Include="Notifications\Processing\IReceivedNotificationProcessor.cs" />
+    <Compile Include="Notifications\Processing\ReceivedNotificationProcessor.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyKeys.cs" />
@@ -171,7 +174,6 @@
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

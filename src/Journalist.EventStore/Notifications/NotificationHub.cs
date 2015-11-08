@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Listeners;
+using Journalist.EventStore.Notifications.Processing;
 using Journalist.EventStore.Utils.Polling;
 using Journalist.Extensions;
 using Serilog;
@@ -20,19 +20,22 @@ namespace Journalist.EventStore.Notifications
         private readonly Dictionary<Type, NotificationListenerSubscription> m_subscriptions = new Dictionary<Type, NotificationListenerSubscription>();
         private readonly IPollingJob m_pollingJob;
         private readonly INotificationsChannel m_channel;
+        private readonly IReceivedNotificationProcessor m_notificationProcessor;
 
-        private int m_processingCount;
         private int m_maxProcessingCount;
 
         public NotificationHub(
             IPollingJob pollingJob,
-            INotificationsChannel channel)
+            INotificationsChannel channel,
+            IReceivedNotificationProcessor notificationProcessor)
         {
             Require.NotNull(pollingJob, "pollingJob");
             Require.NotNull(channel, "channel");
+            Require.NotNull(notificationProcessor, "notificationProcessor");
 
             m_pollingJob = pollingJob;
             m_channel = channel;
+            m_notificationProcessor = notificationProcessor;
         }
 
         public Task NotifyAsync(INotification notification)
@@ -69,6 +72,8 @@ namespace Journalist.EventStore.Notifications
                     subscriptions.Start(connection);
                 }
 
+                m_notificationProcessor.RegisterHandlers(m_subscriptions.Values);
+
                 m_pollingJob.Start(async token =>
                 {
                     var notifications = await ReceiveNotificationsAsync();
@@ -82,7 +87,7 @@ namespace Journalist.EventStore.Notifications
 
                     foreach (var notification in notifications)
                     {
-                        ProcessNotification(notification);
+                        m_notificationProcessor.Process(notification);
                     }
 
                     return true;
@@ -112,7 +117,7 @@ namespace Journalist.EventStore.Notifications
 
         private bool RequestNotificationsRequired()
         {
-            var observedProcessingCount = m_processingCount;
+            var observedProcessingCount = m_notificationProcessor.ProcessingCount;
             if (observedProcessingCount >= m_maxProcessingCount)
             {
                 s_logger.Debug(
@@ -141,47 +146,5 @@ namespace Journalist.EventStore.Notifications
 
             return notifications;
         }
-
-#pragma warning disable 4014
-        private void ProcessNotification(IReceivedNotification notification)
-        {
-            var processingTasks = new List<Task<bool>>();
-            foreach (var subscription in m_subscriptions.Values)
-            {
-                Interlocked.Increment(ref m_processingCount);
-
-                processingTasks.Add(subscription
-                    .HandleNotificationAsync(notification.Notification)
-                    .ContinueWith(handlingTask =>
-                    {
-                        var hasError = false;
-                        if (handlingTask.Exception != null)
-                        {
-                            s_logger.Fatal(
-                                handlingTask.Exception.GetBaseException(),
-                                "UNHANDLED EXCEPTION in NotificationListenerSubscription.");
-
-                            hasError = true;
-                        }
-
-                        Interlocked.Decrement(ref m_processingCount);
-                        return hasError;
-                    }));
-            }
-
-            Task.WhenAll(processingTasks)
-                .ContinueWith(async resultTask =>
-                {
-                    if (resultTask.Result.Any(hasError => hasError))
-                    {
-                        await notification.RetryAsync();
-                    }
-                    else
-                    {
-                        await notification.CompleteAsync();
-                    }
-                });
-        }
-#pragma warning restore 4014
     }
 }

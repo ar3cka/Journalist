@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications.Channels;
+using Journalist.EventStore.Notifications.Processing;
 using Journalist.EventStore.Streams;
 using Journalist.Extensions;
 using Serilog;
@@ -10,7 +11,7 @@ using Serilog.Events;
 
 namespace Journalist.EventStore.Notifications.Listeners
 {
-    public class NotificationListenerSubscription : INotificationListenerSubscription
+    public class NotificationListenerSubscription : INotificationListenerSubscription, INotificationHandler
     {
         private static readonly ILogger s_logger = Log.ForContext<NotificationListenerSubscription>();
 
