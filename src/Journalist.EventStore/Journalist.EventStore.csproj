@@ -146,7 +146,9 @@
     <Compile Include="Streams\ReceivingResultCode.cs" />
     <Compile Include="Utils\Cloud\Azure\Storage\Blobs\Lease.cs" />
     <Compile Include="Utils\Nothing.cs" />
+    <Compile Include="Utils\Polling\IPollingJob.cs" />
     <Compile Include="Utils\Polling\IPollingTimeout.cs" />
+    <Compile Include="Utils\Polling\PollingJob.cs" />
     <Compile Include="Utils\Polling\PollingTimeout.cs" />
     <Compile Include="Utils\RetryPolicies\IRetryPolicy.cs" />
     <Compile Include="Utils\RetryPolicies\RetryPolicy.cs" />

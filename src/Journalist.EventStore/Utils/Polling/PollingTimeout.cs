@@ -42,7 +42,6 @@ namespace Journalist.EventStore.Utils.Polling
 
         public Task WaitAsync(CancellationToken token)
         {
-            // Protect against TaskCanceledException.
             return Task.WhenAny(Task.Delay(m_value, token));
         }
 
