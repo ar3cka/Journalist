@@ -1,6 +1,4 @@
-﻿using Journalist.EventStore.Streams;
-using Journalist.EventStore.Utils;
-using Journalist.EventStore.Utils.RetryPolicies;
+﻿using Journalist.EventStore.Utils.RetryPolicies;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.Stubs
 {

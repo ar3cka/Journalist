@@ -72,8 +72,8 @@ namespace Journalist.EventStore.Connection
             var consumersRegistry = new EventStreamConsumers(deploymentTable);
 
             var notificationHub = new NotificationHub(
-                new NotificationsChannel(queues, new NotificationFormatter()),
-                new PollingTimeout());
+                new PollingJob(new PollingTimeout()),
+                new NotificationsChannel(queues, new NotificationFormatter()));
 
             var pendingNotifications = new PendingNotifications(journalTable);
             var pendingNotificationsChaser = new PendingNotificationsChaser(pendingNotifications, notificationHub);

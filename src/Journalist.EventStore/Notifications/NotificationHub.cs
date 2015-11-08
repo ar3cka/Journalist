@@ -18,21 +18,21 @@ namespace Journalist.EventStore.Notifications
         private static readonly ILogger s_logger = Log.ForContext<NotificationHub>();
 
         private readonly Dictionary<Type, NotificationListenerSubscription> m_subscriptions = new Dictionary<Type, NotificationListenerSubscription>();
+        private readonly IPollingJob m_pollingJob;
         private readonly INotificationsChannel m_channel;
-        private readonly IPollingTimeout m_timeout;
 
-        private CancellationTokenSource m_pollingCancellationToken;
-        private Task m_processingTask;
         private int m_processingCount;
         private int m_maxProcessingCount;
 
-        public NotificationHub(INotificationsChannel channel, IPollingTimeout timeout)
+        public NotificationHub(
+            IPollingJob pollingJob,
+            INotificationsChannel channel)
         {
+            Require.NotNull(pollingJob, "pollingJob");
             Require.NotNull(channel, "channel");
-            Require.NotNull(timeout, "timeout");
 
+            m_pollingJob = pollingJob;
             m_channel = channel;
-            m_timeout = timeout;
         }
 
         public Task NotifyAsync(INotification notification)
@@ -69,8 +69,24 @@ namespace Journalist.EventStore.Notifications
                     subscriptions.Start(connection);
                 }
 
-                m_pollingCancellationToken = new CancellationTokenSource();
-                m_processingTask = ProcessNotificationFromChannel(m_pollingCancellationToken.Token);
+                m_pollingJob.Start(async token =>
+                {
+                    var notifications = await ReceiveNotificationsAsync();
+
+                    if (notifications.IsEmpty())
+                    {
+                        s_logger.Debug("No notifications for processing.");
+
+                        return false;
+                    }
+
+                    foreach (var notification in notifications)
+                    {
+                        ProcessNotification(notification);
+                    }
+
+                    return true;
+                });
             }
         }
 
@@ -82,11 +98,7 @@ namespace Journalist.EventStore.Notifications
                 // of a new notifications then wait for completion of
                 // received notifications processing.
                 //
-                if (m_pollingCancellationToken != null)
-                {
-                    m_pollingCancellationToken.Cancel();
-                    m_processingTask.Wait();
-                }
+                m_pollingJob.Stop();
 
                 // Absense of new a notifications in the subscription
                 // stop phase is essential guarantee.
@@ -96,38 +108,6 @@ namespace Journalist.EventStore.Notifications
                     subscription.Stop();
                 }
             }
-        }
-
-        private async Task ProcessNotificationFromChannel(CancellationToken token)
-        {
-            // switch to the background task
-            await Task.Yield();
-
-            s_logger.Information("Starting notification processing cycle...");
-
-            while (!token.IsCancellationRequested)
-            {
-                var notifications = await ReceiveNotificationsAsync();
-
-                if (notifications.IsEmpty())
-                {
-                    s_logger.Debug("No notifications for processing. Request channel after: {Timeout}.", m_timeout);
-
-                    await m_timeout.WaitAsync(token);
-                    m_timeout.Increase();
-                }
-                else
-                {
-                    m_timeout.Reset();
-
-                    foreach (var notification in notifications)
-                    {
-                        ProcessNotification(notification);
-                    }
-                }
-            }
-
-            s_logger.Information("Notification processing cycle was stopped.");
         }
 
         private bool RequestNotificationsRequired()

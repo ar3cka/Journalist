@@ -3,10 +3,13 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.Collections;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Listeners;
 using Journalist.EventStore.Notifications.Types;
+using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Journalist.EventStore.Utils.Polling;
 using Journalist.Tasks;
 using Moq;
@@ -17,10 +20,17 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 {
     public class NotificationHubDataAttribute : AutoMoqDataAttribute
     {
-        public NotificationHubDataAttribute(bool emptyChannel = false)
+        public NotificationHubDataAttribute(
+            bool emptyChannel = false,
+            bool hasSubscriber = true,
+            bool startHub = true)
         {
+
             Fixture.Customize<INotification>(composer => composer
                 .FromFactory((EventStreamUpdated notification) => notification));
+
+            Fixture.Customize<IReceivedNotification[]>(composer => composer
+                .FromFactory((IReceivedNotification n) => n.YieldArray()));
 
             Fixture.Customize<Mock<INotificationsChannel>>(composer => composer
                 .Do(mock => mock
@@ -32,10 +42,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                     .Setup(self => self.SendAsync(It.IsAny<INotification>()))
                     .Returns(TaskDone.Done)));
 
-            Fixture.Customize<Mock<IPollingTimeout>>(composer => composer
-                .Do(mock => mock
-                    .Setup(self => self.WaitAsync(It.IsAny<CancellationToken>()))
-                    .Returns((CancellationToken token) => Task.WhenAny(Task.Delay(TimeSpan.FromMinutes(1), token)))));
+            Fixture.Customize<IPollingJob>(composer => composer.FromFactory((PollingJobStub stub) => stub));
 
             Fixture.Customize<Mock<INotificationFormatter>>(composer => composer
                 .Do(mock => mock
@@ -44,6 +51,20 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                 .Do(mock => mock
                     .Setup(self => self.ToBytes(It.IsAny<EventStreamUpdated>()))
                     .ReturnsUsingFixture(Fixture)));
+
+            Fixture.Customize<NotificationHub>(composer => composer
+                .Do(hub =>
+                {
+                    if (hasSubscriber)
+                    {
+                        hub.Subscribe(Fixture.Create<INotificationListener>());
+                    }
+
+                    if (startHub)
+                    {
+                        hub.StartNotificationProcessing(Fixture.Create<IEventStoreConnection>());
+                    }
+                }));
         }
     }
 }
