@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Journalist.EventStore.Utils.Polling;
 using Xunit;
 
@@ -54,6 +56,17 @@ namespace Journalist.EventStore.UnitTests.Utils.Polling
 
             timeout.Reset();
             Assert.Equal(TimeSpan.FromSeconds(1), timeout.Value);
+        }
+
+        [Fact]
+        public void WaitAsync_WhenCancellationTokenWasCancelled_DoesNotThrow()
+        {
+            var timeout = new PollingTimeout(TimeSpan.FromSeconds(10), 1, 1, TimeSpan.FromSeconds(10));
+            var cts = new CancellationTokenSource();
+
+            var waitTask = timeout.WaitAsync(cts.Token);
+            cts.Cancel();
+            waitTask.Wait();
         }
 
         private static void Increase(IPollingTimeout timeout, int count)

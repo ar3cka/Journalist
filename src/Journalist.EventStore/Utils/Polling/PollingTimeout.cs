@@ -42,6 +42,7 @@ namespace Journalist.EventStore.Utils.Polling
 
         public Task WaitAsync(CancellationToken token)
         {
+            // Wrap delay task to the WhenAny to protect TaskCancellationToken
             return Task.WhenAny(Task.Delay(m_value, token));
         }
 
