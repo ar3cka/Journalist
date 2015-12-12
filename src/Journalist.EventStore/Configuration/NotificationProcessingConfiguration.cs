@@ -7,8 +7,7 @@ namespace Journalist.EventStore.Configuration
     {
         private readonly IEventStoreConnectionConfiguration m_connection;
         private readonly List<INotificationListener> m_listeners;
-        public bool m_enabled;
-        private bool m_backgroundProcessingEnabled;
+        private bool m_enabled;
 
         public NotificationProcessingConfiguration(IEventStoreConnectionConfiguration connection, List<INotificationListener> listeners)
         {
