@@ -82,26 +82,35 @@ namespace Journalist.EventStore.Connection
 
             connectivityState.ConnectionCreated += (sender, args) =>
             {
-                foreach (var notificationListener in m_configuration.NotificationListeners)
+                if (m_configuration.BackgroundProcessingEnabled)
                 {
-                    notificationHub.Subscribe(notificationListener);
-                }
+                    foreach (var notificationListener in m_configuration.NotificationListeners)
+                    {
+                        notificationHub.Subscribe(notificationListener);
+                    }
 
-                notificationHub.StartNotificationProcessing(args.Connection);
-                pendingNotificationsChaser.Start();
+                    notificationHub.StartNotificationProcessing(args.Connection);
+                    pendingNotificationsChaser.Start();                    
+                }
             };
 
             connectivityState.ConnectionClosing += (sender, args) =>
             {
-                notificationHub.StopNotificationProcessing();
-                pendingNotificationsChaser.Stop();
+                if (m_configuration.BackgroundProcessingEnabled)
+                {
+                    notificationHub.StopNotificationProcessing();
+                    pendingNotificationsChaser.Stop();                    
+                }
             };
 
             connectivityState.ConnectionClosed += (sender, args) =>
             {
-                foreach (var notificationListener in m_configuration.NotificationListeners)
+                if (m_configuration.BackgroundProcessingEnabled)
                 {
-                    notificationHub.Unsubscribe(notificationListener);
+                    foreach (var notificationListener in m_configuration.NotificationListeners)
+                    {
+                        notificationHub.Unsubscribe(notificationListener);
+                    }                    
                 }
             };
 

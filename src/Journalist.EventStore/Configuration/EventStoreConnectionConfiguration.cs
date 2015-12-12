@@ -8,8 +8,8 @@ namespace Journalist.EventStore.Configuration
 {
     public class EventStoreConnectionConfiguration : IEventStoreConnectionConfiguration
     {
-        private readonly IEventMutationPipelineConfiguration m_mutationPipelineConfiguration;
-        private readonly INotificationProcessingConfiguration m_notificationProcessingConfiguration;
+        private readonly EventMutationPipelineConfiguration m_mutationPipelineConfiguration;
+        private readonly NotificationProcessingConfiguration m_notificationProcessingConfiguration;
         private readonly List<IEventMutator> m_incomingMessageMutators;
         private readonly List<IEventMutator> m_outgoingMessageMutators;
         private readonly List<INotificationListener> m_notificationListeners;
@@ -121,6 +121,11 @@ namespace Journalist.EventStore.Configuration
         {
             get;
             private set;
+        }
+
+        public bool BackgroundProcessingEnabled
+        {
+            get { return m_notificationProcessingConfiguration.BackgroundProcessingEnabled; }
         }
 
         public IReadOnlyCollection<IEventMutator> IncomingMessageMutators
