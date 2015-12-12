@@ -47,9 +47,9 @@ namespace Journalist.EventStore.Configuration
                 throw new InvalidOperationException("NotificationQueueName is not specified.");
             }
 
-            if (StreamConsumerSessionsBlobName.IsNullOrEmpty())
+            if (StreamConsumerSessionsBlobContainerName.IsNullOrEmpty())
             {
-                throw new InvalidOperationException("StreamConsumerSessionsBlobName is not specified.");
+                throw new InvalidOperationException("StreamConsumerSessionsBlobContainerName is not specified.");
             }
         }
 
@@ -59,21 +59,27 @@ namespace Journalist.EventStore.Configuration
             string eventStoreDeploymentTableName,
             string notificationQueueName,
             int notificationQueuePartitionCount,
-            string streamConsumerSessionsBlobName)
+            string streamConsumerSessionsBlobContainerName,
+            string pendingNotificationsChaserExclusiveAccessLockBlobContainerName,
+            string pendingNotificationsChaserExclusiveAccessLockBlobName)
         {
             Require.NotEmpty(storageConnectionString, "storageConnectionString");
             Require.NotEmpty(journalTableName, "journalTableName");
             Require.NotEmpty(eventStoreDeploymentTableName, "eventStoreDeploymentTableName");
             Require.NotEmpty(notificationQueueName, "notificationQueueName");
             Require.Positive(notificationQueuePartitionCount, "notificationQueuePartitionCount");
-            Require.NotEmpty(streamConsumerSessionsBlobName, "streamConsumerSessionsBlobName");
+            Require.NotEmpty(streamConsumerSessionsBlobContainerName, "streamConsumerSessionsBlobContainerName");
+            Require.NotEmpty(pendingNotificationsChaserExclusiveAccessLockBlobContainerName, "pendingNotificationsChaserExclusiveAccessLockBlobContainerName");
+            Require.NotEmpty(pendingNotificationsChaserExclusiveAccessLockBlobName, "pendingNotificationsChaserExclusiveAccessLockBlobName");
 
             StorageConnectionString = storageConnectionString;
             JournalTableName = journalTableName;
             EventStoreDeploymentTableName = eventStoreDeploymentTableName;
             NotificationQueueName = notificationQueueName;
             NotificationQueuePartitionCount = notificationQueuePartitionCount;
-            StreamConsumerSessionsBlobName = streamConsumerSessionsBlobName;
+            StreamConsumerSessionsBlobContainerName = streamConsumerSessionsBlobContainerName;
+            PendingNotificationsChaserExclusiveAccessLockBlobName = pendingNotificationsChaserExclusiveAccessLockBlobName;
+            PendingNotificationsChaserExclusiveAccessLockBlobContainerName = pendingNotificationsChaserExclusiveAccessLockBlobContainerName;
 
             return this;
         }
@@ -114,10 +120,23 @@ namespace Journalist.EventStore.Configuration
 
         public int NotificationQueuePartitionCount
         {
-            get; private set;
+            get;
+            private set;
         }
 
-        public string StreamConsumerSessionsBlobName
+        public string StreamConsumerSessionsBlobContainerName
+        {
+            get;
+            private set;
+        }
+
+        public string PendingNotificationsChaserExclusiveAccessLockBlobName
+        {
+            get;
+            private set;
+        }
+
+        public string PendingNotificationsChaserExclusiveAccessLockBlobContainerName
         {
             get;
             private set;

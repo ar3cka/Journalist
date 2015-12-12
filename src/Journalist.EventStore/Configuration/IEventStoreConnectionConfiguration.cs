@@ -8,7 +8,9 @@ namespace Journalist.EventStore.Configuration
             string eventStoreDeploymentTableName = Constants.StorageEntities.EVENT_STORE_DEPLOYMENT_TABLE_NAME,
             string notificationQueueName = Constants.StorageEntities.NOTIFICATION_QUEUE_NAME,
             int notificationQueuePartitionCount = Constants.Settings.NOTIFICATION_QUEUE_PARTITION_COUNT,
-            string streamConsumerSessionsBlobName = Constants.StorageEntities.EVENT_STREAM_CONSUMER_SESSIONS_BLOB_NAME);
+            string streamConsumerSessionsBlobContainerName = Constants.StorageEntities.EVENT_CONSUMER_SESSIONS_BLOB_CONTAINER_NAME,
+            string pendingNotificationsChaserExclusiveAccessLockBlobContainerName = Constants.StorageEntities.PENDING_NOTIFICATIONS_CHASER_EXCLUSIVE_ACCESS_LOCK_BLOB_CONTAINER_NAME,
+            string pendingNotificationsChaserExclusiveAccessLockBlobName = Constants.StorageEntities.PENDING_NOTIFICATIONS_CHASER_EXCLUSIVE_ACCESS_LOCK_BLOB_NAME);
 
         IEventMutationPipelineConfiguration Mutate { get; }
 

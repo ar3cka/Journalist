@@ -72,6 +72,7 @@
     <Compile Include="Infrastructure\TestData\EventStreamWriterDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\NotificationHubDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\NotificationListenerSubscriptionDataAttribute.cs" />
+    <Compile Include="Infrastructure\TestData\PendingNotificationsChaserDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\PollingJobDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\StreamConsumingNotificationListenerDataAttribute.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperationTests.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="Notifications\Listeners\StreamConsumingNotificationListener.cs" />
     <Compile Include="Notifications\Listeners\NotificationListenerSubscriptionTest.cs" />
     <Compile Include="Notifications\NotificationHubTests.cs" />
+    <Compile Include="Notifications\PendingNotificationsChaserTests.cs" />
     <Compile Include="Notifications\Processing\ReceivedNotificationProcessorTests.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdatedTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -57,7 +57,7 @@ namespace Journalist.EventStore.Connection
             var sessionFactory = new EventStreamConsumingSessionFactory(
                 m_factory.CreateBlobContainer(
                     m_configuration.StorageConnectionString,
-                    m_configuration.StreamConsumerSessionsBlobName));
+                    m_configuration.StreamConsumerSessionsBlobContainerName));
 
             var pipelineFactory = new EventMutationPipelineFactory(
                 m_configuration.IncomingMessageMutators,
@@ -78,7 +78,20 @@ namespace Journalist.EventStore.Connection
                 new ReceivedNotificationProcessor());
 
             var pendingNotifications = new PendingNotifications(journalTable);
-            var pendingNotificationsChaser = new PendingNotificationsChaser(pendingNotifications, notificationHub);
+            var pendingNotificationsChaserTimeout = new PollingTimeout(
+                TimeSpan.FromMinutes(Constants.Settings.PENDING_NOTIFICATIONS_CHASER_INITIAL_TIMEOUT_IN_MINUTES),
+                Constants.Settings.PENDING_NOTIFICATIONS_CHASER_TIMEOUT_MULTIPLIER,
+                Constants.Settings.PENDING_NOTIFICATIONS_CHASER_TIMEOUT_INCREASING_THRESHOLD,
+                TimeSpan.FromMinutes(Constants.Settings.PENDING_NOTIFICATIONS_CHASER_MAX_TIMEOUT_IN_MINUTES));
+
+            var pendingNotificationsChaser = new PendingNotificationsChaser(
+                pendingNotifications,
+                notificationHub,
+                new PollingJob(pendingNotificationsChaserTimeout),
+                m_factory.CreateBlobContainer(
+                    m_configuration.StorageConnectionString,
+                    m_configuration.PendingNotificationsChaserExclusiveAccessLockBlobContainerName).CreateBlockBlob(
+                        m_configuration.PendingNotificationsChaserExclusiveAccessLockBlobName));
 
             connectivityState.ConnectionCreated += (sender, args) =>
             {
@@ -90,7 +103,7 @@ namespace Journalist.EventStore.Connection
                     }
 
                     notificationHub.StartNotificationProcessing(args.Connection);
-                    pendingNotificationsChaser.Start();                    
+                    pendingNotificationsChaser.Start();
                 }
             };
 
@@ -99,7 +112,7 @@ namespace Journalist.EventStore.Connection
                 if (m_configuration.BackgroundProcessingEnabled)
                 {
                     notificationHub.StopNotificationProcessing();
-                    pendingNotificationsChaser.Stop();                    
+                    pendingNotificationsChaser.Stop();
                 }
             };
 
@@ -110,7 +123,7 @@ namespace Journalist.EventStore.Connection
                     foreach (var notificationListener in m_configuration.NotificationListeners)
                     {
                         notificationHub.Unsubscribe(notificationListener);
-                    }                    
+                    }
                 }
             };
 
