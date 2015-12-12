@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Journalist.EventStore.Utils.Cloud.Azure.Storage.Blobs;
 using Journalist.EventStore.Utils.Polling;
 using Journalist.WindowsAzure.Storage.Blobs;
@@ -50,14 +51,17 @@ namespace Journalist.EventStore.Notifications
 
                     if (Lease.IsAcquired(lease))
                     {
-                        var notifications = await m_pendingNotifications.LoadAsync();
-                        foreach (var notification in notifications)
-                        {
-                            await m_notificationHub.NotifyAsync(notification);
-                            await m_pendingNotifications.DeleteAsync(notification.StreamName, notification.FromVersion);
-                        }
+                        s_logger.Verbose("Chaser lock was successfully acquired. Start pending notification processing...");
 
-                        result = notifications.Any();
+                        var processNotificationCount = await ProcessPendingNotificationsAsync();
+
+                        s_logger.Information("Chaser republished {NotificationCount} unpublished notifications.", processNotificationCount);
+
+                        result = processNotificationCount != 0;
+                    }
+                    else
+                    {
+                        s_logger.Verbose("Chaser lock wasn't acquired.");
                     }
                 }
                 catch (Exception exception)
@@ -65,15 +69,41 @@ namespace Journalist.EventStore.Notifications
                     s_logger.Error(exception, "Notification processing failed.");
                 }
 
-                if (lease != null && Lease.IsAcquired(lease))
-                {
-                    await Lease.ReleaseAsync(m_chaserExclusiveAccessBlobLock, lease);
-                }
+                await ReleaseLeaseAsync(lease);
 
                 return result;
             });
 
             s_logger.Information("Pending notifications chaser started.");
+        }
+
+        private async Task<int> ProcessPendingNotificationsAsync()
+        {
+            var notifications = await m_pendingNotifications.LoadAsync();
+            foreach (var notification in notifications)
+            {
+                await m_notificationHub.NotifyAsync(notification);
+                await m_pendingNotifications.DeleteAsync(notification.StreamName, notification.FromVersion);
+            }
+
+            return notifications.Count;
+        }
+
+        private async Task ReleaseLeaseAsync(Lease lease)
+        {
+            if (Lease.IsAcquired(lease))
+            {
+                try
+                {
+                    await Lease.ReleaseAsync(m_chaserExclusiveAccessBlobLock, lease);
+
+                    s_logger.Verbose("Chaser lock was successfully released.");
+                }
+                catch (Exception exception)
+                {
+                    s_logger.Error(exception, "Releasing chaser lock failed.");
+                }
+            }
         }
 
         public void Stop()
