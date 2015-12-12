@@ -87,7 +87,7 @@ namespace Journalist.EventStore.Connection
 
             m_connectionState.EnsureConnectionIsActive();
 
-            var endOfStream = await m_journal.ReadEndOfStreamPositionAsync(streamName);
+            var endOfStream = await m_journal.ReadStreamHeaderAsync(streamName);
 
             return new EventStreamWriter(
                 streamName: streamName,

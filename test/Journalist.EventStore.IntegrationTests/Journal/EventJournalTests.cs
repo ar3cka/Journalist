@@ -94,7 +94,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         {
             var batches = PrepareBatch(batchSize, batchNumber);
 
-            var currentPosition = await Journal.ReadEndOfStreamPositionAsync(StreamName);
+            var currentPosition = await Journal.ReadStreamHeaderAsync(StreamName);
             while (batches.Any())
             {
                 currentPosition = await Journal.AppendEventsAsync(StreamName, currentPosition, batches.Dequeue());

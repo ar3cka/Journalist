@@ -70,7 +70,7 @@ namespace Journalist.EventStore.Streams
         {
             ConnectionState.EnsureConnectionIsActive();
 
-            m_endOfStream = await m_journal.ReadEndOfStreamPositionAsync(StreamName);
+            m_endOfStream = await m_journal.ReadStreamHeaderAsync(StreamName);
         }
 
         public override EventStreamHeader StreamHeader

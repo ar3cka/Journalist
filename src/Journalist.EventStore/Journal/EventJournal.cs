@@ -42,16 +42,16 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
 
-            var position = await ReadEndOfStreamPositionAsync(streamName);
-            if (EventStreamHeader.IsNewStream(position))
+            var header = await ReadStreamHeaderAsync(streamName);
+            if (EventStreamHeader.IsNewStream(header))
             {
                 return EventStreamCursor.Empty;
             }
 
             return new EventStreamCursor(
-                position,
+                header,
                 StreamVersion.Start,
-                from => m_table.FetchStreamEvents(streamName, from, position.Version, sliceSize));
+                from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
         }
 
         public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize)
@@ -59,16 +59,16 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
 
-            var position = await ReadEndOfStreamPositionAsync(streamName);
-            if (position.Version < fromVersion)
+            var header = await ReadStreamHeaderAsync(streamName);
+            if (header.Version < fromVersion)
             {
                 return EventStreamCursor.Empty;
             }
 
             return new EventStreamCursor(
-                position,
+                header,
                 fromVersion,
-                from => m_table.FetchStreamEvents(streamName, from, position.Version, sliceSize));
+                from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
         }
 
         public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, EventStreamReaderId readerId, int sliceSize)
@@ -77,20 +77,20 @@ namespace Journalist.EventStore.Journal
             Require.Positive(sliceSize, "sliceSize");
 
             var fromVersion = await ReadStreamReaderPositionAsync(streamName, readerId);
-            var position = await ReadEndOfStreamPositionAsync(streamName);
+            var header = await ReadStreamHeaderAsync(streamName);
 
-            if (fromVersion == position.Version)
+            if (fromVersion == header.Version)
             {
                 return EventStreamCursor.Empty;
             }
 
             return new EventStreamCursor(
-                position,
+                header,
                 fromVersion.Increment(),
-                from => m_table.FetchStreamEvents(streamName, from, position.Version, sliceSize));
+                from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
         }
 
-        public async Task<EventStreamHeader> ReadEndOfStreamPositionAsync(string streamName)
+        public async Task<EventStreamHeader> ReadStreamHeaderAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 

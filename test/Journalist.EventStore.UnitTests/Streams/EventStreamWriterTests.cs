@@ -125,7 +125,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         {
             await writer.MoveToEndOfStreamAsync();
 
-            journalMock.Verify(journal => journal.ReadEndOfStreamPositionAsync(writer.StreamName));
+            journalMock.Verify(journal => journal.ReadStreamHeaderAsync(writer.StreamName));
         }
 
         [Theory, EventStreamWriterData]

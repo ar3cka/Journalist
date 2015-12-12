@@ -48,7 +48,7 @@ namespace Journalist.EventStore.Connection
             await m_journalReaders.RegisterAsync(m_readerId);
             if (m_configuration.StartReadingStreamFromEnd)
             {
-                var endOfStream = await m_journal.ReadEndOfStreamPositionAsync(m_configuration.StreamName);
+                var endOfStream = await m_journal.ReadStreamHeaderAsync(m_configuration.StreamName);
                 await m_journal.CommitStreamReaderPositionAsync(m_configuration.StreamName, m_readerId, endOfStream.Version);
             }
             else
