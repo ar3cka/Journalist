@@ -45,7 +45,7 @@ namespace Journalist.EventStore.Journal
             var header = await ReadStreamHeaderAsync(streamName);
             if (EventStreamHeader.IsNewStream(header))
             {
-                return EventStreamCursor.Empty;
+                return EventStreamCursor.UninitializedStream;
             }
 
             return new EventStreamCursor(
@@ -62,7 +62,7 @@ namespace Journalist.EventStore.Journal
             var header = await ReadStreamHeaderAsync(streamName);
             if (header.Version < fromVersion)
             {
-                return EventStreamCursor.Empty;
+                return EventStreamCursor.UninitializedStream;
             }
 
             return new EventStreamCursor(
@@ -81,7 +81,7 @@ namespace Journalist.EventStore.Journal
 
             if (fromVersion == header.Version)
             {
-                return EventStreamCursor.Empty;
+                return EventStreamCursor.UninitializedStream;
             }
 
             return new EventStreamCursor(

@@ -6,7 +6,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
 {
     public class EventStreamCursor : IEventStreamCursor
     {
-        public static readonly EventStreamCursor Empty = new EventStreamCursor();
+        public static readonly EventStreamCursor UninitializedStream = new EventStreamCursor();
 
         private readonly StreamVersion m_cursorStreamVersion;
         private EventStreamSlice m_slice;

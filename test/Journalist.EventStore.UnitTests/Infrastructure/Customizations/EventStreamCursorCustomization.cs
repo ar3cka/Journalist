@@ -21,7 +21,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
             if (m_emptyCursor)
             {
                 fixture.Customize<IEventStreamCursor>(composer => composer
-                    .FromFactory(() => EventStreamCursor.Empty));
+                    .FromFactory(() => EventStreamCursor.UninitializedStream));
             }
             else
             {

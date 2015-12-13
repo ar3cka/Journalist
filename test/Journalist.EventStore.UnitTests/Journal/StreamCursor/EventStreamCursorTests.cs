@@ -6,25 +6,19 @@ namespace Journalist.EventStore.UnitTests.Journal.StreamCursor
     public class EventStreamCursorTests
     {
         [Fact]
-        public void EndOfStream_ForEmptyCursor_ReturnsTrue()
+        public void EndOfStream_ForUninitializedStreamCursor_ReturnsTrue()
         {
-            Assert.True(EventStreamCursor.Empty.EndOfStream);
+            Assert.True(EventStreamCursor.UninitializedStream.EndOfStream);
         }
 
         [Fact]
-        public void EqualsOperator_ForTwoEmptyCursors_ReturnsTrue()
+        public void EqualsOperator_ForTwoUninitializedStreamCursors_ReturnsTrue()
         {
-            var cursor1 = EventStreamCursor.Empty;
-            var cursor2 = EventStreamCursor.Empty;
+            var cursor1 = EventStreamCursor.UninitializedStream;
+            var cursor2 = EventStreamCursor.UninitializedStream;
 
             Assert.Equal(cursor1, cursor2);
             Assert.True(cursor1 == cursor2);
-        }
-
-        [Fact]
-        public void EndOfSteam_WhenCursorIsEmpty_ReturnsTrue()
-        {
-            Assert.True(EventStreamCursor.Empty.EndOfStream);
         }
     }
 }
