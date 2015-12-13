@@ -75,9 +75,11 @@
     <Compile Include="Infrastructure\TestData\PendingNotificationsChaserDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\PollingJobDataAttribute.cs" />
     <Compile Include="Infrastructure\TestData\StreamConsumingNotificationListenerDataAttribute.cs" />
+    <Compile Include="Journal\EventStreamHeaderTests.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperationTests.cs" />
     <Compile Include="Journal\Persistence\Operations\DeletePendingNotificationOperationTest.cs" />
     <Compile Include="Journal\Persistence\Operations\OperationFixture.cs" />
+    <Compile Include="Journal\StreamCursor\EventStreamCursorTests.cs" />
     <Compile Include="Notifications\Listeners\BatchEventConsumingNotificationListenerTests.cs" />
     <Compile Include="Notifications\Listeners\EventConsumingNotificationListenerTests.cs" />
     <Compile Include="Notifications\Listeners\StreamConsumingNotificationListener.cs" />
