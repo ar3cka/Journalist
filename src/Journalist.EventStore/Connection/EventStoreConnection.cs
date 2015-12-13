@@ -12,7 +12,6 @@ namespace Journalist.EventStore.Connection
     public class EventStoreConnection : IEventStoreConnection
     {
         private readonly IEventJournal m_journal;
-        private readonly IEventJournalReaders m_journalReaders;
         private readonly IEventStreamConsumers m_consumers;
         private readonly IEventStreamConsumingSessionFactory m_sessionFactory;
         private readonly IEventMutationPipelineFactory m_pipelineFactory;
@@ -23,7 +22,6 @@ namespace Journalist.EventStore.Connection
         public EventStoreConnection(
             IEventStoreConnectionState connectionState,
             IEventJournal journal,
-            IEventJournalReaders journalReaders,
             INotificationHub notificationHub,
             IPendingNotifications pendingNotifications,
             IEventStreamConsumers consumers,
@@ -32,7 +30,6 @@ namespace Journalist.EventStore.Connection
         {
             Require.NotNull(connectionState, "connectionState");
             Require.NotNull(journal, "journal");
-            Require.NotNull(journalReaders, "journalReaders");
             Require.NotNull(notificationHub, "notificationHub");
             Require.NotNull(pendingNotifications, "pendingNotifications");
             Require.NotNull(consumers, "consumers");
@@ -41,7 +38,6 @@ namespace Journalist.EventStore.Connection
 
             m_connectionState = connectionState;
             m_journal = journal;
-            m_journalReaders = journalReaders;
             m_notificationHub = notificationHub;
             m_pendingNotifications = pendingNotifications;
             m_consumers = consumers;
@@ -133,7 +129,6 @@ namespace Journalist.EventStore.Connection
                 readerFactory: new EventStreamConsumerStreamReaderFactory(
                     readerId,
                     m_journal,
-                    m_journalReaders,
                     m_connectionState,
                     m_pipelineFactory.CreateIncomingPipeline(),
                     configuration),

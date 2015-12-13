@@ -127,12 +127,9 @@ namespace Journalist.EventStore.Connection
                 }
             };
 
-            var journalReaders = new EventJournalReaders(deploymentTable);
-
             return new EventStoreConnection(
                 connectivityState,
-                new EventJournal(journalReaders, journalTable),
-                journalReaders,
+                new EventJournal(journalTable),
                 notificationHub,
                 pendingNotifications,
                 consumersRegistry,

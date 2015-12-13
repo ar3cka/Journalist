@@ -132,7 +132,6 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         {
             var factory = new StorageFactory();
             var journal = new EventJournal(
-                new EventJournalReaders(factory.CreateTable("UseDevelopmentStorage=true", "TestEventStoreDeployment")),
                 new EventJournalTable(factory.CreateTable("UseDevelopmentStorage=true", "TestEventJournal")));
 
             return journal;

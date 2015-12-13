@@ -11,15 +11,12 @@ namespace Journalist.EventStore.Journal
 {
     public class EventJournal : IEventJournal
     {
-        private readonly IEventJournalReaders m_readers;
         private readonly IEventJournalTable m_table;
 
-        public EventJournal(IEventJournalReaders readers, IEventJournalTable table)
+        public EventJournal(IEventJournalTable table)
         {
             Require.NotNull(table, "table");
-            Require.NotNull(readers, "readers");
 
-            m_readers = readers;
             m_table = table;
         }
 
@@ -121,18 +118,13 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(readerId, "readerId");
 
-            if (await m_readers.IsRegisteredAsync(readerId))
+            var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
+            if (properties == null)
             {
-                var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
-                if (properties == null)
-                {
-                    return StreamVersion.Unknown;
-                }
-
-                return StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]);
+                return StreamVersion.Unknown;
             }
 
-            throw new EventStreamReaderNotRegisteredException(streamName, readerId);
+            return StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]);
         }
 
         public async Task CommitStreamReaderPositionAsync(
@@ -143,33 +135,27 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(readerId, "readerId");
 
-            if (await m_readers.IsRegisteredAsync(readerId))
+            var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
+            if (properties == null)
             {
-                var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
-                if (properties == null)
-                {
-                    await m_table.InserStreamReaderPropertiesAsync(
-                        streamName,
-                        readerId,
-                        readerVersion);
-                }
-                else
-                {
-                    var readerVersionValue = (int)readerVersion;
-                    var savedVersionValue = (int)properties[EventJournalTableRowPropertyNames.Version];
-                    var etag = (string)properties[KnownProperties.ETag];
-                    Ensure.True(savedVersionValue <= readerVersionValue, "Saved reader stream version is greater then passed value.");
-
-                    if (readerVersionValue != savedVersionValue)
-                    {
-                        await m_table.UpdateStreamReaderPropertiesAsync(streamName, readerId, readerVersion, etag);
-                    }
-                }
-
-                return;
+                await m_table.InserStreamReaderPropertiesAsync(
+                    streamName,
+                    readerId,
+                    readerVersion);
             }
+            else
+            {
+                var readerVersionValue = (int)readerVersion;
+                var savedVersionValue = (int)properties[EventJournalTableRowPropertyNames.Version];
+                var etag = (string)properties[KnownProperties.ETag];
+                Ensure.True(savedVersionValue <= readerVersionValue,
+                    "Saved reader stream version is greater then passed value.");
 
-            throw new EventStreamReaderNotRegisteredException(streamName, readerId);
+                if (readerVersionValue != savedVersionValue)
+                {
+                    await m_table.UpdateStreamReaderPropertiesAsync(streamName, readerId, readerVersion, etag);
+                }
+            }
         }
 
         private static async Task<TResult> ExecuteOperationAsync<TResult>(IStreamOperation<TResult> operation)

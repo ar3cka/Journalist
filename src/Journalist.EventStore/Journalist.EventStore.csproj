@@ -71,13 +71,10 @@
     <Compile Include="Events\StreamVersion.cs" />
     <Compile Include="Journal\EventJournal.cs" />
     <Compile Include="Journal\EventJournalExtensions.cs" />
-    <Compile Include="Journal\EventJournalReaders.cs" />
     <Compile Include="Journal\EventJournalTableRowPropertyNames.cs" />
     <Compile Include="Journal\EventStreamConcurrencyException.cs" />
     <Compile Include="Journal\EventStreamHeader.cs" />
-    <Compile Include="Journal\EventStreamReaderNotRegisteredException.cs" />
     <Compile Include="Journal\IEventJournal.cs" />
-    <Compile Include="Journal\IEventJournalReaders.cs" />
     <Compile Include="Journal\IEventStreamCursor.cs" />
     <Compile Include="Journal\IEventStreamSlice.cs" />
     <Compile Include="Journal\Persistence\EventJournalTable.cs" />
