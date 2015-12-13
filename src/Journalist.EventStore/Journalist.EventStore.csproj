@@ -52,7 +52,7 @@
     <Compile Include="Connection\EventStoreConnectionState.cs" />
     <Compile Include="Connection\EventStoreConnectivityStateEventArgs.cs" />
     <Compile Include="Connection\EventStreamConsumerConfiguration.cs" />
-    <Compile Include="Connection\EventStreamConsumerStreamReaderFactory.cs" />
+    <Compile Include="Connection\PersitentEventStreamReaderFactory.cs" />
     <Compile Include="Connection\IEventStoreConnectionState.cs" />
     <Compile Include="Connection\IEventStreamConsumerConfiguration.cs" />
     <Compile Include="Constants.cs" />
@@ -136,7 +136,7 @@
     <Compile Include="Streams\IEventStreamConsumer.cs" />
     <Compile Include="Streams\IEventStreamConsumers.cs" />
     <Compile Include="Streams\IEventStreamConsumerStateMachine.cs" />
-    <Compile Include="Streams\IEventStreamConsumerStreamReaderFactory.cs" />
+    <Compile Include="Streams\IEventStreamReaderFactory.cs" />
     <Compile Include="Streams\IEventStreamConsumingSession.cs" />
     <Compile Include="Streams\IEventStreamConsumingSessionFactory.cs" />
     <Compile Include="Streams\IEventStreamInteractionEntity.cs" />

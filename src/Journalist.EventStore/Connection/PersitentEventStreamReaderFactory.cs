@@ -6,7 +6,7 @@ using Journalist.EventStore.Streams;
 
 namespace Journalist.EventStore.Connection
 {
-    public class EventStreamConsumerStreamReaderFactory : IEventStreamConsumerStreamReaderFactory
+    public class PersistentEventStreamReaderFactory : IEventStreamReaderFactory
     {
         private readonly EventStreamReaderId m_readerId;
         private readonly IEventJournal m_journal;
@@ -14,7 +14,7 @@ namespace Journalist.EventStore.Connection
         private readonly IEventMutationPipeline m_mutationPipeline;
         private readonly EventStreamConsumerConfiguration m_configuration;
 
-        public EventStreamConsumerStreamReaderFactory(
+        public PersistentEventStreamReaderFactory(
             EventStreamReaderId readerId,
             IEventJournal journal,
             IEventStoreConnectionState connectionState,

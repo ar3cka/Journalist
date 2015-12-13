@@ -126,7 +126,7 @@ namespace Journalist.EventStore.Connection
 
             return new EventStreamConsumer(
                 session: session,
-                readerFactory: new EventStreamConsumerStreamReaderFactory(
+                readerFactory: new PersitentEventStreamReaderFactory(
                     readerId,
                     m_journal,
                     m_connectionState,

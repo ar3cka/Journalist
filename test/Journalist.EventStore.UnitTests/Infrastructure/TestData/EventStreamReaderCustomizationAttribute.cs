@@ -22,7 +22,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
             Fixture.Customize<EventStreamConsumer>(composer => composer.FromFactory(
                 () => new EventStreamConsumer(
                     Fixture.Create<IEventStreamConsumingSession>(),
-                    Fixture.Create<IEventStreamConsumerStreamReaderFactory>(),
+                    Fixture.Create<IEventStreamReaderFactory>(),
                     !disableAutoCommit,
                     Fixture.Create<Func<StreamVersion, Task>>())));
         }

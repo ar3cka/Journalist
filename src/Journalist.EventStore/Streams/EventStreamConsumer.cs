@@ -8,7 +8,7 @@ namespace Journalist.EventStore.Streams
     public class EventStreamConsumer : IEventStreamConsumer
     {
         private readonly IEventStreamConsumingSession m_session;
-        private readonly IEventStreamConsumerStreamReaderFactory m_readerFactory;
+        private readonly IEventStreamReaderFactory m_readerFactory;
         private readonly bool m_autoCommitProcessedStreamVersion;
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
         private IEventStreamConsumerStateMachine m_stateMachine;
@@ -16,7 +16,7 @@ namespace Journalist.EventStore.Streams
 
         public EventStreamConsumer(
             IEventStreamConsumingSession session,
-            IEventStreamConsumerStreamReaderFactory readerFactory,
+            IEventStreamReaderFactory readerFactory,
             bool autoCommitProcessedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
