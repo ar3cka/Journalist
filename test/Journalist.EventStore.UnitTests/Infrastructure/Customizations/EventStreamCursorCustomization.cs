@@ -46,7 +46,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                         StreamVersion.Create(3))));
 
                 fixture.Customize<IEventStreamCursor>(composer => composer
-                    .FromFactory(() => new EventStreamCursor(
+                    .FromFactory(() => EventStreamCursor.CreateActiveCursor(
                         EventStreamHeader.Unknown,
                         StreamVersion.Start,
                         fixture.Create<FetchEvents>())));

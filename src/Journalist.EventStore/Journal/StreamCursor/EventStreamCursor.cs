@@ -12,13 +12,30 @@ namespace Journalist.EventStore.Journal.StreamCursor
         private EventStreamSlice m_slice;
         private CursorState m_state;
 
-        public EventStreamCursor(EventStreamHeader streamHeader, StreamVersion fromVersion, FetchEvents fetch)
+        private EventStreamCursor(EventStreamHeader streamHeader, StreamVersion fromVersion, FetchEvents fetch)
         {
             Require.NotNull(fetch, "fetch");
 
             m_state = new InitialCursorState(streamHeader, fromVersion, fetch);
             m_slice = EventStreamSlice.Empty;
             m_cursorStreamVersion = fromVersion;
+        }
+
+        private EventStreamCursor(EventStreamHeader streamHeader, StreamVersion fromVersion)
+        {
+            m_state = new EndOfStreamCursorState(streamHeader);
+            m_slice = EventStreamSlice.Empty;
+            m_cursorStreamVersion = fromVersion;
+        }
+
+        public static IEventStreamCursor CreateActiveCursor(EventStreamHeader streamHeader, StreamVersion fromVersion, FetchEvents fetch)
+        {
+            return new EventStreamCursor(streamHeader, fromVersion, fetch);
+        }
+
+        public static IEventStreamCursor CreateEmptyCursor(EventStreamHeader streamHeader, StreamVersion fromVersion)
+        {
+            return new EventStreamCursor(streamHeader, fromVersion);
         }
 
         private EventStreamCursor()

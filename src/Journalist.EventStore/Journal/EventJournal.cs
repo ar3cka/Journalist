@@ -48,7 +48,7 @@ namespace Journalist.EventStore.Journal
                 return EventStreamCursor.UninitializedStream;
             }
 
-            return new EventStreamCursor(
+            return EventStreamCursor.CreateActiveCursor(
                 header,
                 StreamVersion.Start,
                 from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
@@ -60,12 +60,17 @@ namespace Journalist.EventStore.Journal
             Require.Positive(sliceSize, "sliceSize");
 
             var header = await ReadStreamHeaderAsync(streamName);
-            if (header.Version < fromVersion)
+            if (header.Version == StreamVersion.Unknown)
             {
                 return EventStreamCursor.UninitializedStream;
             }
 
-            return new EventStreamCursor(
+            if (header.Version < fromVersion)
+            {
+                return EventStreamCursor.CreateEmptyCursor(header, fromVersion);
+            }
+
+            return EventStreamCursor.CreateActiveCursor(
                 header,
                 fromVersion,
                 from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
@@ -79,12 +84,17 @@ namespace Journalist.EventStore.Journal
             var fromVersion = await ReadStreamReaderPositionAsync(streamName, readerId);
             var header = await ReadStreamHeaderAsync(streamName);
 
-            if (fromVersion == header.Version)
+            if (header == EventStreamHeader.Unknown)
             {
                 return EventStreamCursor.UninitializedStream;
             }
 
-            return new EventStreamCursor(
+            if (header.Version <= fromVersion)
+            {
+                return EventStreamCursor.CreateEmptyCursor(header, fromVersion);
+            }
+
+            return EventStreamCursor.CreateActiveCursor(
                 header,
                 fromVersion.Increment(),
                 from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
