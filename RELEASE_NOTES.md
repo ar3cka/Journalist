@@ -1,8 +1,11 @@
+### 0.9.1
+* [EventStore][Breaking] Event stream readers classes were removed.
+
 ### 0.9.0
 * [EventStore][Breaking] Move StreamVersion to the Events namespace.
 * [EventStore][Breaking] Rename EventStreamPosition to EventStreamHeader.
 * [EventStore][Improvment] Partitioned notificaion channel.
-* [EventStore][Imporvment] Processing unpublished stream updatenotifications.
+* [EventStore][Improvment] Processing unpublished stream updatenotifications.
 
 ### 0.8.5
 * [EventStore][Improvment] Caching data in EventJournalReaders and EventStreamConsumers.
