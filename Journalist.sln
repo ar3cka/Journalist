@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{305C646A-067C-4D97-AE84-F26AF63B8345}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{305C646A-067C-4D97-AE84-F26AF63B8345}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		appveyor.yml = appveyor.yml
@@ -33,6 +33,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventStore.UnitTests", "test\Journalist.EventStore.UnitTests\Journalist.EventStore.UnitTests.csproj", "{550D7589-7757-4D09-A176-43FB37CC37ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Journalist.EventStore.IntegrationTests", "test\Journalist.EventStore.IntegrationTests\Journalist.EventStore.IntegrationTests.csproj", "{D80C9A2D-FCD2-4F42-9BE3-5DD89AC4A13B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WindowsAzure", "WindowsAzure", "{4E5AC371-DD72-4EE8-B6E7-279172B68F43}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventStore", "EventStore", "{E22BF78E-D85B-4DA5-9C81-B34B445BC59A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LanguageExtensions", "LanguageExtensions", "{25E05975-2D0E-419D-8D0E-FD6A8D669F86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,5 +85,16 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{74FFF4D4-EB88-44D5-B19B-F96F54FAAE38} = {25E05975-2D0E-419D-8D0E-FD6A8D669F86}
+		{3AB115B7-7C4E-40F9-9D8C-E252AB8C337C} = {25E05975-2D0E-419D-8D0E-FD6A8D669F86}
+		{27467A27-6427-43FB-9FE8-0EDEBE115483} = {4E5AC371-DD72-4EE8-B6E7-279172B68F43}
+		{02DE3364-1504-4936-934B-52DA4B8A2092} = {4E5AC371-DD72-4EE8-B6E7-279172B68F43}
+		{CB561F21-05B0-4407-B0A8-82381D2AD91A} = {4E5AC371-DD72-4EE8-B6E7-279172B68F43}
+		{FBB59A1D-4802-4788-A531-C3AF470F314D} = {4E5AC371-DD72-4EE8-B6E7-279172B68F43}
+		{152F2338-8806-40E7-AB96-F9B06F705A7F} = {E22BF78E-D85B-4DA5-9C81-B34B445BC59A}
+		{550D7589-7757-4D09-A176-43FB37CC37ED} = {E22BF78E-D85B-4DA5-9C81-B34B445BC59A}
+		{D80C9A2D-FCD2-4F42-9BE3-5DD89AC4A13B} = {E22BF78E-D85B-4DA5-9C81-B34B445BC59A}
 	EndGlobalSection
 EndGlobal
