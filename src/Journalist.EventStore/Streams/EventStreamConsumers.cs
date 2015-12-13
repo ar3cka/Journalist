@@ -61,7 +61,7 @@ namespace Journalist.EventStore.Streams
             var result = await query.ExecuteAsync();
 
             return EventStreamReaderId.Parse(
-                (string)result[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_ID]);
+                (string)result[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_READER_ID]);
         }
 
         private async Task InsertConsumerId(string consumerName, EventStreamReaderId consumerId)
@@ -73,7 +73,7 @@ namespace Journalist.EventStore.Streams
                 rowKey: consumerName,
                 properties: new Dictionary<string, object>
                 {
-                    { Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_ID, consumerId.ToString() }
+                    { Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_READER_ID, consumerId.ToString() }
                 });
 
             operation.Insert(
