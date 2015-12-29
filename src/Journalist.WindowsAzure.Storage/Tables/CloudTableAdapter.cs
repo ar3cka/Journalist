@@ -34,7 +34,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 partitionKey: partitionKey,
                 rowKey: rowKey,
                 properties: properties,
-                fetchEntities: ExecuteQueryAsync,
+                fetchAsync: ExecuteQueryAsync,
+                fetchSync: ExecuteQuerySync,
                 tableEntityConverter: m_tableEntityConverter);
         }
 
@@ -47,7 +48,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 partitionKey: partitionKey,
                 rowKey: string.Empty,
                 properties: properties,
-                fetchEntities: ExecuteQueryAsync,
+                fetchAsync: ExecuteQueryAsync,
+                fetchSync: ExecuteQuerySync,
                 tableEntityConverter: m_tableEntityConverter);
         }
 
@@ -60,7 +62,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 filter: filter,
                 take: null,
                 properties: properties,
-                fetchEntities: ExecuteQueryAsync,
+                fetchAsync: ExecuteQueryAsync,
+                fetchSync: ExecuteQuerySync,
                 tableEntityConverter: m_tableEntityConverter);
         }
 
@@ -73,7 +76,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 filter: filter,
                 take: null,
                 properties: properties,
-                fetchEntities: ExecuteQueryAsync,
+                fetchAsync: ExecuteQueryAsync,
+                fetchSync: ExecuteQuerySync,
                 tableEntityConverter: m_tableEntityConverter);
         }
 
@@ -85,7 +89,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 filter: null,
                 take: null,
                 properties: properties,
-                fetchEntities: ExecuteQueryAsync,
+                fetchAsync: ExecuteQueryAsync,
+                fetchSync: ExecuteQuerySync,
                 tableEntityConverter: m_tableEntityConverter);
         }
 
@@ -97,14 +102,23 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 filter: null,
                 take: null,
                 properties: properties,
-                fetchEntities: ExecuteQueryAsync,
+                fetchAsync: ExecuteQueryAsync,
+                fetchSync: ExecuteQuerySync,
                 tableEntityConverter: m_tableEntityConverter);
         }
 
-        private Task<TableQuerySegment<DynamicTableEntity>> ExecuteQueryAsync(TableQuery<DynamicTableEntity> query,
+        private Task<TableQuerySegment<DynamicTableEntity>> ExecuteQueryAsync(
+            TableQuery<DynamicTableEntity> query,
             TableContinuationToken continuationToken)
         {
             return CloudEntity.ExecuteQuerySegmentedAsync(query, continuationToken);
+        }
+
+        private TableQuerySegment<DynamicTableEntity> ExecuteQuerySync(
+            TableQuery<DynamicTableEntity> query,
+            TableContinuationToken continuationToken)
+        {
+            return CloudEntity.ExecuteQuerySegmented(query, continuationToken);
         }
     }
 }

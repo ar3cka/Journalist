@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.Collections;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
@@ -14,9 +12,10 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string filter,
             int? take,
             string[] properties,
-            Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> fetchEntities,
+            FetchAsync fetchAsync,
+            FetchSync fetchSync,
             ITableEntityConverter tableEntityConverter)
-            : base(take, properties, fetchEntities, tableEntityConverter)
+            : base(take, properties, fetchAsync, fetchSync, tableEntityConverter)
         {
             m_filter = filter;
         }
@@ -27,7 +26,20 @@ namespace Journalist.WindowsAzure.Storage.Tables
 
             do
             {
-                result.AddRange(await FetchEntities(m_filter, EmptyArray.Get<byte>()));
+                result.AddRange(await FetchEntitiesAsync(m_filter, EmptyArray.Get<byte>()));
+            }
+            while (ReadNextSegment);
+
+            return result;
+        }
+
+        public List<Dictionary<string, object>> Execute()
+        {
+            var result = new List<Dictionary<string, object>>();
+
+            do
+            {
+                result.AddRange(FetchEntities(m_filter, EmptyArray.Get<byte>()));
             }
             while (ReadNextSegment);
 

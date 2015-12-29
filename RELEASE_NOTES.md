@@ -1,3 +1,6 @@
+### 0.9.2
+* [WAZ.Storage][New] CloudTable sync query methods.
+
 ### 0.9.1
 * [EventStore][Breaking] Event stream readers classes were removed.
 * [WAZ.Storage][New] CloudTable GetAll queries.

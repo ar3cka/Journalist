@@ -15,9 +15,10 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string partitionKey,
             string rowKey,
             string[] properties,
-            Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> fetchEntities,
+            FetchAsync fetchAsync,
+            FetchSync fetchSync,
             ITableEntityConverter tableEntityConverter)
-            : base(1, properties, fetchEntities, tableEntityConverter)
+            : base(1, properties, fetchAsync, fetchSync, tableEntityConverter)
         {
             Require.NotEmpty(partitionKey, "partitionKey");
             Require.NotNull(rowKey, "rowKey");
@@ -28,11 +29,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
 
         public async Task<Dictionary<string, object>> ExecuteAsync()
         {
-            var entities = await FetchEntities(
-                TableQuery.CombineFilters(
-                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, m_partitionKey),
-                    TableOperators.And,
-                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, m_rowKey)),
+            var entities = await FetchEntitiesAsync(
+                PrepareFilter(),
                 EmptyArray.Get<byte>());
 
             if (entities.Count == 0)
@@ -46,6 +44,33 @@ namespace Journalist.WindowsAzure.Storage.Tables
             }
 
             return entities[0];
+        }
+
+        public Dictionary<string, object> Execute()
+        {
+            var entities = FetchEntities(
+                PrepareFilter(),
+                EmptyArray.Get<byte>());
+
+            if (entities.Count == 0)
+            {
+                return null;
+            }
+
+            if (entities.Count > 1)
+            {
+                throw new InvalidOperationException("Single entity query returns to much rows.");
+            }
+
+            return entities[0];
+        }
+
+        private string PrepareFilter()
+        {
+            return TableQuery.CombineFilters(
+                TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, m_partitionKey),
+                TableOperators.And,
+                TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, m_rowKey));
         }
     }
 }

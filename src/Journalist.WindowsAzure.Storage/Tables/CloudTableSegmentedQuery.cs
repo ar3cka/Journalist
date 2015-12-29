@@ -10,13 +10,17 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
+    public delegate Task<TableQuerySegment<DynamicTableEntity>> FetchAsync(TableQuery<DynamicTableEntity> query, TableContinuationToken token);
+    public delegate TableQuerySegment<DynamicTableEntity> FetchSync(TableQuery<DynamicTableEntity> query, TableContinuationToken token);
+
     public abstract class CloudTableSegmentedQuery
     {
         private static readonly char[] s_separators = { ' ' };
 
         private readonly int? m_take;
         private readonly string[] m_properties;
-        private readonly Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> m_fetchEntities;
+        private readonly FetchAsync m_fetchEntitiesAsync;
+        private readonly FetchSync m_fetchEntities;
         private readonly ITableEntityConverter m_tableEntityConverter;
 
         private TableContinuationToken m_continuationToken;
@@ -25,50 +29,53 @@ namespace Journalist.WindowsAzure.Storage.Tables
         protected CloudTableSegmentedQuery(
             int? take,
             string[] properties,
-            Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>> fetchEntities,
+            FetchAsync fetchEntitiesAsync,
+            FetchSync fetchEntities,
+
             ITableEntityConverter tableEntityConverter)
         {
             Require.True(!take.HasValue || take > 0, "take", "Value should contains positive value");
             Require.NotNull(properties, "properties");
+            Require.NotNull(fetchEntitiesAsync, "fetchEntitiesAsync");
             Require.NotNull(fetchEntities, "fetchEntities");
             Require.NotNull(tableEntityConverter, "tableEntityConverter");
 
             m_take = take;
             m_properties = properties;
+            m_fetchEntitiesAsync = fetchEntitiesAsync;
             m_fetchEntities = fetchEntities;
             m_tableEntityConverter = tableEntityConverter;
             m_continuationToken = null;
         }
 
-        protected async Task<List<Dictionary<string, object>>> FetchEntities(string filter, byte[] continuationToken)
+        protected async Task<List<Dictionary<string, object>>> FetchEntitiesAsync(string filter, byte[] continuationToken)
         {
             Require.NotNull(continuationToken, "continuationToken");
 
-            var query = filter.IsNotNullOrEmpty()
-                ? new TableQuery<DynamicTableEntity>().Select(m_properties).Where(filter)
-                : new TableQuery<DynamicTableEntity>().Select(m_properties);
+            var query = PrepareQuery(filter);
+            var result = AllocateResult();
+            SetContinuationToken(continuationToken);
 
-            List<Dictionary<string, object>> result;
-            if (m_take.HasValue)
-            {
-                query = query.Take(m_take.Value);
-                result = new List<Dictionary<string, object>>(m_take.Value);
-            }
-            else
-            {
-                result = new List<Dictionary<string, object>>();
-            }
-
-            if (!m_executionStarted && continuationToken.Any())
-            {
-                m_continuationToken = ParseContinuationTokenBytes(continuationToken);
-            }
-
-            var queryResult = await m_fetchEntities(query, m_continuationToken);
+            var queryResult = await m_fetchEntitiesAsync(query, m_continuationToken);
             result.AddRange(queryResult.Results.Select(m_tableEntityConverter.CreatePropertiesFromDynamicTableEntity));
 
-            m_continuationToken = queryResult.ContinuationToken;
-            m_executionStarted = true;
+            UpdateContinuationToken(queryResult);
+
+            return result;
+        }
+
+        protected List<Dictionary<string, object>> FetchEntities(string filter, byte[] continuationToken)
+        {
+            Require.NotNull(continuationToken, "continuationToken");
+
+            var query = PrepareQuery(filter);
+            var result = AllocateResult();
+            SetContinuationToken(continuationToken);
+
+            var queryResult = m_fetchEntities(query, m_continuationToken);
+            result.AddRange(queryResult.Results.Select(m_tableEntityConverter.CreatePropertiesFromDynamicTableEntity));
+
+            UpdateContinuationToken(queryResult);
 
             return result;
         }
@@ -88,6 +95,20 @@ namespace Journalist.WindowsAzure.Storage.Tables
                     m_continuationToken.TargetLocation));
         }
 
+        private void SetContinuationToken(byte[] continuationToken)
+        {
+            if (!m_executionStarted && continuationToken.Any())
+            {
+                m_continuationToken = ParseContinuationTokenBytes(continuationToken);
+            }
+        }
+
+        private void UpdateContinuationToken(TableQuerySegment<DynamicTableEntity> queryResult)
+        {
+            m_continuationToken = queryResult.ContinuationToken;
+            m_executionStarted = true;
+        }
+
         private TableContinuationToken ParseContinuationTokenBytes(byte[] continuationTokenBytes)
         {
             var parts = Encoding.UTF8.GetString(continuationTokenBytes).Split(s_separators);
@@ -103,6 +124,27 @@ namespace Journalist.WindowsAzure.Storage.Tables
                     ? (StorageLocation?)null
                     : (StorageLocation)Enum.Parse(typeof(StorageLocation), parts[3])
             };
+        }
+
+        private List<Dictionary<string, object>> AllocateResult()
+        {
+            return m_take.HasValue 
+                ? new List<Dictionary<string, object>>(m_take.Value) 
+                : new List<Dictionary<string, object>>();
+        }
+
+        private TableQuery<DynamicTableEntity> PrepareQuery(string filter)
+        {
+            var query = filter.IsNotNullOrEmpty()
+                ? new TableQuery<DynamicTableEntity>().Select(m_properties).Where(filter)
+                : new TableQuery<DynamicTableEntity>().Select(m_properties);
+
+            if (m_take.HasValue)
+            {
+                query = query.Take(m_take.Value);
+            }
+
+            return query;
         }
 
         protected bool ReadNextSegment

@@ -14,6 +14,7 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
         public CloudTableTests()
         {
             Factory = new StorageFactory();
+            Table = Factory.CreateTable("UseDevelopmentStorage=true", "T" + Guid.NewGuid().ToString("N"));
         }
 
         [Fact]
@@ -58,12 +59,11 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
         [Fact]
         public async Task GetAllSegmentedQueryTest()
         {
-            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTableGetAllSegmentedQueryTest");
             var partition = Guid.NewGuid().ToString();
 
-            var rowsCount = await InsertValues(table, partition, 1);
+            var rowsCount = await InsertValues(Table, partition, 1);
 
-            var query = table.PrepareEntityGetAllSegmentedQuery();
+            var query = Table.PrepareEntityGetAllSegmentedQuery();
             var result = await query.ExecuteAsync();
 
             Assert.Equal(rowsCount, result.Count);
@@ -72,16 +72,42 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
         [Fact]
         public async Task GetAllQueryTest()
         {
-            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTableGetAllQueryTest");
             var partition = Guid.NewGuid().ToString();
 
-            var rowsCount = await InsertValues(table, partition, 1);
+            var rowsCount = await InsertValues(Table, partition, 1);
 
-            var query = table.PrepareEntityGetAllQuery();
+            var query = Table.PrepareEntityGetAllQuery();
             var result = await query.ExecuteAsync();
 
             Assert.Equal(rowsCount, result.Count);
         }
+
+        [Fact]
+        public async Task GetAllSegmentedSyncQueryTest()
+        {
+            var partition = Guid.NewGuid().ToString();
+
+            var rowsCount = await InsertValues(Table, partition, 1);
+
+            var query = Table.PrepareEntityGetAllSegmentedQuery();
+            var result = query.Execute();
+
+            Assert.Equal(rowsCount, result.Count);
+        }
+
+        [Fact]
+        public async Task GetAllSyncQueryTest()
+        {
+            var partition = Guid.NewGuid().ToString();
+
+            var rowsCount = await InsertValues(Table, partition, 1);
+
+            var query = Table.PrepareEntityGetAllQuery();
+            var result = query.Execute();
+
+            Assert.Equal(rowsCount, result.Count);
+        }
+
 
         [Fact]
         public async Task PrepareEntityRangeQueryByPartition_Test()
@@ -298,5 +324,7 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
         }
 
         public StorageFactory Factory { get; set; }
+
+        public ICloudTable Table { get; set; }
     }
 }
