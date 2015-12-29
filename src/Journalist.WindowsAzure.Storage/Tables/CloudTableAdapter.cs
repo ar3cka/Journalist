@@ -77,6 +77,30 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 tableEntityConverter: m_tableEntityConverter);
         }
 
+        public ICloudTableEntityRangeQuery PrepareEntityGetAllQuery(string[] properties)
+        {
+            Require.NotNull(properties, "properties");
+
+            return new CloudTableFilterRangeQuery(
+                filter: null,
+                take: null,
+                properties: properties,
+                fetchEntities: ExecuteQueryAsync,
+                tableEntityConverter: m_tableEntityConverter);
+        }
+
+        public ICloudTableEntitySegmentedRangeQuery PrepareEntityGetAllSegmentedQuery(string[] properties)
+        {
+            Require.NotNull(properties, "properties");
+
+            return new CloudTableFilterSegmentedRangeQuery(
+                filter: null,
+                take: null,
+                properties: properties,
+                fetchEntities: ExecuteQueryAsync,
+                tableEntityConverter: m_tableEntityConverter);
+        }
+
         private Task<TableQuerySegment<DynamicTableEntity>> ExecuteQueryAsync(TableQuery<DynamicTableEntity> query,
             TableContinuationToken continuationToken)
         {

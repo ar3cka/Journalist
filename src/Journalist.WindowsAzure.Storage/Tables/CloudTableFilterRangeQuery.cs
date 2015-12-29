@@ -18,8 +18,6 @@ namespace Journalist.WindowsAzure.Storage.Tables
             ITableEntityConverter tableEntityConverter)
             : base(take, properties, fetchEntities, tableEntityConverter)
         {
-            Require.NotEmpty(filter, "filter");
-
             m_filter = filter;
         }
 

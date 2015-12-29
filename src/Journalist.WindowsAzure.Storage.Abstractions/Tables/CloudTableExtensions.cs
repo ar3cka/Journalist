@@ -90,6 +90,20 @@ namespace Journalist.WindowsAzure.Storage.Tables
             return table.PrepareEntityFilterSegmentedRangeQuery(filter, EmptyArray.Get<string>());
         }
 
+        public static ICloudTableEntityRangeQuery PrepareEntityGetAllQuery(this ICloudTable table)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityGetAllQuery(EmptyArray.Get<string>());
+        }
+
+        public static ICloudTableEntitySegmentedRangeQuery PrepareEntityGetAllSegmentedQuery(this ICloudTable table)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityGetAllSegmentedQuery(EmptyArray.Get<string>());
+        }
+
         public static ICloudTableEntitySegmentedRangeQuery PrepareEntitySegmentedRangeQueryByPartition(
             this ICloudTable table,
             string partitionKey,

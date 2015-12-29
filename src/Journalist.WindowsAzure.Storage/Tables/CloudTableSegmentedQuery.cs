@@ -42,12 +42,11 @@ namespace Journalist.WindowsAzure.Storage.Tables
 
         protected async Task<List<Dictionary<string, object>>> FetchEntities(string filter, byte[] continuationToken)
         {
-            Require.NotEmpty(filter, "filter");
             Require.NotNull(continuationToken, "continuationToken");
 
-            var query = new TableQuery<DynamicTableEntity>()
-                .Select(m_properties)
-                .Where(filter);
+            var query = filter.IsNotNullOrEmpty()
+                ? new TableQuery<DynamicTableEntity>().Select(m_properties).Where(filter)
+                : new TableQuery<DynamicTableEntity>().Select(m_properties);
 
             List<Dictionary<string, object>> result;
             if (m_take.HasValue)

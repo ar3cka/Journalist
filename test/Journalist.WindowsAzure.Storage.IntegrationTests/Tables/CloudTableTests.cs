@@ -56,6 +56,34 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
         }
 
         [Fact]
+        public async Task GetAllSegmentedQueryTest()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTableGetAllSegmentedQueryTest");
+            var partition = Guid.NewGuid().ToString();
+
+            var rowsCount = await InsertValues(table, partition, 1);
+
+            var query = table.PrepareEntityGetAllSegmentedQuery();
+            var result = await query.ExecuteAsync();
+
+            Assert.Equal(rowsCount, result.Count);
+        }
+
+        [Fact]
+        public async Task GetAllQueryTest()
+        {
+            var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTableGetAllQueryTest");
+            var partition = Guid.NewGuid().ToString();
+
+            var rowsCount = await InsertValues(table, partition, 1);
+
+            var query = table.PrepareEntityGetAllQuery();
+            var result = await query.ExecuteAsync();
+
+            Assert.Equal(rowsCount, result.Count);
+        }
+
+        [Fact]
         public async Task PrepareEntityRangeQueryByPartition_Test()
         {
             var table = Factory.CreateTable("UseDevelopmentStorage=true", "TestCloudTable");
@@ -252,19 +280,21 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Tables
             Assert.Equal(data, result["a"]);
         }
 
-        private static async Task InsertValues(ICloudTable table, string partition)
+        private static async Task<int> InsertValues(ICloudTable table, string partition, int x = 20, int y = 100)
         {
-            foreach (var i in Enumerable.Range(1, 20))
+            foreach (var i in Enumerable.Range(1, x))
             {
                 var operation = table.PrepareBatchOperation();
 
-                foreach (var j in Enumerable.Range(1, 100))
+                foreach (var j in Enumerable.Range(1, y))
                 {
                     operation.Insert(partition, i + ":" + j, EmptyDictionary.Get<string, object>());
                 }
 
                 await operation.ExecuteAsync();
             }
+
+            return x * y;
         }
 
         public StorageFactory Factory { get; set; }

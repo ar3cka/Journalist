@@ -1,5 +1,6 @@
 ### 0.9.1
 * [EventStore][Breaking] Event stream readers classes were removed.
+* [WAZ.Storage][New] CloudTable GetAll queries.
 
 ### 0.9.0
 * [EventStore][Breaking] Move StreamVersion to the Events namespace.
