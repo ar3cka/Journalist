@@ -43,6 +43,21 @@ namespace Journalist
 
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void True<TException>(bool condition, TException exception)
+            where TException : Exception
+        {
+            Require.NotNull(exception, "exception");
+
+            if (condition)
+            {
+                return;
+            }
+
+            throw exception;
+        }
+
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void False(bool condition, string error)
         {
             False<InvalidOperationException>(condition, error);
@@ -62,6 +77,14 @@ namespace Journalist
             where TException : Exception
         {
             True<TException>(condition == false);
+        }
+
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void False<TException>(bool condition, TException exception)
+            where TException : Exception
+        {
+            True(condition == false, exception);
         }
     }
 }

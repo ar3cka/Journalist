@@ -1,3 +1,6 @@
+### 0.9.3
+* [LanguageExtensions][New] New Ensure methods with exception parameter.
+
 ### 0.9.2
 * [WAZ.Storage][New] CloudTable sync query methods.
 
