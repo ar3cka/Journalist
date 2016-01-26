@@ -58,6 +58,7 @@ Target "CreatePackages" (fun _ ->
         { p with
             OutputPath = nugetDir
             Version = release.NugetVersion
+            IncludeReferencedProjects = true
             ReleaseNotes = release.Notes |> toLines })
 )
 
@@ -94,7 +95,7 @@ Target "Default" DoNothing
     ==> "GenerateAssemblyInfo"
     ==> "BuildApp"
     ==> "RunUnitTests"
-    ==> "RunIntegrationTests"
+    (*==> "RunIntegrationTests"*)
     ==> "CopyBuildResults"
     ==> "CreatePackages"
     ==> "Default"
