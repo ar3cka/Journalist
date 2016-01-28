@@ -1,3 +1,6 @@
+### 0.9.4
+* Fix nuget package references.
+
 ### 0.9.3
 * [LanguageExtensions][New] New Ensure methods with exception parameter.
 

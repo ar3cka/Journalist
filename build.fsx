@@ -95,7 +95,7 @@ Target "Default" DoNothing
     ==> "GenerateAssemblyInfo"
     ==> "BuildApp"
     ==> "RunUnitTests"
-    (*==> "RunIntegrationTests"*)
+    ==> "RunIntegrationTests"
     ==> "CopyBuildResults"
     ==> "CreatePackages"
     ==> "Default"
