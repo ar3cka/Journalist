@@ -1,3 +1,6 @@
+### 0.9.5
+* [EventStore][BugFix] Read event from string property (backward compatibility behavior).
+
 ### 0.9.4
 * Fix nuget package references.
 
