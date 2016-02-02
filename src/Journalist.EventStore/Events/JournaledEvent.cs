@@ -77,7 +77,11 @@ namespace Journalist.EventStore.Events
                 // for backward compatibility reading from string
                 if (propertyValue is string)
                 {
-                    headers = JournaledEventHeadersSerializer.Deserialize((string)properties[JournaledEventPropertyNames.EventHeaders]);
+                    var stringValue = (string)properties[JournaledEventPropertyNames.EventHeaders];
+                    if (stringValue.IsNotNullOrEmpty())
+                    {
+                        headers = JournaledEventHeadersSerializer.Deserialize((string)properties[JournaledEventPropertyNames.EventHeaders]);
+                    }
                 }
                 else
                 {
