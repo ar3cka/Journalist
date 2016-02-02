@@ -33,22 +33,39 @@ namespace Journalist.EventStore.Events
             }
         }
 
+        public static Dictionary<string, string> Deserialize(TextReader reader)
+        {
+            Require.NotNull(reader, "reader");
+
+            var result = new Dictionary<string, string>();
+            string pair;
+            while ((pair = reader.ReadLine()) != null)
+            {
+                var keyValue = pair.Split(s_separators, StringSplitOptions.RemoveEmptyEntries);
+                result.Add(keyValue[0], keyValue[1]);
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, string> Deserialize(string headers)
+        {
+            Require.NotEmpty(headers, "headers");
+
+            using (var reader = new StringReader(headers))
+            {
+                return Deserialize(reader);
+            }
+        }
+
         public static Dictionary<string, string> Deserialize(Stream headers)
         {
             Require.NotNull(headers, "headers");
 
-            var result = new Dictionary<string, string>();
             using (var reader = new StreamReader(headers))
             {
-                string pair;
-                while ((pair = reader.ReadLine()) != null)
-                {
-                    var keyValue = pair.Split(s_separators, StringSplitOptions.RemoveEmptyEntries);
-                    result.Add(keyValue[0], keyValue[1]);
-                }
+                return Deserialize(reader);
             }
-
-            return result;
         }
     }
 }

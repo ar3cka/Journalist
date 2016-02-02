@@ -72,8 +72,17 @@ namespace Journalist.EventStore.Events
             var headers = new Dictionary<string, string>();
             if (properties.ContainsKey(JournaledEventPropertyNames.EventHeaders))
             {
-                headers = JournaledEventHeadersSerializer.Deserialize(
-                    (Stream)properties[JournaledEventPropertyNames.EventHeaders]);
+                var propertyValue = properties[JournaledEventPropertyNames.EventHeaders];
+
+                // for backward compatibility reading from string
+                if (propertyValue is string)
+                {
+                    headers = JournaledEventHeadersSerializer.Deserialize((string)properties[JournaledEventPropertyNames.EventHeaders]);
+                }
+                else
+                {
+                    headers = JournaledEventHeadersSerializer.Deserialize((Stream)properties[JournaledEventPropertyNames.EventHeaders]);
+                }
             }
 
             return new JournaledEvent(
