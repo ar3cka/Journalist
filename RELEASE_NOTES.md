@@ -1,3 +1,6 @@
+### 0.9.6
+* [WAZ.Storage][BugFix] Skip saving properties when object value is null
+
 ### 0.9.5
 * [EventStore][BugFix] Read event from string property (backward compatibility behavior).
 

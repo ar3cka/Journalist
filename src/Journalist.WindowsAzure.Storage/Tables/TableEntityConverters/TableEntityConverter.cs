@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Journalist.Extensions;
 using Microsoft.WindowsAzure.Storage.Table;
 
@@ -72,7 +73,7 @@ namespace Journalist.WindowsAzure.Storage.Tables.TableEntityConverters
         {
             var result = new DynamicTableEntity();
 
-            foreach (var property in properties)
+            foreach (var property in properties.Where(property => property.Value != null))
             {
                 switch (property.Value.GetType().FullName)
                 {
