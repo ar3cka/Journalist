@@ -1,5 +1,6 @@
 ### 0.9.6
 * [WAZ.Storage][BugFix] Skip saving properties when object value is null.
+* [WAZ.Storage][New] Create queue by SAS token.
 * [LanguageExtensions][New] Ensure methods with lazy exception factory function.
 
 ### 0.9.5

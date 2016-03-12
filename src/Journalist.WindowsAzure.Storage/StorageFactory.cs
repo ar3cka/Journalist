@@ -3,6 +3,7 @@ using Journalist.WindowsAzure.Storage.Blobs;
 using Journalist.WindowsAzure.Storage.Queues;
 using Journalist.WindowsAzure.Storage.Tables;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -25,6 +26,15 @@ namespace Journalist.WindowsAzure.Storage
             Require.NotEmpty(queueName, "queueName");
 
             return new CloudQueueAdapter(CreateQueueFactory(connectionString, queueName));
+        }
+
+        public ICloudQueue CreateQueue(Uri queueUri, string sasToken, string queueName)
+        {
+            Require.NotNull(queueUri, "queueUri");
+            Require.NotEmpty(sasToken, "sasToken");
+            Require.NotEmpty(queueName, "queueName");
+
+            return new CloudQueueAdapter(CreateQueueFactory(queueUri, sasToken, queueName));
         }
 
         public ICloudBlobContainer CreateBlobContainer(string connectionString, string containerName)
@@ -54,8 +64,19 @@ namespace Journalist.WindowsAzure.Storage
             return () =>
             {
                 var account = CloudStorageAccount.Parse(connectionString);
-
                 var queueClient = account.CreateCloudQueueClient();
+                var queue = queueClient.GetQueueReference(queueName);
+                queue.CreateIfNotExists();
+
+                return queue;
+            };
+        }
+
+        private static Func<CloudQueue> CreateQueueFactory(Uri queueUri, string sasToken, string queueName)
+        {
+            return () =>
+            {
+                var queueClient = new CloudQueueClient(queueUri, new StorageCredentials(sasToken));
                 var queue = queueClient.GetQueueReference(queueName);
                 queue.CreateIfNotExists();
 
