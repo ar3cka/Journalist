@@ -32,7 +32,8 @@ namespace Journalist.EventStore.Notifications
         public Task<IReadOnlyList<EventStreamUpdated>> LoadAsync()
         {
             var query = m_table.CreatePendingNotificationsQuery();
-
+            query.Prepare();
+            
             return query.ExecuteAsync();
         }
 
