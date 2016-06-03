@@ -1,3 +1,6 @@
+### 0.9.7
+* [EventStore][BugFix] Issue #4. Call prepare method for PendingNotifications query.
+
 ### 0.9.6
 * [WAZ.Storage][BugFix] Skip saving properties when object value is null.
 * [WAZ.Storage][New] Create queue by SAS token.
