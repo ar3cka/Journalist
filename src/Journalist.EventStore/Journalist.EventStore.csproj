@@ -80,7 +80,6 @@
     <Compile Include="Journal\Persistence\EventJournalTable.cs" />
     <Compile Include="Journal\Persistence\EventJournalTableKeys.cs" />
     <Compile Include="Journal\Persistence\IEventJournalTable.cs" />
-    <Compile Include="Journal\Persistence\JournalTableOperationFailedException.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperation.cs" />
     <Compile Include="Journal\Persistence\Operations\DeletePendingNotificationOperation.cs" />
     <Compile Include="Journal\Persistence\Operations\IStreamOperation.cs" />
