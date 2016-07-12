@@ -1,5 +1,6 @@
 ### 0.9.7
 * [EventStore][BugFix] Issue #4. Call prepare method for PendingNotifications query.
+* [LanguageExtensions][New] Issue #3. Add IsTrue extension method for options.
 
 ### 0.9.6
 * [WAZ.Storage][BugFix] Skip saving properties when object value is null.
