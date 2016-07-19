@@ -67,10 +67,12 @@ namespace Journalist.WindowsAzure.Storage.Tables
 
         private string PrepareFilter()
         {
-            return TableQuery.CombineFilters(
-                TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, m_partitionKey),
-                TableOperators.And,
-                TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, m_rowKey));
+            return string.IsNullOrEmpty(m_rowKey) ?
+                TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, m_partitionKey) :
+                TableQuery.CombineFilters(
+                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, m_partitionKey),
+                    TableOperators.And,
+                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, m_rowKey));
         }
     }
 }
