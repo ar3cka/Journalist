@@ -1,5 +1,6 @@
 ### 0.9.7
 * [EventStore][BugFix] Issue #4. Call prepare method for PendingNotifications query.
+* [WAZ.Storage][BugFix] Fix CloudTablePointQuery filter when rowKey is empty.
 * [LanguageExtensions][New] Issue #3. Add IsTrue extension method for options.
 
 ### 0.9.6
