@@ -13,7 +13,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Processing
 {
     public class ReceivedNotificationProcessorTests
     {
-        [Theory, AutoMoqData]
+        [Theory(Skip = "Unstable test"), AutoMoqData]
         public void Process_SendsNotificationToHandlers(
             IReceivedNotification notification,
             INotificationHandler[] handlers,
