@@ -44,20 +44,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
             return FetchEntities(m_filter, continuationToken);
         }
 
-        public bool HasMore
-        {
-            get
-            {
-                return ReadNextSegment;
-            }
-        }
+        public bool HasMore => ReadNextSegment;
 
-        public byte[] ContinuationToken
-        {
-            get
-            {
-                return GetContinuationTokenBytes();
-            }
-        }
+        public byte[] ContinuationToken => GetContinuationTokenBytes();
     }
 }

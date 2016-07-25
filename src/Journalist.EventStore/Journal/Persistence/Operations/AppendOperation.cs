@@ -30,7 +30,7 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             InsertPendingNotification();
         }
 
-        public async override Task<EventStreamHeader> ExecuteAsync()
+        public override async Task<EventStreamHeader> ExecuteAsync()
         {
             var batchResult = await ExecuteBatchOperationAsync();
 
@@ -87,7 +87,7 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
 
         private void InsertPendingNotification()
         {
-            var rowKey = EventJournalTableKeys.PendingNotificationPrefix + m_header.Version;
+            var rowKey = EventJournalTableKeys.GetPendingNotificationRowKey(m_header.Version);
 
             var properties = new Dictionary<string, object>
             {
