@@ -1,13 +1,16 @@
 using System;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
 
 namespace Journalist.EventStore.Notifications.Listeners
 {
     public abstract class EventConsumingNotificationListener : StreamConsumingNotificationListener
     {
-        protected override async Task<bool> TryProcessEventFromConsumerAsync(IEventStreamConsumer consumer)
+        protected override async Task<EventProcessingResult> TryProcessEventFromConsumerAsync(
+			IEventStreamConsumer consumer, 
+			StreamVersion notificationStreamVersion)
         {
             foreach (var journaledEvent in consumer.EnumerateEvents())
             {
@@ -31,11 +34,11 @@ namespace Journalist.EventStore.Notifications.Listeners
                 if (failed)
                 {
                     await consumer.CommitProcessedStreamVersionAsync(skipCurrent: true);
-                    return false;
+                    return new EventProcessingResult(false, false);
                 }
             }
 
-            return true;
+            return new EventProcessingResult(true, true);
         }
 
         protected abstract Task ProcessEventAsync(JournaledEvent journaledEvent);

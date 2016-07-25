@@ -74,23 +74,31 @@ namespace Journalist.EventStore.Notifications.Listeners
             }
         }
 
-        protected abstract Task<bool> TryProcessEventFromConsumerAsync(IEventStreamConsumer consumer);
+        protected abstract Task<EventProcessingResult> TryProcessEventFromConsumerAsync(
+			IEventStreamConsumer consumer, 
+			StreamVersion notificationStreamVersion);
 
         private async Task<bool> ReceiveAndProcessEventsAsync(EventStreamUpdated notification, IEventStreamConsumer consumer)
         {
             var retryProcessing = true;
+	        var commitProcessing = false;
             var receivingResult = await consumer.ReceiveEventsAsync();
 
-            if (receivingResult == ReceivingResultCode.EventsReceived && await TryProcessEventFromConsumerAsync(consumer))
+            if (receivingResult == ReceivingResultCode.EventsReceived)
             {
-                await consumer.CommitProcessedStreamVersionAsync();
-                retryProcessing = false;
+	            var processingResult = await TryProcessEventFromConsumerAsync(consumer, notification.ToVersion);
+	            retryProcessing = !processingResult.IsSuccessful;
+	            commitProcessing = processingResult.ShouldCommitProcessing;
             }
             else if (receivingResult == ReceivingResultCode.EmptyStream)
             {
                 retryProcessing = false;
             }
 
+			if (commitProcessing)
+			{
+				await consumer.CommitProcessedStreamVersionAsync();
+			}
             if (retryProcessing)
             {
                 ListenerLogger.Warning(
