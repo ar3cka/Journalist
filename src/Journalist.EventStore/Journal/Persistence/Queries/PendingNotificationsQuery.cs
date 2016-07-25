@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Journalist.Collections;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.Extensions;
@@ -33,24 +32,35 @@ namespace Journalist.EventStore.Journal.Persistence.Queries
 
         public async Task<IReadOnlyList<EventStreamUpdated>> ExecuteAsync()
         {
-            var queryResult = await m_query.ExecuteAsync();
+            AssertQueryPrepared();
 
-            if (queryResult == null)
+            var result = new List<EventStreamUpdated>();
+            do
             {
-                return EmptyArray.Get<EventStreamUpdated>();
-            }
+                var queryResult = await m_query.ExecuteAsync();
+                if (queryResult != null)
+                {
+                    foreach (var row in queryResult)
+                    {
+                        var streamName = (string)row[KnownProperties.PartitionKey];
+                        var fromVersion = ((string)row[KnownProperties.RowKey]).Split(s_separators, StringSplitOptions.RemoveEmptyEntries)[1];
+                        var toVersion = (int)row[EventJournalTableRowPropertyNames.Version];
 
-            var result = new List<EventStreamUpdated>(queryResult.Count);
-            foreach (var row in queryResult)
-            {
-                var streamName = (string)row[KnownProperties.PartitionKey];
-                var fromVersion = ((string)row[KnownProperties.RowKey]).Split(s_separators, StringSplitOptions.RemoveEmptyEntries)[1];
-                var toVersion = (int)row[EventJournalTableRowPropertyNames.Version];
-
-                result.Add(new EventStreamUpdated(streamName, StreamVersion.Parse(fromVersion), StreamVersion.Create(toVersion)));
+                        result.Add(new EventStreamUpdated(
+                            streamName,
+                            StreamVersion.Parse(fromVersion),
+                            StreamVersion.Create(toVersion)));
+                    }
+                }
             }
+            while (m_query.HasMore);
 
             return result;
+        }
+
+        private void AssertQueryPrepared()
+        {
+            Ensure.True(m_query != null, "m_query != null");
         }
     }
 }

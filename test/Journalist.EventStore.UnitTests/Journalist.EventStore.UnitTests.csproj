@@ -52,6 +52,7 @@
     <Compile Include="Infrastructure\Customizations\EventStreamCursorCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\EventStreamReaderCustomization.cs" />
     <Compile Include="Infrastructure\Customizations\JournaledEventCustomization.cs" />
+    <Compile Include="Infrastructure\Customizations\StreamVersionCustomization.cs" />
     <Compile Include="Infrastructure\Stubs\BatchEventConsumingNotificationListenerStub.cs" />
     <Compile Include="Infrastructure\Stubs\CommitStreamVersionFMock.cs" />
     <Compile Include="Infrastructure\Stubs\EventConsumingNotificationListenerStub.cs" />
@@ -75,6 +76,8 @@
     <Compile Include="Journal\Persistence\Operations\AppendOperationTests.cs" />
     <Compile Include="Journal\Persistence\Operations\DeletePendingNotificationOperationTest.cs" />
     <Compile Include="Journal\Persistence\Operations\OperationFixture.cs" />
+    <Compile Include="Journal\Persistence\Queries\PendingNotificationsQueryTestDataAttribute.cs" />
+    <Compile Include="Journal\Persistence\Queries\PendingNotificationsQueryTests.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursorTests.cs" />
     <Compile Include="Notifications\Listeners\BatchEventConsumingNotificationListenerTests.cs" />
     <Compile Include="Notifications\Listeners\EventConsumingNotificationListenerTests.cs" />
