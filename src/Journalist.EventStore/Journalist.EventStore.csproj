@@ -118,6 +118,7 @@
     <Compile Include="Notifications\Processing\IReceivedNotificationProcessor.cs" />
     <Compile Include="Notifications\Processing\ReceivedNotificationProcessor.cs" />
     <Compile Include="Notifications\Types\AbstractNotification.cs" />
+    <Compile Include="Notifications\Types\EventProcessingResult.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdated.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyKeys.cs" />
     <Compile Include="Notifications\Types\NotificationPropertyParser.cs" />
