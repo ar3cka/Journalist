@@ -17,7 +17,9 @@ namespace Journalist.EventStore
             public const int PENDING_NOTIFICATIONS_CHASER_TIMEOUT_MULTIPLIER = 2;
             public const int PENDING_NOTIFICATIONS_CHASER_TIMEOUT_INCREASING_THRESHOLD = 10;
             public const int PENDING_NOTIFICATIONS_CHASER_MAX_TIMEOUT_IN_MINUTES = 15;
-            public const int PENDING_NOTIFICATIONS_CHASER_EXCLUSIVE_ACCESS_LOCK_TIMEOUT_IN_MINUTES = 15;
+
+            // Max lease timeout for blob. (See: https://msdn.microsoft.com/en-us/library/azure/ee691972.aspx)
+            public const int PENDING_NOTIFICATIONS_CHASER_EXCLUSIVE_ACCESS_LOCK_TIMEOUT_IN_MINUTES = 1;
         }
 
         public class StorageEntities
