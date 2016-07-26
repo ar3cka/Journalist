@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Journalist.Extensions;
+using Journalist.Options;
+using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Events
 {
@@ -11,10 +13,14 @@ namespace Journalist.EventStore.Events
         private readonly Dictionary<string, string> m_eventHeaders;
         private readonly string m_eventTypeName;
         private readonly Guid m_eventId;
+        private readonly Option<DateTimeOffset> m_commitTime;
+        private readonly Option<StreamVersion> m_offset;
 
         private JournaledEvent(
             Guid eventId,
             string eventTypeName,
+            Option<DateTimeOffset> commitTime,
+            Option<StreamVersion> offset, 
             Dictionary<string, string> eventHeaders,
             MemoryStream eventPayload)
         {
@@ -22,6 +28,8 @@ namespace Journalist.EventStore.Events
             m_eventTypeName = eventTypeName;
             m_eventPayload = eventPayload;
             m_eventHeaders = eventHeaders;
+            m_commitTime = commitTime;
+            m_offset = offset;
         }
 
         public static JournaledEvent Create(
@@ -53,6 +61,8 @@ namespace Journalist.EventStore.Events
             return new JournaledEvent(
                 eventId,
                 eventType.AssemblyQualifiedName,
+                Option.None(),
+                Option.None(),
                 new Dictionary<string, string>(),
                 payloadBytes);
         }
@@ -89,9 +99,25 @@ namespace Journalist.EventStore.Events
                 }
             }
 
+            Option<DateTimeOffset> commitTime = Option.None();
+            object commitTimeValue;
+            if (properties.TryGetValue(KnownProperties.Timestamp, out commitTimeValue))
+            {
+                commitTime = Option.Some((DateTimeOffset)commitTimeValue);
+            }
+
+            Option<StreamVersion> offset = Option.None();
+            object offsetValue;
+            if (properties.TryGetValue(KnownProperties.RowKey, out offsetValue))
+            {
+                offset = Option.Some(StreamVersion.Parse((string)offsetValue));
+            }
+
             return new JournaledEvent(
                 (Guid)properties[JournaledEventPropertyNames.EventId],
                 (string)properties[JournaledEventPropertyNames.EventType],
+                commitTime,
+                offset,
                 headers,
                 payload);
         }
@@ -122,11 +148,13 @@ namespace Journalist.EventStore.Events
 
         public Dictionary<string, object> ToDictionary()
         {
-            var result = new Dictionary<string, object>(JournaledEventPropertyNames.All.Length);
-            result[JournaledEventPropertyNames.EventId] = m_eventId;
-            result[JournaledEventPropertyNames.EventType] = m_eventTypeName;
-            result[JournaledEventPropertyNames.EventPayload] = GetEventPayload();
-            result[JournaledEventPropertyNames.EventHeaders] = JournaledEventHeadersSerializer.Serialize(m_eventHeaders);
+            var result = new Dictionary<string, object>(JournaledEventPropertyNames.All.Length)
+            {
+                [JournaledEventPropertyNames.EventId] = m_eventId,
+                [JournaledEventPropertyNames.EventType] = m_eventTypeName,
+                [JournaledEventPropertyNames.EventPayload] = GetEventPayload(),
+                [JournaledEventPropertyNames.EventHeaders] = JournaledEventHeadersSerializer.Serialize(m_eventHeaders)
+            };
 
             return result;
         }
@@ -184,6 +212,16 @@ namespace Journalist.EventStore.Events
         public string EventTypeName
         {
             get { return m_eventTypeName; }
+        }
+
+        public Option<DateTimeOffset> CommitTime
+        {
+            get { return m_commitTime; }
+        }
+
+        public Option<StreamVersion> Offset
+        {
+            get { return m_offset; }
         }
     }
 }

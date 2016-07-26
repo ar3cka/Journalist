@@ -1,4 +1,5 @@
-### 0.11.1
+### 0.12.0
+* [EventStore][New] Return commit time and offset for restored event
 * [EventStore][BugFix] Correct notification chaser lease timeout value
 
 ### 0.11.0
