@@ -1,3 +1,6 @@
+### 0.11.1
+* [EventStore][BugFix] Correct notification chaser lease timeout value
+
 ### 0.11.0
 * [WAZ.Storage] Update azure storage lib
 * [EventStore][BugFix] Scan all partitions in CloudTableFilterSegmentedRangeQuery
