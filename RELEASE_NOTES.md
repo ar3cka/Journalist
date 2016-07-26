@@ -1,5 +1,6 @@
 ### 0.11.0
 * [WAZ.Storage] Update azure storage lib
+* [EventStore][BugFix] Scan all partitions in CloudTableFilterSegmentedRangeQuery
 
 ### 0.10.0
 * [EventStore][Breaking] Allow NotificationListener's  to skip position committing
