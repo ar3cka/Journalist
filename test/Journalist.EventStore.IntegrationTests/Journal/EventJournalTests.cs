@@ -72,6 +72,20 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             Assert.Equal(200, events.Count);
         }
 
+        [Fact]
+        public async Task OpenEventStreamAsync_ReturnsCommitedEvent()
+        {
+            // arrange
+            await AppendEventsAsync(50, 4);
+
+            // act
+            var events = await ReadEventsAsync();
+
+            // assert
+            Assert.True(events.All(e => e.CommitTime.IsSome));
+            Assert.True(events.All(e => e.Offset.IsSome));
+        }
+
         private async Task<EventStreamHeader> AppendEventsAsync(
             EventStreamHeader header,
             int batchSize = EVENTS_COUNT,
