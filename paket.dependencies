@@ -1,11 +1,11 @@
+redirects: on
 source https://nuget.org/api/v2
 
 nuget FAKE
-nuget Microsoft.Data.OData 5.6.2.0
-nuget WindowsAzure.Storage
+nuget Microsoft.Data.OData 5.6.4.0
+nuget WindowsAzure.Storage <= 5.0.2
 nuget xunit
 nuget xunit.runner.console
 nuget AutoFixture.AutoMoq
 nuget AutoFixture.Xunit2
-nuget Moq 4.0.10827.0
 nuget Serilog
