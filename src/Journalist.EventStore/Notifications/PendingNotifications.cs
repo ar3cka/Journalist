@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal.Persistence;
@@ -10,6 +11,7 @@ namespace Journalist.EventStore.Notifications
 {
     public class PendingNotifications : IPendingNotifications
     {
+        private const int MAX_NOTIFICATIONS = 100;
         private readonly IEventJournalTable m_table;
 
         public PendingNotifications(IEventJournalTable table)
@@ -29,12 +31,28 @@ namespace Journalist.EventStore.Notifications
             return ExecuteOperationAsync(operation);
         }
 
-        public Task<IReadOnlyList<EventStreamUpdated>> LoadAsync()
+        public async Task<IReadOnlyList<EventStreamUpdated>> LoadAsync()
         {
             var query = m_table.CreatePendingNotificationsQuery();
             query.Prepare();
-            
-            return query.ExecuteAsync();
+
+            var knownStreams = new HashSet<string>();
+            var result = new List<EventStreamUpdated>();
+            IReadOnlyList<EventStreamUpdated> notifications;
+            do
+            {
+                notifications = await query.ExecuteAsync();
+                foreach (var notification in notifications)
+                {
+                    if (knownStreams.Add(notification.StreamName))
+                    {
+                        result.Add(notification);
+                    }
+                }
+            }
+            while (notifications.Any() || result.Count < MAX_NOTIFICATIONS);
+
+            return result;
         }
 
         private static async Task<TResult> ExecuteOperationAsync<TResult>(IStreamOperation<TResult> operation)

@@ -10,6 +10,8 @@ namespace Journalist.EventStore.Journal.Persistence.Queries
 {
     public class PendingNotificationsQuery : IStreamQuery<EventStreamUpdated>
     {
+        private const int MAX_ROWS_COUNT = 1000;
+
         private static readonly string s_queryTemplate = "RowKey ge '{0}{1}' and RowKey le '{0}{2}'".FormatString(
             EventJournalTableKeys.PendingNotificationPrefix,
             StreamVersion.Unknown,
@@ -53,7 +55,7 @@ namespace Journalist.EventStore.Journal.Persistence.Queries
                     }
                 }
             }
-            while (m_query.HasMore);
+            while (m_query.HasMore || result.Count < MAX_ROWS_COUNT);
 
             return result;
         }
