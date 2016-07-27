@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Utils.Cloud.Azure.Storage.Blobs;
 using Journalist.EventStore.Utils.Polling;
