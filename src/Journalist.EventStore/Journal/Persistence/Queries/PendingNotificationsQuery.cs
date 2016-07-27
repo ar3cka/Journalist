@@ -10,7 +10,7 @@ namespace Journalist.EventStore.Journal.Persistence.Queries
 {
     public class PendingNotificationsQuery : IStreamQuery<EventStreamUpdated>
     {
-        private const int MAX_ROWS_COUNT = 1000;
+        private const int MAX_ROWS_COUNT = 128;
 
         private static readonly string s_queryTemplate = "RowKey ge '{0}{1}' and RowKey le '{0}{2}'".FormatString(
             EventJournalTableKeys.PendingNotificationPrefix,
@@ -29,7 +29,7 @@ namespace Journalist.EventStore.Journal.Persistence.Queries
 
         public void Prepare()
         {
-            m_query = m_table.PrepareEntityFilterSegmentedRangeQuery(s_queryTemplate);
+            m_query = m_table.PrepareEntityFilterSegmentedRangeQuery(s_queryTemplate, MAX_ROWS_COUNT);
         }
 
         public async Task<IReadOnlyList<EventStreamUpdated>> ExecuteAsync()
@@ -55,7 +55,7 @@ namespace Journalist.EventStore.Journal.Persistence.Queries
                     }
                 }
             }
-            while (m_query.HasMore || result.Count < MAX_ROWS_COUNT);
+            while (m_query.HasMore && result.Count < MAX_ROWS_COUNT);
 
             return result;
         }

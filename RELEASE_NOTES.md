@@ -1,3 +1,9 @@
+### 0.13.0 
+* [LanguageExtensions][New] YieldList extensions method
+* [WAZ.Storage][New] Ability to specify row count for table segmented query.
+* [EventStore][BugFix] Correct timeout class behavior
+* [EventStore][Breaking] Refactoring in pending notificaions chaser
+
 ### 0.12.0
 * [EventStore][New] Return commit time and offset for restored event
 * [EventStore][BugFix] Correct notification chaser lease timeout value

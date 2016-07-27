@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.Extensions;
+using Journalist.Tasks;
 
 namespace Journalist.EventStore.Utils.Polling
 {
@@ -42,6 +43,11 @@ namespace Journalist.EventStore.Utils.Polling
 
         public Task WaitAsync(CancellationToken token)
         {
+            if (m_value.Seconds <= INITIAL_TIMEOUT_SEC)
+            {
+                return TaskDone.Done;
+            }
+
             // Wrap delay task to the WhenAny to protect TaskCancellationToken
             return Task.WhenAny(Task.Delay(m_value, token));
         }

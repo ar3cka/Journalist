@@ -6,6 +6,7 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal.Persistence;
 using Journalist.EventStore.Journal.Persistence.Operations;
 using Journalist.EventStore.Notifications.Types;
+using Journalist.Extensions;
 
 namespace Journalist.EventStore.Notifications
 {
@@ -31,26 +32,39 @@ namespace Journalist.EventStore.Notifications
             return ExecuteOperationAsync(operation);
         }
 
-        public async Task<IReadOnlyList<EventStreamUpdated>> LoadAsync()
+        public Task DeleteAsync(string streamName, StreamVersion[] streamVersions)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.NotNull(streamVersions, "streamVersions");
+
+            var operation = m_table.CreateDeletePendingNotificationOperation(streamName);
+            operation.Prepare(streamVersions);
+
+            return ExecuteOperationAsync(operation);
+        }
+
+        public async Task<IDictionary<string, List<EventStreamUpdated>>> LoadAsync()
         {
             var query = m_table.CreatePendingNotificationsQuery();
             query.Prepare();
 
-            var knownStreams = new HashSet<string>();
-            var result = new List<EventStreamUpdated>();
-            IReadOnlyList<EventStreamUpdated> notifications;
-            do
+            var result = new Dictionary<string, List<EventStreamUpdated>>();
+            var notifications = await query.ExecuteAsync();
+            foreach (var notification in notifications)
             {
-                notifications = await query.ExecuteAsync();
-                foreach (var notification in notifications)
+                List<EventStreamUpdated> streamNotifications;
+                if (result.ContainsKey(notification.StreamName))
                 {
-                    if (knownStreams.Add(notification.StreamName))
-                    {
-                        result.Add(notification);
-                    }
+                    streamNotifications = result[notification.StreamName];
                 }
+                else
+                {
+                    streamNotifications = new List<EventStreamUpdated>();
+                    result[notification.StreamName] = streamNotifications;
+                }
+
+                streamNotifications.Add(notification);
             }
-            while (notifications.Any() || result.Count < MAX_NOTIFICATIONS);
 
             return result;
         }

@@ -28,6 +28,7 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Queries
                 .Do(mock => mock
                     .Setup(self => self.PrepareEntityFilterSegmentedRangeQuery(
                         It.IsAny<string>(),
+                        It.IsAny<int>(),
                         It.IsAny<string[]>()))
                     .ReturnsUsingFixture(Fixture)));
 

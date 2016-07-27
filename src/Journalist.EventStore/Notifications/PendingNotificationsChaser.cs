@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Utils.Cloud.Azure.Storage.Blobs;
 using Journalist.EventStore.Utils.Polling;
+using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Blobs;
 using Serilog;
 
@@ -79,13 +83,19 @@ namespace Journalist.EventStore.Notifications
         private async Task<int> ProcessPendingNotificationsAsync()
         {
             var notifications = await m_pendingNotifications.LoadAsync();
-            foreach (var notification in notifications)
-            {
-                await m_notificationHub.NotifyAsync(notification);
-                await m_pendingNotifications.DeleteAsync(notification.StreamName, notification.FromVersion);
-            }
+
+            s_logger.Debug("Found {NotificationCount} unpublished notifications.", notifications.Count);
+
+            var tasks = notifications.Select(streamNotification => ProcessStreamNotificationAsync(streamNotification.Key, streamNotification.Value)).ToList();
+            await Task.WhenAll(tasks);
 
             return notifications.Count;
+        }
+
+        private async Task ProcessStreamNotificationAsync(string streamName, List<EventStreamUpdated> notifications)
+        {
+            await m_notificationHub.NotifyAsync(notifications.First());
+            await m_pendingNotifications.DeleteAsync(streamName, notifications.SelectToArray(n => n.FromVersion));
         }
 
         private async Task ReleaseLeaseAsync(Lease lease)

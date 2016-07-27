@@ -81,6 +81,20 @@ namespace Journalist.WindowsAzure.Storage.Tables
                 tableEntityConverter: m_tableEntityConverter);
         }
 
+        public ICloudTableEntitySegmentedRangeQuery PrepareEntityFilterSegmentedRangeQuery(string filter, int count, string[] properties)
+        {
+            Require.NotNull(filter, "filter");
+            Require.NotNull(properties, "properties");
+
+            return new CloudTableFilterSegmentedRangeQuery(
+                filter: filter,
+                take: count,
+                properties: properties,
+                fetchAsync: ExecuteQueryAsync,
+                fetchSync: ExecuteQuerySync,
+                tableEntityConverter: m_tableEntityConverter);
+        }
+
         public ICloudTableEntityRangeQuery PrepareEntityGetAllQuery(string[] properties)
         {
             Require.NotNull(properties, "properties");
@@ -101,6 +115,19 @@ namespace Journalist.WindowsAzure.Storage.Tables
             return new CloudTableFilterSegmentedRangeQuery(
                 filter: null,
                 take: null,
+                properties: properties,
+                fetchAsync: ExecuteQueryAsync,
+                fetchSync: ExecuteQuerySync,
+                tableEntityConverter: m_tableEntityConverter);
+        }
+
+        public ICloudTableEntitySegmentedRangeQuery PrepareEntityGetAllSegmentedQuery(int count, string[] properties)
+        {
+            Require.NotNull(properties, "properties");
+
+            return new CloudTableFilterSegmentedRangeQuery(
+                filter: null,
+                take: count,
                 properties: properties,
                 fetchAsync: ExecuteQueryAsync,
                 fetchSync: ExecuteQuerySync,

@@ -100,7 +100,7 @@ namespace Journalist.EventStore.Notifications.Listeners
             if (retryProcessing)
             {
                 ListenerLogger.Warning(
-                    "Processing notification ({NotificationId}, {NotificationType}) was unsuccessful (Code). Going to try later.",
+                    "Processing notification ({NotificationId}, {NotificationType}) was unsuccessful {Code}. Going to try later.",
                     notification.NotificationId,
                     notification.NotificationType,
                     receivingResult);
