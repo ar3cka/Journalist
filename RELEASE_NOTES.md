@@ -1,6 +1,8 @@
 ### 0.12.0
 * [EventStore][New] Return commit time and offset for restored event
 * [EventStore][BugFix] Correct notification chaser lease timeout value
+* [EventStore][Breaking] New stream consumer always read from start
+* [EventStore][Improvment] Limit the number of notificaions from chaser
 
 ### 0.11.0
 * [WAZ.Storage] Update azure storage lib

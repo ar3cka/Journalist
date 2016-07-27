@@ -41,38 +41,11 @@ namespace Journalist.EventStore.Connection
                 m_readerId,
                 Constants.Settings.EVENT_SLICE_SIZE);
 
-            if (cursor.StreamHeader == EventStreamHeader.Unknown)
-            {
-                return CreateReader(cursor);
-            }
-
-            if (m_configuration.StartReadingStreamFromEnd)
-            {
-                if (cursor.CursorStreamVersion == StreamVersion.Start)
-                {
-                    await m_journal.CommitStreamReaderPositionAsync(
-                        m_configuration.StreamName,
-                        m_readerId,
-                        cursor.StreamVersion);
-
-                    cursor = await m_journal.OpenEventStreamCursorAsync(
-                        m_configuration.StreamName,
-                        m_readerId,
-                        Constants.Settings.EVENT_SLICE_SIZE);
-                }
-            }
-
-            return CreateReader(cursor);
-        }
-
-        private IEventStreamReader CreateReader(IEventStreamCursor cursor)
-        {
             return new EventStreamReader(
                 m_configuration.StreamName,
                 m_connectionState,
                 cursor,
                 m_mutationPipeline);
         }
-
     }
 }

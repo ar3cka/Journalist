@@ -7,7 +7,6 @@ namespace Journalist.EventStore.Connection
         private string m_consumerName;
         private string m_streamName;
         private bool m_useAutoCommitProcessedStreamPositionBehavior;
-        private bool m_startReadingStreamFromEnd;
 
         public EventStreamConsumerConfiguration()
         {
@@ -15,12 +14,11 @@ namespace Journalist.EventStore.Connection
             m_consumerName = Constants.DEFAULT_STREAM_READER_NAME;
         }
 
-        public IEventStreamConsumerConfiguration ReadStream(string streamName, bool startReadingFromEnd)
+        public IEventStreamConsumerConfiguration ReadStream(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 
             m_streamName = streamName;
-            m_startReadingStreamFromEnd = startReadingFromEnd;
 
             return this;
         }
@@ -65,11 +63,6 @@ namespace Journalist.EventStore.Connection
 
                 return m_consumerName;
             }
-        }
-
-        public bool StartReadingStreamFromEnd
-        {
-            get { return m_startReadingStreamFromEnd; }
         }
     }
 }

@@ -140,7 +140,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
         {
             subscription.Start(connectionMock.Object);
 
-            subscription.CreateSubscriptionConsumerAsync(streamName, true);
+            subscription.CreateSubscriptionConsumerAsync(streamName);
 
             connectionMock.Verify(self => self.CreateStreamConsumerAsync(
                 It.IsAny<Action<IEventStreamConsumerConfiguration>>()));
@@ -153,7 +153,7 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
             string streamName)
         {
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => subscription.CreateSubscriptionConsumerAsync(streamName, true));
+                () => subscription.CreateSubscriptionConsumerAsync(streamName));
         }
 
         [Theory, NotificationListenerSubscriptionData]

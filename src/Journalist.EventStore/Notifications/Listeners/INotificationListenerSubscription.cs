@@ -10,7 +10,7 @@ namespace Journalist.EventStore.Notifications.Listeners
 
         void Stop();
 
-        Task<IEventStreamConsumer> CreateSubscriptionConsumerAsync(string streamName, bool readFromEnd);
+        Task<IEventStreamConsumer> CreateSubscriptionConsumerAsync(string streamName);
 
         Task RetryNotificationProcessingAsync(INotification notification);
     }

@@ -45,9 +45,7 @@ namespace Journalist.EventStore.Notifications.Listeners
             var retryProcessing = false;
             try
             {
-                var consumer = await m_subscription.CreateSubscriptionConsumerAsync(
-                    streamName: notification.StreamName,
-                    readFromEnd: notification.FromVersion != StreamVersion.Unknown);
+                var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
 
                 retryProcessing = await ReceiveAndProcessEventsAsync(notification, consumer);
                 await consumer.CloseAsync();
