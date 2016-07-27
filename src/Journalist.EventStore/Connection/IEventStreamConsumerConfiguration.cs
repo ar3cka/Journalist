@@ -2,7 +2,7 @@ namespace Journalist.EventStore.Connection
 {
     public interface IEventStreamConsumerConfiguration
     {
-        IEventStreamConsumerConfiguration ReadStream(string streamName, bool startReadingFromEnd = false);
+        IEventStreamConsumerConfiguration ReadStream(string streamName);
 
         IEventStreamConsumerConfiguration WithName(string consumerName);
 
