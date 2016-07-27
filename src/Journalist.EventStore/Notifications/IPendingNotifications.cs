@@ -7,8 +7,10 @@ namespace Journalist.EventStore.Notifications
 {
     public interface IPendingNotifications
     {
-        Task<IReadOnlyList<EventStreamUpdated>> LoadAsync();
+        Task<IDictionary<string, List<EventStreamUpdated>>> LoadAsync();
 
         Task DeleteAsync(string streamName, StreamVersion streamVersion);
+
+        Task DeleteAsync(string streamName, StreamVersion[] streamVersions);
     }
 }

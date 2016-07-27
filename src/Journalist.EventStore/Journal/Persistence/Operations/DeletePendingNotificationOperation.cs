@@ -19,6 +19,16 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             Delete(EventJournalTableKeys.PendingNotificationPrefix + version);
         }
 
+        public void Prepare(StreamVersion[] versions)
+        {
+            PrepareBatchOperation();
+
+            foreach (var streamVersion in versions)
+            {
+                Delete(EventJournalTableKeys.PendingNotificationPrefix + streamVersion);
+            }
+        }
+
         public async override Task<Nothing> ExecuteAsync()
         {
             try

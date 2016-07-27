@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Notifications;
@@ -70,24 +71,33 @@ namespace Journalist.EventStore.UnitTests.Notifications
         public async Task OnPoll_WhenPendingNotificationListIsNotEmpty_SendNotificationToTheHub(
             [Frozen] PollingJobStub jobStub,
             [Frozen] Mock<INotificationHub> hubMock,
-            [Frozen] EventStreamUpdated pendingNotification,
+            [Frozen] EventStreamUpdated[] pendingNotifications,
             PendingNotificationsChaser chaser)
         {
             await jobStub.Poll();
 
-            hubMock.Verify(self => self.NotifyAsync(pendingNotification));
+            foreach (var pendingNotification in pendingNotifications)
+            {
+                hubMock.Verify(self => self.NotifyAsync(pendingNotification));
+            }
         }
 
         [Theory, PendingNotificationsChaserData(noNotifications: false)]
         public async Task OnPoll_WhenPendingNotificationListIsNotEmpty_DeletesNotification(
             [Frozen] PollingJobStub jobStub,
             [Frozen] Mock<IPendingNotifications> pendingNotificationsMock,
-            [Frozen] EventStreamUpdated pendingNotification,
+            [Frozen] EventStreamUpdated[] pendingNotifications,
             PendingNotificationsChaser chaser)
         {
             await jobStub.Poll();
 
-            pendingNotificationsMock.Verify(self => self.DeleteAsync(pendingNotification.StreamName, pendingNotification.FromVersion));
+
+            foreach (var pendingNotification in pendingNotifications)
+            {
+                pendingNotificationsMock.Verify(self => self.DeleteAsync(
+                    pendingNotification.StreamName,
+                    It.Is<StreamVersion[]>(versions => versions.Contains(pendingNotification.FromVersion))));
+            }
         }
 
         [Theory, PendingNotificationsChaserData(noNotifications: false)]
@@ -124,7 +134,7 @@ namespace Journalist.EventStore.UnitTests.Notifications
             PendingNotificationsChaser chaser)
         {
             pendingNotificationsMock
-                .Setup(self => self.DeleteAsync(It.IsAny<string>(), It.IsAny<StreamVersion>()))
+                .Setup(self => self.DeleteAsync(It.IsAny<string>(), It.IsAny<StreamVersion[]>()))
                 .Throws<Exception>();
 
             var pollResult = await jobStub.Poll();

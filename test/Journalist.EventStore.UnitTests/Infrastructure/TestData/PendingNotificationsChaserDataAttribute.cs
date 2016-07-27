@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Journalist.Collections;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Types;
@@ -27,13 +28,15 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 
             if (noNotifications)
             {
-                Fixture.Customize<IReadOnlyList<EventStreamUpdated>>(composer => composer
-                    .FromFactory(EmptyArray.Get<EventStreamUpdated>));
+                Fixture.Customize<IDictionary<string, List<EventStreamUpdated>>>(composer => composer
+                    .FromFactory(() => new Dictionary<string, List<EventStreamUpdated>>()));
             }
             else
             {
-                Fixture.Customize<IReadOnlyList<EventStreamUpdated>>(composer => composer
-                    .FromFactory((EventStreamUpdated[] notifications) => notifications));
+                Fixture.Customize<IDictionary<string, List<EventStreamUpdated>>>(composer => composer
+                    .FromFactory((EventStreamUpdated[] notifications) => notifications.ToDictionary(
+                        n => n.StreamName,
+                        n => n.YieldList())));
             }
         }
     }

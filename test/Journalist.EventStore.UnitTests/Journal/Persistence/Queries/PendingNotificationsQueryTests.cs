@@ -35,7 +35,10 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Queries
             query.Prepare();
 
             tableMock.Verify(
-                self => self.PrepareEntityFilterSegmentedRangeQuery(s_queryTemplate, EmptyArray.Get<string>()),
+                self => self.PrepareEntityFilterSegmentedRangeQuery(
+                    s_queryTemplate, 
+                    128,
+                    EmptyArray.Get<string>()),
                 Times.Once());
         }
     }

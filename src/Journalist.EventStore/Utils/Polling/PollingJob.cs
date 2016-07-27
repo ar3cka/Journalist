@@ -34,6 +34,7 @@ namespace Journalist.EventStore.Utils.Polling
                 if (await func(token))
                 {
                     timeout.Reset();
+                    await timeout.WaitAsync(token);
                 }
                 else
                 {
