@@ -33,7 +33,7 @@ namespace Journalist.EventStore.Utils.Polling
             int increasingThreshold,
             TimeSpan maximumTimout)
         {
-            m_initialTimeoutSec = initialTimeout.Seconds;
+            m_initialTimeoutSec = initialTimeout.TotalSeconds;
             m_multiplier = multiplier;
             m_increasingThreshold = increasingThreshold;
             m_maximumTimoutSec = maximumTimout.Seconds;
@@ -43,7 +43,7 @@ namespace Journalist.EventStore.Utils.Polling
 
         public Task WaitAsync(CancellationToken token)
         {
-            if (m_value.Seconds <= INITIAL_TIMEOUT_SEC)
+            if (m_value.TotalSeconds <= INITIAL_TIMEOUT_SEC)
             {
                 return TaskDone.Done;
             }
