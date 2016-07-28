@@ -1,3 +1,6 @@
+### 0.13.1
+* [WAZ.Storage][New] Sync methods for storage table batch operation.
+
 ### 0.13.0 
 * [LanguageExtensions][New] YieldList extensions method
 * [WAZ.Storage][New] Ability to specify row count for table segmented query.
