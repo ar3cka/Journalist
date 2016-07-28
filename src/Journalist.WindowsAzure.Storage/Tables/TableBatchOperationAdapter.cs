@@ -16,18 +16,22 @@ namespace Journalist.WindowsAzure.Storage.Tables
 
         private static readonly ILogger s_logger = Log.ForContext<TableBatchOperationAdapter>();
 
-        private readonly Func<TableBatchOperation, Task<IList<TableResult>>> m_executeBatch;
+        private readonly Func<TableBatchOperation, Task<IList<TableResult>>> m_executeBatchAsync;
+        private readonly Func<TableBatchOperation, IList<TableResult>> m_executeBatchSync;
         private readonly TableBatchOperation m_batch;
         private readonly ITableEntityConverter m_tableEntityConverter;
 
         public TableBatchOperationAdapter(
-            Func<TableBatchOperation, Task<IList<TableResult>>> executeBatch,
+            Func<TableBatchOperation, Task<IList<TableResult>>> executeBatchAsync,
+            Func<TableBatchOperation, IList<TableResult>> executeBatchSync,
             ITableEntityConverter tableEntityConverter)
         {
-            Require.NotNull(executeBatch, "executeBatch");
+            Require.NotNull(executeBatchAsync, "executeBatchAsync");
+            Require.NotNull(executeBatchSync, "executeBatchSync");
             Require.NotNull(tableEntityConverter, "tableEntityConverter");
 
-            m_executeBatch = executeBatch;
+            m_executeBatchAsync = executeBatchAsync;
+            m_executeBatchSync = executeBatchSync;
             m_tableEntityConverter = tableEntityConverter;
             m_batch = new TableBatchOperation();
         }
@@ -224,41 +228,66 @@ namespace Journalist.WindowsAzure.Storage.Tables
         {
             try
             {
-                var tableResult = await m_executeBatch(m_batch);
+                var tableResult = await m_executeBatchAsync(m_batch);
 
-                var result = new List<OperationResult>(tableResult.Count);
-                result.AddRange(tableResult.Select(r => new OperationResult(
-                    r.Etag ?? string.Empty, (HttpStatusCode) r.HttpStatusCode)));
-
-                return result;
+                return ParseOperationResult(tableResult);
             }
-            catch (StorageException exception)
+            catch (StorageException exception) when (exception.RequestInformation.ExtendedErrorInformation != null)
             {
                 s_logger.Verbose(
                     exception,
                     "Execution of batch operation failed. Request information: {@RequestInformation}.",
                     exception.RequestInformation);
 
-                if (exception.RequestInformation.ExtendedErrorInformation == null)
-                {
-                    throw;
-                }
-
-                var errorInfo = exception.RequestInformation
-                    .ExtendedErrorInformation
-                    .ErrorMessage.Split("\n".YieldArray(), StringSplitOptions.RemoveEmptyEntries);
-
-                var operationInfo = errorInfo[0].Split(':'.YieldArray(), StringSplitOptions.RemoveEmptyEntries);
-
-                int operationNumber;
-                int.TryParse(operationInfo[0], out operationNumber);
-
                 throw new BatchOperationException(
-                    operationBatchNumber: operationNumber,
-                    statusCode: (HttpStatusCode) exception.RequestInformation.HttpStatusCode,
+                    operationBatchNumber: ExtractOperationNumber(exception.RequestInformation.ExtendedErrorInformation),
+                    statusCode: (HttpStatusCode)exception.RequestInformation.HttpStatusCode,
                     operationErrorCode: exception.RequestInformation.ExtendedErrorInformation.ErrorCode,
                     inner: exception);
             }
+        }
+
+        public IReadOnlyList<OperationResult> Execute()
+        {
+            try
+            {
+                var tableResult = m_executeBatchSync(m_batch);
+
+                return ParseOperationResult(tableResult);
+            }
+            catch (StorageException exception) when (exception.RequestInformation.ExtendedErrorInformation != null)
+            {
+                s_logger.Verbose(
+                    exception,
+                    "Execution of batch operation failed. Request information: {@RequestInformation}.",
+                    exception.RequestInformation);
+
+                throw new BatchOperationException(
+                    operationBatchNumber: ExtractOperationNumber(exception.RequestInformation.ExtendedErrorInformation),
+                    statusCode: (HttpStatusCode)exception.RequestInformation.HttpStatusCode,
+                    operationErrorCode: exception.RequestInformation.ExtendedErrorInformation.ErrorCode,
+                    inner: exception);
+            }
+        }
+
+        private static int ExtractOperationNumber(StorageExtendedErrorInformation information)
+        {
+            var errorInfo = information.ErrorMessage.Split("\n".YieldArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            var operationInfo = errorInfo[0].Split(':'.YieldArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            int operationNumber;
+            int.TryParse(operationInfo[0], out operationNumber);
+
+            return operationNumber;
+        }
+
+        private static List<OperationResult> ParseOperationResult(IList<TableResult> tableResult)
+        {
+            var result = new List<OperationResult>(tableResult.Count);
+            result.AddRange(tableResult.Select(r => new OperationResult(r.Etag ?? string.Empty, (HttpStatusCode)r.HttpStatusCode)));
+
+            return result;
         }
 
         private void AssertBatchSizeIsNotExceeded()

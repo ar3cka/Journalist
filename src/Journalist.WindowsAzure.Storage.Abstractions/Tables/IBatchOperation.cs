@@ -31,6 +31,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
 
         Task<IReadOnlyList<OperationResult>> ExecuteAsync();
 
+        IReadOnlyList<OperationResult> Execute();
+
         int OperationsCount { get; }
 
         bool IsMaximumOperationsCountWasReached { get; }

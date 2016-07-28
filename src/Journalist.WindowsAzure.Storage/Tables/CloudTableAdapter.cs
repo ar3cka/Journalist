@@ -21,6 +21,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
         {
             return new TableBatchOperationAdapter(
                 batch => CloudEntity.ExecuteBatchAsync(batch),
+                batch => CloudEntity.ExecuteBatch(batch),
                 m_tableEntityConverter);
         }
 
