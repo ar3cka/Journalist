@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Journal.Persistence;
 using Journalist.WindowsAzure.Storage;
@@ -21,65 +22,69 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         {
             Fixture = PrepareFixture();
             Journal = PrepareEventJournal();
-            StreamName = Fixture.Create("TestStream-");
         }
 
-        [Fact]
-        public async Task AppendEventsAsync_WriteEventsToEndOfStream()
+        [Theory]
+        [AutoMoqData]
+        public async Task AppendEventsAsync_WriteEventsToEndOfStream(string streamName)
         {
             // arrange
             var position = EventStreamHeader.Unknown;
 
             // act
-            position = await AppendEventsAsync(batchNumber: 3);
+            position = await AppendEventsAsync(streamName, batchNumber: 3);
 
             // assert
             Assert.Equal(StreamVersion.Create(30), position.Version);
         }
 
-        [Fact]
-        public async Task AppendEventsAsync_WhenAppendingToStartPositionTwice_Throw()
+        [Theory]
+        [AutoMoqData]
+        public async Task AppendEventsAsync_WhenAppendingToStartPositionTwice_Throw(string streamName)
         {
             // act
-            await AppendEventsAsync(header: EventStreamHeader.Unknown);
+            await AppendEventsAsync(streamName, header: EventStreamHeader.Unknown);
 
             await Assert.ThrowsAsync<EventStreamConcurrencyException>(
-                async () => await AppendEventsAsync(header: EventStreamHeader.Unknown));
+                async () => await AppendEventsAsync(streamName, header: EventStreamHeader.Unknown));
         }
 
-        [Fact]
-        public async Task AppendEventsAsync_WhenAppendingToSamePositionTwice_Throw()
+        [Theory]
+        [AutoMoqData]
+        public async Task AppendEventsAsync_WhenAppendingToSamePositionTwice_Throw(string streamName)
         {
             // arrange
-            var position = await AppendEventsAsync();
+            var position = await AppendEventsAsync(streamName);
 
             // act
-            await AppendEventsAsync(header: position);
+            await AppendEventsAsync(streamName, header: position);
 
-           await Assert.ThrowsAsync<EventStreamConcurrencyException>(async () => await AppendEventsAsync(header: position));
+           await Assert.ThrowsAsync<EventStreamConcurrencyException>(async () => await AppendEventsAsync(streamName, header: position));
         }
 
-        [Fact]
-        public async Task OpenEventStreamAsync_ReadPreviousCommitedEvents()
+        [Theory]
+        [AutoMoqData]
+        public async Task OpenEventStreamAsync_ReadPreviousCommitedEvents(string streamName)
         {
             // arrange
-            await AppendEventsAsync(50, 4);
+            await AppendEventsAsync(streamName, 50, 4);
 
             // act
-            var events = await ReadEventsAsync();
+            var events = await ReadEventsAsync(streamName);
 
             // assert
             Assert.Equal(200, events.Count);
         }
 
-        [Fact]
-        public async Task OpenEventStreamAsync_ReturnsCommitedEvent()
+        [Theory]
+        [AutoMoqData]
+        public async Task OpenEventStreamAsync_ReturnsCommitedEvent(string streamName)
         {
             // arrange
-            await AppendEventsAsync(50, 4);
+            await AppendEventsAsync(streamName, 50, 4);
 
             // act
-            var events = await ReadEventsAsync();
+            var events = await ReadEventsAsync(streamName);
 
             // assert
             Assert.True(events.All(e => e.CommitTime.IsSome));
@@ -87,6 +92,7 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         }
 
         private async Task<EventStreamHeader> AppendEventsAsync(
+            string streamName,
             EventStreamHeader header,
             int batchSize = EVENTS_COUNT,
             int batchNumber = BATCH_NUMBER)
@@ -96,22 +102,23 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             var currentPosition = header;
             while (batches.Any())
             {
-                currentPosition = await Journal.AppendEventsAsync(StreamName, currentPosition, batches.Dequeue());
+                currentPosition = await Journal.AppendEventsAsync(streamName, currentPosition, batches.Dequeue());
             }
 
             return currentPosition;
         }
 
         private async Task<EventStreamHeader> AppendEventsAsync(
+            string streamName,
             int batchSize = EVENTS_COUNT,
             int batchNumber = BATCH_NUMBER)
         {
             var batches = PrepareBatch(batchSize, batchNumber);
 
-            var currentPosition = await Journal.ReadStreamHeaderAsync(StreamName);
+            var currentPosition = await Journal.ReadStreamHeaderAsync(streamName);
             while (batches.Any())
             {
-                currentPosition = await Journal.AppendEventsAsync(StreamName, currentPosition, batches.Dequeue());
+                currentPosition = await Journal.AppendEventsAsync(streamName, currentPosition, batches.Dequeue());
             }
 
             return currentPosition;
@@ -128,9 +135,9 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             return batches;
         }
 
-        private async Task<List<JournaledEvent>> ReadEventsAsync()
+        private async Task<List<JournaledEvent>> ReadEventsAsync(string streamName)
         {
-            var stream = await Journal.OpenEventStreamCursorAsync(StreamName);
+            var stream = await Journal.OpenEventStreamCursorAsync(streamName);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)
@@ -165,8 +172,6 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         {
             stream.Write("TestMessage");
         }
-
-        public string StreamName { get; set; }
 
         public Fixture Fixture { get; set; }
 
