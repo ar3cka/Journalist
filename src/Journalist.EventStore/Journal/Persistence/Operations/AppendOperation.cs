@@ -42,8 +42,7 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             var batchOperationException = exception as BatchOperationException;
             if (batchOperationException != null)
             {
-                if (batchOperationException.OperationBatchNumber == 0 &&
-                    IsConcurrencyException(batchOperationException))
+                if (batchOperationException.OperationBatchNumber == 0 && IsConcurrencyException(batchOperationException))
                 {
                     throw new EventStreamConcurrencyException(
                         "Event stream '{0}' was concurrently updated.".FormatString(StreamName),
