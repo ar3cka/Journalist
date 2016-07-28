@@ -1,5 +1,6 @@
 ### 0.13.1
 * [WAZ.Storage][New] Sync methods for storage table batch operation.
+* [EventStore][BugFix] Fix polling timeout start value initialization
 
 ### 0.13.0 
 * [LanguageExtensions][New] YieldList extensions method
