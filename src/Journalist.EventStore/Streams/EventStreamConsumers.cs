@@ -29,6 +29,7 @@ namespace Journalist.EventStore.Streams
                 return consumerId;
             }
 
+			var alreadyInserted = false;
             try
             {
                 consumerId = EventStreamReaderId.Create();
@@ -40,9 +41,11 @@ namespace Journalist.EventStore.Streams
                 {
                     throw;
                 }
+
+				alreadyInserted = true;
             }
 
-            if (consumerId == null)
+            if (alreadyInserted)
             {
                 consumerId = await QueryConsumerId(consumerName);
             }
