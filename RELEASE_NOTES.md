@@ -1,3 +1,6 @@
+### 0.13.2
+* [EventStore][BugFix] Fixed the problem when consumer registration ignored already saved consumer id
+
 ### 0.13.1
 * [WAZ.Storage][New] Sync methods for storage table batch operation.
 * [EventStore][BugFix] Fix polling timeout start value initialization
