@@ -22,13 +22,13 @@ namespace Journalist.WindowsAzure.Storage.Blobs
             m_blob = blob;
         }
 
-        public async Task<string> AcquireLeaseAsync(TimeSpan? period)
+        public async Task<string> AcquireLeaseAsync(TimeSpan? period, string proposedLeaseId = null)
         {
             await EnsureBlobExistsAsync();
 
             try
             {
-                return await m_blob.AcquireLeaseAsync(period, null);
+                return await m_blob.AcquireLeaseAsync(period, proposedLeaseId);
             }
             catch (StorageException exception)
             {

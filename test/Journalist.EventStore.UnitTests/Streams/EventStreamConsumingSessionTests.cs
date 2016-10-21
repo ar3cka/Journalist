@@ -52,7 +52,7 @@ namespace Journalist.EventStore.UnitTests.Streams
         {
             await session.PromoteToLeaderAsync();
 
-            blobMock.Verify(self => self.AcquireLeaseAsync(null));
+            blobMock.Verify(self => self.AcquireLeaseAsync(null, null));
         }
 
         [Theory]
@@ -65,7 +65,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             EventStreamConsumingSession session)
         {
             blobMock
-                .Setup(self => self.AcquireLeaseAsync(null))
+                .Setup(self => self.AcquireLeaseAsync(null, null))
                 .Returns(leaseId.YieldTask());
 
             await session.PromoteToLeaderAsync();
@@ -140,7 +140,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             await session.PromoteToLeaderAsync();
             await session.PromoteToLeaderAsync();
 
-            blobMock.Verify(self => self.AcquireLeaseAsync(null), Times.Once());
+            blobMock.Verify(self => self.AcquireLeaseAsync(null, null), Times.Once());
         }
 
         [Theory]
@@ -154,7 +154,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             await session.FreeAsync();
             await session.PromoteToLeaderAsync();
 
-            blobMock.Verify(self => self.AcquireLeaseAsync(null), Times.Exactly(2));
+            blobMock.Verify(self => self.AcquireLeaseAsync(null, null), Times.Exactly(2));
         }
 
         [Theory]
@@ -166,7 +166,7 @@ namespace Journalist.EventStore.UnitTests.Streams
             EventStreamConsumingSession session)
         {
             blobMock
-                .Setup(self => self.AcquireLeaseAsync(null))
+                .Setup(self => self.AcquireLeaseAsync(null, null))
                 .Returns(leaseId.YieldTask());
 
             await session.PromoteToLeaderAsync();

@@ -22,7 +22,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
             {
                 Fixture.Customize<Mock<ICloudBlockBlob>>(composer => composer
                     .Do(mock => mock
-                        .Setup(self => self.AcquireLeaseAsync(It.IsAny<TimeSpan?>()))
+                        .Setup(self => self.AcquireLeaseAsync(It.IsAny<TimeSpan?>(), null))
                         .Throws<LeaseAlreadyAcquiredException>()));
             }
 
