@@ -1,3 +1,6 @@
+### 0.13.4
+* [WAZ.Storage][Breaking] Optional proposed lease id added to acquire lease method
+
 ### 0.13.3
 * [EventStore][BugFix] Fixed the problem when consumer registration ignored already saved consumer id
 
