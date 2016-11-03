@@ -56,14 +56,8 @@ namespace Journalist.EventStore.Journal
             return !left.Equals(right);
         }
 
-        public StreamVersion Version
-        {
-            get { return m_version; }
-        }
+        public StreamVersion Version => m_version;
 
-        public string ETag
-        {
-            get { return m_etag; }
-        }
+        public string ETag => m_etag;
     }
 }
