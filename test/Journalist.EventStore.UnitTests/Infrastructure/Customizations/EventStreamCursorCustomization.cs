@@ -37,7 +37,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                 fixture.Customize<FetchEvents>(composer => composer
                     .FromFactory(
                         () => version => new FetchEventsResult(
-                            new EventStreamHeader(fixture.Create("ETag"), StreamVersion.Create(3)),
+                            StreamVersion.Create(3),
                             fixture.Create<SortedList<StreamVersion, JournaledEvent>>()).YieldTask()));
 
                 fixture.Customize<EventStreamHeader>(composer => composer
@@ -47,7 +47,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
 
                 fixture.Customize<IEventStreamCursor>(composer => composer
                     .FromFactory(() => EventStreamCursor.CreateActiveCursor(
-                        EventStreamHeader.Unknown,
+                        new EventStreamHeader(fixture.Create("Etag"), StreamVersion.Create(3)),
                         StreamVersion.Start,
                         fixture.Create<FetchEvents>())));
             }

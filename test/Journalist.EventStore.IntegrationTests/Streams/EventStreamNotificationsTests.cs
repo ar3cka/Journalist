@@ -19,7 +19,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
                 .Create(config => config
                     .UseStorage(
                         storageConnectionString: "UseDevelopmentStorage=true",
-                        journalTableName: "TestEventJournal",
+                        journalTableName: "TestEventJournal" + Guid.NewGuid().ToString("N"),
                         notificationQueueName: "test-notification-queue-" + Guid.NewGuid().ToString("N"),
                         notificationQueuePartitionCount: 2)
                     .Notifications.EnableProcessing()

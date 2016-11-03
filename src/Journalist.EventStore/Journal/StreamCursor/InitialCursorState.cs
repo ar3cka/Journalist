@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
-using Journalist.Extensions;
 
 namespace Journalist.EventStore.Journal.StreamCursor
 {
@@ -22,13 +21,15 @@ namespace Journalist.EventStore.Journal.StreamCursor
         {
             var fetchResult = await m_fetch(m_version);
             var slice = new EventStreamSlice(fetchResult.Events);
-            if (fetchResult.Events.IsEmpty())
+
+            Ensure.True(slice.ToStreamVersion <= StreamHeader.Version, "slice.ToStreamVersion <= StreamHeader.Version");
+            if (StreamHeader.Version == slice.ToStreamVersion)
             {
                 NextState = new EndOfStreamCursorState(StreamHeader);
             }
             else
             {
-                NextState = new FetchingCursorState(fetchResult.StreamHeader, slice.ToStreamVersion, m_fetch);
+                NextState = new FetchingCursorState(StreamHeader, slice.ToStreamVersion.Increment(), m_fetch);
             }
 
             return slice;

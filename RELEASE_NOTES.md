@@ -1,3 +1,6 @@
+### 0.13.5
+* [EventStore][BugFix] Do not update stream header for cursor state
+
 ### 0.13.4
 * [WAZ.Storage][Breaking] Optional proposed lease id added to acquire lease method
 

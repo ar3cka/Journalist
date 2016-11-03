@@ -65,7 +65,6 @@ namespace Journalist.EventStore.Notifications.Channels
                 }
 
                 readedQueue++;
-
             }
             while (readedQueue < m_queueCount);
 
@@ -74,8 +73,8 @@ namespace Journalist.EventStore.Notifications.Channels
 
         private ICloudQueue ChooseIncomingQueue()
         {
-            var originalIndex = 0;
-            var chosenIndex = 0;
+            int originalIndex;
+            int chosenIndex;
             do
             {
                 originalIndex = m_incomingQueueIndex;
@@ -93,8 +92,8 @@ namespace Journalist.EventStore.Notifications.Channels
 
         private ICloudQueue ChooseOutgoingQueue()
         {
-            var originalIndex = 0;
-            var chosenIndex = 0;
+            int originalIndex;
+            int chosenIndex;
             do
             {
                 originalIndex = m_outgoingQueueIndex;

@@ -68,36 +68,12 @@ namespace Journalist.EventStore.Journal.StreamCursor
             }
         }
 
-        public EventStreamHeader StreamHeader
-        {
-            get
-            {
-                return m_state.StreamHeader;
-            }
-        }
+        public EventStreamHeader StreamHeader => m_state.StreamHeader;
 
-        public StreamVersion StreamVersion
-        {
-            get
-            {
-                return m_state.StreamHeader.Version;
-            }
-        }
+        public StreamVersion StreamVersion => m_state.StreamHeader.Version;
 
-        public StreamVersion CursorStreamVersion
-        {
-            get
-            {
-                return m_cursorStreamVersion;
-            }
-        }
+        public StreamVersion CursorStreamVersion => m_cursorStreamVersion;
 
-        public bool EndOfStream
-        {
-            get
-            {
-                return CursorState.IsEndOfStream(m_state);
-            }
-        }
+        public bool EndOfStream => CursorState.IsEndOfStream(m_state);
     }
 }

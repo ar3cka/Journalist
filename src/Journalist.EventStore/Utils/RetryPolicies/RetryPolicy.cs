@@ -18,9 +18,6 @@ namespace Journalist.EventStore.Utils.RetryPolicies
             return attemptNumber <= m_maxAttemptNumber;
         }
 
-        public int MaxAttemptNumber
-        {
-            get { return m_maxAttemptNumber; }
-        }
+        public int MaxAttemptNumber => m_maxAttemptNumber;
     }
 }

@@ -315,9 +315,6 @@ namespace Journalist.EventStore.Streams
             m_state.ConsumedStreamVersionCommited(this, version, skipCurrent);
         }
 
-        public StreamVersion CommitedStreamVersion
-        {
-            get { return m_commitedVersion; }
-        }
+        public StreamVersion CommitedStreamVersion => m_commitedVersion;
     }
 }
