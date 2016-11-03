@@ -6,7 +6,6 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Journal.Persistence.Operations;
 using Journalist.EventStore.UnitTests.Infrastructure.TestData;
-using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
 using Moq;
 using Ploeh.AutoFixture.Xunit2;
@@ -25,8 +24,7 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Operations
         {
             operation.Prepare(events);
 
-            tableMock
-                .Verify(self => self.PrepareBatchOperation(), Times.Once());
+            tableMock.Verify(self => self.PrepareBatchOperation(), Times.Once());
         }
 
         [Theory]
