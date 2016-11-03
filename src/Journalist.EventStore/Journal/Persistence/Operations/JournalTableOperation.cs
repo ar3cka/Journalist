@@ -72,9 +72,6 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             Ensure.True(m_operation != null, "Operation was not prepared.");
         }
 
-        public string StreamName
-        {
-            get { return m_streamName; }
-        }
+        public string StreamName => m_streamName;
     }
 }

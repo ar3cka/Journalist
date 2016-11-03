@@ -74,6 +74,7 @@
     <Compile Include="Infrastructure\TestData\StreamConsumingNotificationListenerDataAttribute.cs" />
     <Compile Include="Journal\EventStreamHeaderTests.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperationTests.cs" />
+    <Compile Include="Journal\Persistence\Operations\AppendOperationTestsDataAttribute.cs" />
     <Compile Include="Journal\Persistence\Operations\DeletePendingNotificationOperationTest.cs" />
     <Compile Include="Journal\Persistence\Operations\OperationFixture.cs" />
     <Compile Include="Journal\Persistence\Queries\PendingNotificationsQueryTestDataAttribute.cs" />
