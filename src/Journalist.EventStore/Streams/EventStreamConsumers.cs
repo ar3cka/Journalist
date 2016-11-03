@@ -29,7 +29,7 @@ namespace Journalist.EventStore.Streams
                 return consumerId;
             }
 
-			var alreadyInserted = false;
+            var alreadyInserted = false;
             try
             {
                 consumerId = EventStreamReaderId.Create();
@@ -42,7 +42,7 @@ namespace Journalist.EventStore.Streams
                     throw;
                 }
 
-				alreadyInserted = true;
+                alreadyInserted = true;
             }
 
             if (alreadyInserted)

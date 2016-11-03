@@ -47,13 +47,7 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public StreamVersion ReaderStreamVersion
-        {
-            get
-            {
-                return m_streamCursor.CursorStreamVersion;
-            }
-        }
+        public StreamVersion ReaderStreamVersion => m_streamCursor.CursorStreamVersion;
 
         public IReadOnlyList<JournaledEvent> Events
         {
@@ -68,20 +62,8 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public override EventStreamHeader StreamHeader
-        {
-            get
-            {
-                return m_streamCursor.StreamHeader;
-            }
-        }
+        public override EventStreamHeader StreamHeader => m_streamCursor.StreamHeader;
 
-        public bool HasEvents
-        {
-            get
-            {
-                return !m_streamCursor.EndOfStream;
-            }
-        }
+        public bool HasEvents => !m_streamCursor.EndOfStream;
     }
 }

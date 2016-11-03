@@ -173,13 +173,11 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         public string StreamName
         {
             get;
-            private set;
         }
 
         public IEventStoreConnection Connection
         {
             get;
-            private set;
         }
     }
 }

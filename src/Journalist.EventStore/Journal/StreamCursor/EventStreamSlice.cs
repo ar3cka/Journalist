@@ -13,8 +13,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
         private readonly StreamVersion m_fromStreamVersion;
         private readonly StreamVersion m_toStreamVersion;
 
-        public EventStreamSlice(
-            SortedList<StreamVersion, JournaledEvent> events)
+        public EventStreamSlice(SortedList<StreamVersion, JournaledEvent> events)
         {
             Require.NotNull(events, "events");
 
@@ -49,19 +48,10 @@ namespace Journalist.EventStore.Journal.StreamCursor
             return GetEnumerator();
         }
 
-        public StreamVersion FromStreamVersion
-        {
-            get { return m_fromStreamVersion; }
-        }
+        public StreamVersion FromStreamVersion => m_fromStreamVersion;
 
-        public StreamVersion ToStreamVersion
-        {
-            get { return m_toStreamVersion; }
-        }
+        public StreamVersion ToStreamVersion => m_toStreamVersion;
 
-        public int Count
-        {
-            get { return m_events.Count; }
-        }
+        public int Count => m_events.Count;
     }
 }

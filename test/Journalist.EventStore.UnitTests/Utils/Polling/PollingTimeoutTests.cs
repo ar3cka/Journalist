@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Journalist.EventStore.Utils.Polling;
 using Xunit;
 

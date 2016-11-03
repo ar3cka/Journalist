@@ -83,7 +83,8 @@ namespace Journalist.EventStore.Journal.Persistence
             StreamVersion toVersion,
             int sliceSize)
         {
-            var nextSliceVersion = fromVersion.Increment(sliceSize);
+            // fromVersion already in slice
+            var nextSliceVersion = fromVersion.Increment(sliceSize - 1);
             if (nextSliceVersion >= toVersion)
             {
                 nextSliceVersion = toVersion;
@@ -118,7 +119,7 @@ namespace Journalist.EventStore.Journal.Persistence
                 }
             }
 
-            return new FetchEventsResult(streamPosition, events);
+            return new FetchEventsResult(streamPosition.Version, events);
         }
 
         private async Task<IDictionary<string, object>> ReadReferenceRowHeadAsync(string streamName, string referenceType)

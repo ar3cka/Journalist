@@ -18,29 +18,14 @@ namespace Journalist.EventStore.Streams
             m_connectionState = connectionState;
         }
 
-        public StreamVersion StreamVersion
-        {
-            get { return StreamHeader.Version; }
-        }
+        public StreamVersion StreamVersion => StreamHeader.Version;
 
-        public abstract EventStreamHeader StreamHeader
-        {
-            get;
-        }
+        public abstract EventStreamHeader StreamHeader { get; }
 
-        public string StreamName
-        {
-            get { return m_streamName; }
-        }
+        public string StreamName => m_streamName;
 
-        public bool IsClosed
-        {
-            get { return !m_connectionState.IsActive; }
-        }
+        public bool IsClosed => !m_connectionState.IsActive;
 
-        protected IEventStoreConnectionState ConnectionState
-        {
-            get { return m_connectionState; }
-        }
+        protected IEventStoreConnectionState ConnectionState => m_connectionState;
     }
 }
