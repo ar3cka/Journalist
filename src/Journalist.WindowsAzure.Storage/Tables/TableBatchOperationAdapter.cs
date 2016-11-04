@@ -36,6 +36,21 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_batch = new TableBatchOperation();
         }
 
+        public void Insert(string partitionKey, string rowKey, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(rowKey, "rowKey");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = rowKey;
+
+            m_batch.Insert(entity);
+        }
+
         public void Insert(string partitionKey, string rowKey, IReadOnlyDictionary<string, object> properties)
         {
             Require.NotEmpty(partitionKey, "partitionKey");
@@ -47,6 +62,20 @@ namespace Journalist.WindowsAzure.Storage.Tables
             var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(properties);
             entity.PartitionKey = partitionKey;
             entity.RowKey = rowKey;
+
+            m_batch.Insert(entity);
+        }
+
+        public void Insert(string partitionKey, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = string.Empty;
 
             m_batch.Insert(entity);
         }
@@ -65,6 +94,23 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_batch.Insert(entity);
         }
 
+        public void Merge(string partitionKey, string rowKey, string etag, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(rowKey, "rowKey");
+            Require.NotEmpty(etag, "etag");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = rowKey;
+            entity.ETag = etag;
+
+            m_batch.Merge(entity);
+        }
+
         public void Merge(string partitionKey, string rowKey, string etag, IReadOnlyDictionary<string, object> properties)
         {
             Require.NotEmpty(partitionKey, "partitionKey");
@@ -77,6 +123,22 @@ namespace Journalist.WindowsAzure.Storage.Tables
             var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(properties);
             entity.PartitionKey = partitionKey;
             entity.RowKey = rowKey;
+            entity.ETag = etag;
+
+            m_batch.Merge(entity);
+        }
+
+        public void Merge(string partitionKey, string etag, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(etag, "etag");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = string.Empty;
             entity.ETag = etag;
 
             m_batch.Merge(entity);
@@ -98,6 +160,23 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_batch.Merge(entity);
         }
 
+        public void Replace(string partitionKey, string rowKey, string etag, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(rowKey, "rowKey");
+            Require.NotEmpty(etag, "etag");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = rowKey;
+            entity.ETag = etag;
+
+            m_batch.Replace(entity);
+        }
+
         public void Replace(string partitionKey, string rowKey, string etag, IReadOnlyDictionary<string, object> properties)
         {
             Require.NotEmpty(partitionKey, "partitionKey");
@@ -110,6 +189,22 @@ namespace Journalist.WindowsAzure.Storage.Tables
             var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(properties);
             entity.PartitionKey = partitionKey;
             entity.RowKey = rowKey;
+            entity.ETag = etag;
+
+            m_batch.Replace(entity);
+        }
+
+        public void Replace(string partitionKey, string etag, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(etag, "etag");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = string.Empty;
             entity.ETag = etag;
 
             m_batch.Replace(entity);
@@ -131,33 +226,19 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_batch.Replace(entity);
         }
 
-        public void InsertOrMerge(string partitionKey, string rowKey, IReadOnlyDictionary<string, object> properties)
+        public void InsertOrReplace(string partitionKey, string rowKey, string propertyName, object propertyValue)
         {
             Require.NotEmpty(partitionKey, "partitionKey");
             Require.NotEmpty(rowKey, "rowKey");
-            Require.NotNull(properties, "properties");
+            Require.NotEmpty(propertyName, "propertyName");
 
             AssertBatchSizeIsNotExceeded();
 
-            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(properties);
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
             entity.PartitionKey = partitionKey;
             entity.RowKey = rowKey;
 
-            m_batch.InsertOrMerge(entity);
-        }
-
-        public void InsertOrMerge(string partitionKey, IReadOnlyDictionary<string, object> properties)
-        {
-            Require.NotEmpty(partitionKey, "partitionKey");
-            Require.NotNull(properties, "properties");
-
-            AssertBatchSizeIsNotExceeded();
-
-            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(properties);
-            entity.PartitionKey = partitionKey;
-            entity.RowKey = string.Empty;
-
-            m_batch.InsertOrMerge(entity);
+            m_batch.InsertOrReplace(entity);
         }
 
         public void InsertOrReplace(string partitionKey, string rowKey, IReadOnlyDictionary<string, object> properties)
@@ -175,6 +256,20 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_batch.InsertOrReplace(entity);
         }
 
+        public void InsertOrReplace(string partitionKey, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = string.Empty;
+
+            m_batch.InsertOrReplace(entity);
+        }
+
         public void InsertOrReplace(string partitionKey, IReadOnlyDictionary<string, object> properties)
         {
             Require.NotEmpty(partitionKey, "partitionKey");
@@ -187,6 +282,64 @@ namespace Journalist.WindowsAzure.Storage.Tables
             entity.RowKey = string.Empty;
 
             m_batch.InsertOrReplace(entity);
+        }
+
+        public void InsertOrMerge(string partitionKey, string rowKey, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(rowKey, "rowKey");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = rowKey;
+
+            m_batch.InsertOrMerge(entity);
+        }
+
+        public void InsertOrMerge(string partitionKey, string rowKey, IReadOnlyDictionary<string, object> properties)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(rowKey, "rowKey");
+            Require.NotNull(properties, "properties");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(properties);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = rowKey;
+
+            m_batch.InsertOrMerge(entity);
+        }
+
+        public void InsertOrMerge(string partitionKey, string propertyName, object propertyValue)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotEmpty(propertyName, "propertyName");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(propertyName, propertyValue);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = string.Empty;
+
+            m_batch.InsertOrMerge(entity);
+        }
+
+        public void InsertOrMerge(string partitionKey, IReadOnlyDictionary<string, object> properties)
+        {
+            Require.NotEmpty(partitionKey, "partitionKey");
+            Require.NotNull(properties, "properties");
+
+            AssertBatchSizeIsNotExceeded();
+
+            var entity = m_tableEntityConverter.CreateDynamicTableEntityFromProperties(properties);
+            entity.PartitionKey = partitionKey;
+            entity.RowKey = string.Empty;
+
+            m_batch.InsertOrMerge(entity);
         }
 
         public void Delete(string partitionKey, string rowKey, string etag)

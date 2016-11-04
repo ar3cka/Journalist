@@ -42,6 +42,13 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             m_operation.Insert(m_streamName, rowKey, properties);
         }
 
+        protected void Insert(string rowKey, string propertyName, object propertyValue)
+        {
+            AssertOperationPrepared();
+
+            m_operation.Insert(m_streamName, rowKey, propertyName, propertyValue);
+        }
+
         protected void Insert(string rowKey)
         {
             AssertOperationPrepared();
@@ -54,6 +61,13 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             AssertOperationPrepared();
 
             m_operation.Merge(m_streamName, rowKey, etag, properties);
+        }
+
+        protected void Merge(string rowKey, string etag, string propertyName, object propertyValue)
+        {
+            AssertOperationPrepared();
+
+            m_operation.Merge(m_streamName, rowKey, etag, propertyName, propertyValue);
         }
 
         protected void Delete(string rowKey)

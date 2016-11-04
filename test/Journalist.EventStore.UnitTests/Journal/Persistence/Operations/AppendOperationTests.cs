@@ -43,7 +43,8 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Operations
                 operationMock, streamName,
                 "HEAD",
                 header.ETag,
-                columns => columns["Version"].Equals(targetVersion));
+                name => name.Equals("Version"),
+                value => value.Equals(targetVersion));
         }
 
         [Theory]
@@ -63,7 +64,8 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Operations
                 operationMock,
                 streamName,
                 "HEAD",
-                columns => columns["Version"].Equals(targetVersion));
+                name => name.Equals("Version"),
+                value => value.Equals(targetVersion));
         }
 
         [Theory]
@@ -83,7 +85,8 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Operations
                 operationMock,
                 streamName,
                 "PNDNTF|" + header.Version,
-                columns => columns["Version"].Equals(targetVersion));
+                name => name.Equals("Version"),
+                value => value.Equals(targetVersion));
         }
 
         [Theory]

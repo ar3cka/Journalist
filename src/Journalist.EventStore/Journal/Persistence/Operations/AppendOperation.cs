@@ -58,18 +58,13 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
 
         private void UpdateHead()
         {
-            var headProperties = new Dictionary<string, object>
-            {
-                { EventJournalTableRowPropertyNames.Version, (int)m_targetVersion }
-            };
-
             if (EventStreamHeader.IsNewStream(m_header))
             {
-                Insert(EventJournalTableKeys.Header, headProperties);
+                Insert(EventJournalTableKeys.Header, EventJournalTableRowPropertyNames.Version, (int)m_targetVersion);
             }
             else
             {
-                Merge(EventJournalTableKeys.Header, m_header.ETag, headProperties);
+                Merge(EventJournalTableKeys.Header, m_header.ETag, EventJournalTableRowPropertyNames.Version, (int)m_targetVersion);
             }
         }
 
@@ -88,12 +83,7 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
         {
             var rowKey = EventJournalTableKeys.GetPendingNotificationRowKey(m_header.Version);
 
-            var properties = new Dictionary<string, object>
-            {
-                { EventJournalTableRowPropertyNames.Version, (int)m_targetVersion }
-            };
-
-            Insert(rowKey, properties);
+            Insert(rowKey, EventJournalTableRowPropertyNames.Version, (int)m_targetVersion);
         }
 
         private static bool IsConcurrencyException(BatchOperationException exception)
