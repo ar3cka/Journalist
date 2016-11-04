@@ -4,11 +4,9 @@ namespace Journalist.EventStore.Journal.StreamCursor
 {
     public abstract class CursorState
     {
-        private readonly EventStreamHeader m_streamHeader;
-
         protected CursorState(EventStreamHeader streamHeader)
         {
-            m_streamHeader = streamHeader;
+            StreamHeader = streamHeader;
         }
 
         public static bool IsEndOfStream(CursorState state)
@@ -34,10 +32,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
 
         public abstract Task<EventStreamSlice> FetchSlice();
 
-        public EventStreamHeader StreamHeader
-        {
-            get { return m_streamHeader; }
-        }
+        public EventStreamHeader StreamHeader { get; }
 
         public CursorState NextState { get; protected set; }
 

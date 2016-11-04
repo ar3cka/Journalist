@@ -84,10 +84,12 @@ namespace Journalist.EventStore.Journal.Persistence
             int sliceSize)
         {
             // fromVersion already in slice
+            bool isFetchingCompleted = false;
             var nextSliceVersion = fromVersion.Increment(sliceSize - 1);
             if (nextSliceVersion >= toVersion)
             {
                 nextSliceVersion = toVersion;
+                isFetchingCompleted = true;
             }
 
             const string queryTemplate =
@@ -103,23 +105,16 @@ namespace Journalist.EventStore.Journal.Persistence
             var queryResult = await query.ExecuteAsync();
 
             var events = new SortedList<StreamVersion, JournaledEvent>(sliceSize);
-            var streamPosition = EventStreamHeader.Unknown;
             foreach (var properties in queryResult)
             {
                 var rowKey = (string)properties[KnownProperties.RowKey];
-                if (rowKey.EqualsCi("HEAD"))
-                {
-                    streamPosition = new EventStreamHeader(
-                        (string)properties[KnownProperties.ETag],
-                        StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]));
-                }
-                else
+                if (!rowKey.EqualsCi("HEAD"))
                 {
                     events.Add(StreamVersion.Parse((string)properties[KnownProperties.RowKey]), JournaledEvent.Create(properties));
                 }
             }
 
-            return new FetchEventsResult(streamPosition.Version, events);
+            return new FetchEventsResult(isFetchingCompleted, events);
         }
 
         private async Task<IDictionary<string, object>> ReadReferenceRowHeadAsync(string streamName, string referenceType)
