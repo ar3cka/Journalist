@@ -48,7 +48,7 @@ namespace Journalist.EventStore.Journal
             return EventStreamCursor.CreateActiveCursor(
                 header,
                 StreamVersion.Start,
-                from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
+                from => m_table.FetchStreamEvents(streamName, header, from, sliceSize));
         }
 
         public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize)
@@ -70,7 +70,7 @@ namespace Journalist.EventStore.Journal
             return EventStreamCursor.CreateActiveCursor(
                 header,
                 fromVersion,
-                from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
+                from => m_table.FetchStreamEvents(streamName, header, from, sliceSize));
         }
 
         public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, EventStreamReaderId readerId, int sliceSize)
@@ -94,7 +94,7 @@ namespace Journalist.EventStore.Journal
             return EventStreamCursor.CreateActiveCursor(
                 header,
                 fromVersion.Increment(),
-                from => m_table.FetchStreamEvents(streamName, from, header.Version, sliceSize));
+                from => m_table.FetchStreamEvents(streamName, header, from, sliceSize));
         }
 
         public async Task<EventStreamHeader> ReadStreamHeaderAsync(string streamName)

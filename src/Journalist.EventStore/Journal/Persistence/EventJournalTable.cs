@@ -77,18 +77,14 @@ namespace Journalist.EventStore.Journal.Persistence
             await operation.ExecuteAsync();
         }
 
-        public async Task<FetchEventsResult> FetchStreamEvents(
-            string stream,
-            StreamVersion fromVersion,
-            StreamVersion toVersion,
-            int sliceSize)
+        public async Task<FetchEventsResult> FetchStreamEvents(string stream, EventStreamHeader header, StreamVersion fromVersion, int sliceSize)
         {
             // fromVersion already in slice
-            bool isFetchingCompleted = false;
+            var isFetchingCompleted = false;
             var nextSliceVersion = fromVersion.Increment(sliceSize - 1);
-            if (nextSliceVersion >= toVersion)
+            if (nextSliceVersion >= header.Version)
             {
-                nextSliceVersion = toVersion;
+                nextSliceVersion = header.Version;
                 isFetchingCompleted = true;
             }
 
