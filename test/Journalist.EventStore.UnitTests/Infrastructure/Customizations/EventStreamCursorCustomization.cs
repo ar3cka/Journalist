@@ -37,7 +37,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
                 fixture.Customize<FetchEvents>(composer => composer
                     .FromFactory(
                         () => version => new FetchEventsResult(
-                            StreamVersion.Create(3),
+                            true,
                             fixture.Create<SortedList<StreamVersion, JournaledEvent>>()).YieldTask()));
 
                 fixture.Customize<EventStreamHeader>(composer => composer

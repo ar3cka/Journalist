@@ -9,17 +9,17 @@ namespace Journalist.EventStore.Journal.StreamCursor
     public class FetchEventsResult
     {
         private readonly SortedList<StreamVersion, JournaledEvent> m_events;
-        private readonly StreamVersion m_currentStreamVersion;
+        private readonly bool m_isFetchingCompleted;
 
-        public FetchEventsResult(StreamVersion currentStreamVersion, SortedList<StreamVersion, JournaledEvent> events)
+        public FetchEventsResult(bool isFetchingCompleted, SortedList<StreamVersion, JournaledEvent> events)
         {
             Require.NotNull(events, "events");
 
             m_events = events;
-            m_currentStreamVersion = currentStreamVersion;
+            m_isFetchingCompleted = isFetchingCompleted;
         }
 
-        public StreamVersion CurrentStreamVersion => m_currentStreamVersion;
+        public bool IsFetchingCompleted => m_isFetchingCompleted;
 
         public SortedList<StreamVersion, JournaledEvent> Events => m_events;
     }

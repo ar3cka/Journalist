@@ -24,8 +24,7 @@ namespace Journalist.EventStore.Journal.StreamCursor
             var fetchResult = await m_fetch(m_sliceSteamVersion);
             var slice = new EventStreamSlice(fetchResult.Events);
 
-            Ensure.True(slice.ToStreamVersion <= StreamHeader.Version, "slice.ToStreamVersion <= StreamHeader.Version");
-            if (StreamHeader.Version == slice.ToStreamVersion)
+            if (fetchResult.IsFetchingCompleted)
             {
                 NextState = new EndOfStreamCursorState(StreamHeader);
             }
