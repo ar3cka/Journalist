@@ -10,9 +10,9 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Stubs
     {
         protected override Task<EventProcessingResult> TryProcessEventFromConsumerAsync(IEventStreamConsumer consumer, StreamVersion notificationStreamVersion)
         {
-	        return ProcessingCompleted
-		        ? Task.FromResult(new EventProcessingResult(true, true))
-		        : Task.FromResult(new EventProcessingResult(false, false));
+            return ProcessingCompleted
+                ? Task.FromResult(new EventProcessingResult(true, true))
+                : Task.FromResult(new EventProcessingResult(false, false));
         }
 
         public bool ProcessingCompleted { get; set; }
