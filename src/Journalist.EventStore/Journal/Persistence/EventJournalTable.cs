@@ -12,6 +12,11 @@ namespace Journalist.EventStore.Journal.Persistence
 {
     public class EventJournalTable : IEventJournalTable
     {
+        private static class Properties
+        {
+            public static readonly string[] ReferenceRowHead = EventJournalTableRowPropertyNames.Version.YieldArray();
+        }
+
         private readonly ICloudTable m_table;
 
         public EventJournalTable(ICloudTable table)
@@ -53,10 +58,8 @@ namespace Journalist.EventStore.Journal.Persistence
             operation.Insert(
                 streamName,
                 "RDR|" + readerId,
-                new Dictionary<string, object>
-                {
-                    { EventJournalTableRowPropertyNames.Version, (int)version }
-                });
+                EventJournalTableRowPropertyNames.Version,
+                (int)version);
 
             await operation.ExecuteAsync();
         }
@@ -69,10 +72,8 @@ namespace Journalist.EventStore.Journal.Persistence
                 streamName,
                 "RDR|" + readerId,
                 etag,
-                new Dictionary<string, object>
-                {
-                    { EventJournalTableRowPropertyNames.Version, (int)version }
-                });
+                EventJournalTableRowPropertyNames.Version,
+                (int)version);
 
             await operation.ExecuteAsync();
         }
@@ -118,7 +119,7 @@ namespace Journalist.EventStore.Journal.Persistence
             var query = m_table.PrepareEntityPointQuery(
                 streamName,
                 referenceType,
-                EventJournalTableRowPropertyNames.Version.YieldArray());
+                Properties.ReferenceRowHead);
 
             var headProperties = await query.ExecuteAsync();
 

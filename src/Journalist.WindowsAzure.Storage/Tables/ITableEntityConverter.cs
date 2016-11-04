@@ -7,6 +7,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
     {
         DynamicTableEntity CreateDynamicTableEntityFromProperties(IReadOnlyDictionary<string, object> properties);
 
+        DynamicTableEntity CreateDynamicTableEntityFromProperties(string propertyName, object propertyValue);
+
         Dictionary<string, object> CreatePropertiesFromDynamicTableEntity(DynamicTableEntity entity);
     }
 }
