@@ -7,6 +7,7 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Journal.Persistence;
+using Journalist.Options;
 using Journalist.WindowsAzure.Storage;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -78,6 +79,37 @@ namespace Journalist.EventStore.IntegrationTests.Journal
 
         [Theory]
         [AutoMoqData]
+        public async Task OpenEventStreamWithLargeSliceSizeAsync_ReadPreviousCommitedEvents(string streamName)
+        {
+            // arrange
+            await AppendEventsAsync(streamName, 50, 4);
+
+            // act
+            var events = await ReadEventsAsync(streamName, 1000);
+
+            // assert
+            Assert.Equal(200, events.Count);
+        }
+
+        [Theory]
+        [AutoMoqData]
+        public async Task OpenEventStreamFromAsync_ReadPreviousCommitedEvents(string streamName)
+        {
+            // arrange
+            var fromVersion = StreamVersion.Create(101);
+            await AppendEventsAsync(streamName, 50, 4);
+
+            // act
+            var events = await ReadEventsFromAsync(streamName, fromVersion);
+
+            // assert
+            Assert.Equal(100, events.Count);
+            Assert.True(events[0].Offset.IsTrue(e => e == fromVersion));
+            Assert.True(events[99].Offset.IsTrue(e => e == StreamVersion.Create(200)));
+        }
+
+        [Theory]
+        [AutoMoqData]
         public async Task OpenEventStreamAsync_ReturnsCommitedEvent(string streamName)
         {
             // arrange
@@ -135,9 +167,23 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             return batches;
         }
 
-        private async Task<List<JournaledEvent>> ReadEventsAsync(string streamName)
+        private async Task<List<JournaledEvent>> ReadEventsAsync(string streamName, int sliceSize = 100)
         {
-            var stream = await Journal.OpenEventStreamCursorAsync(streamName);
+            var stream = await Journal.OpenEventStreamCursorAsync(streamName, sliceSize);
+
+            var result = new List<JournaledEvent>();
+            while (!stream.EndOfStream)
+            {
+                await stream.FetchSlice();
+                result.AddRange(stream.Slice);
+            }
+
+            return result;
+        }
+
+        private async Task<List<JournaledEvent>> ReadEventsFromAsync(string streamName, StreamVersion fromVersion)
+        {
+            var stream = await Journal.OpenEventStreamCursorAsync(streamName, fromVersion);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)

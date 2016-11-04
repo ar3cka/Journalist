@@ -1,68 +1,61 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Journalist.Collections;
-using Journalist.EventStore.Notifications;
-using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Processing;
-using Journalist.EventStore.UnitTests.Infrastructure.TestData;
-using Moq;
+using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Xunit;
 
 namespace Journalist.EventStore.UnitTests.Notifications.Processing
 {
     public class ReceivedNotificationProcessorTests
     {
-        [Theory, AutoMoqData]
-        public void Process_SendsNotificationToHandlers(
-            IReceivedNotification notification,
-            INotificationHandler[] handlers,
+        [Theory, ReceivedNotificationProcessorTestsData]
+        public async Task Process_SendsNotificationToHandlers(
+            ReceivedNotificationStub notification,
+            NotificationHandlerStub[] handlers,
             ReceivedNotificationProcessor processor)
         {
             processor.RegisterHandlers(handlers);
 
-            processor.Process(notification);
+            await ProcessNotifications(notification, processor);
 
-            foreach (var handlerMock in handlers.Select(Mock.Get))
+            foreach (var handler in handlers)
             {
-                handlerMock.Verify(self => self.HandleNotificationAsync(notification.Notification));
+                Assert.True(handler.ReceivedNotifications.Contains(notification.Notification));
             }
         }
 
-        [Theory, AutoMoqData]
+        [Theory, ReceivedNotificationProcessorTestsData]
         public async Task Process_CompletesNotification(
-            Mock<IReceivedNotification> notificationMock,
-            INotificationHandler[] handlers,
+            ReceivedNotificationStub notification,
+            NotificationHandlerStub[] handlers,
             ReceivedNotificationProcessor processor)
         {
             processor.RegisterHandlers(handlers);
 
-            processor.Process(notificationMock.Object);
+            await ProcessNotifications(notification, processor);
 
-            await WaitProcessingCompletion(processor);
-
-            notificationMock
-                .Verify(self => self.CompleteAsync());
+            Assert.True(notification.IsCompleted);
         }
 
-        [Theory, AutoMoqData]
+        [Theory, ReceivedNotificationProcessorTestsData(ThrowOnNotificationHandling = true)]
         public async Task Process_WhenHandlerFailes_RetriesNotification(
-            Mock<IReceivedNotification> notificationMock,
-            Mock<INotificationHandler> handlerMock,
+            ReceivedNotificationStub notification,
+            NotificationHandlerStub handler,
             ReceivedNotificationProcessor processor)
         {
-            handlerMock
-                .Setup(self => self.HandleNotificationAsync(It.IsAny<INotification>()))
-                .Throws<NotImplementedException>();
+            processor.RegisterHandlers(handler.YieldArray());
 
-            processor.RegisterHandlers(handlerMock.Object.YieldArray());
+            await ProcessNotifications(notification, processor);
 
-            processor.Process(notificationMock.Object);
+            Assert.True(notification.IsRetried);
+        }
+
+        private static async Task ProcessNotifications(ReceivedNotificationStub notification, ReceivedNotificationProcessor processor)
+        {
+            processor.Process(notification);
 
             await WaitProcessingCompletion(processor);
-
-            notificationMock
-                .Verify(self => self.RetryAsync());
         }
 
         private static async Task WaitProcessingCompletion(IReceivedNotificationProcessor processor)

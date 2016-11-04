@@ -56,7 +56,9 @@
     <Compile Include="Infrastructure\Stubs\BatchEventConsumingNotificationListenerStub.cs" />
     <Compile Include="Infrastructure\Stubs\CommitStreamVersionFMock.cs" />
     <Compile Include="Infrastructure\Stubs\EventConsumingNotificationListenerStub.cs" />
+    <Compile Include="Infrastructure\Stubs\NotificationHandlerStub.cs" />
     <Compile Include="Infrastructure\Stubs\PollingJobStub.cs" />
+    <Compile Include="Infrastructure\Stubs\ReceivedNotificationStub.cs" />
     <Compile Include="Infrastructure\Stubs\RetryPolicyStub.cs" />
     <Compile Include="Infrastructure\Stubs\StreamConsumingNotificationListenerStub.cs" />
     <Compile Include="Infrastructure\TestData\AutoMoqDataAttribute.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="Notifications\NotificationHubTests.cs" />
     <Compile Include="Notifications\PendingNotificationsChaserTests.cs" />
     <Compile Include="Notifications\Processing\ReceivedNotificationProcessorTests.cs" />
+    <Compile Include="Notifications\Processing\ReceivedNotificationProcessorTestsDataAttribute.cs" />
     <Compile Include="Notifications\Types\EventStreamUpdatedTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\EventStreamConsumerStateMachineTests.cs" />
