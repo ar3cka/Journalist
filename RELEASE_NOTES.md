@@ -1,3 +1,7 @@
+### 0.13.6
+* [EventStore][Improvment] Perfomance improvments
+* [WAZ.Storage][New] Add new overrides in IBatchOperation.
+
 ### 0.13.5
 * [EventStore][BugFix] Do not update stream header for cursor state
 
