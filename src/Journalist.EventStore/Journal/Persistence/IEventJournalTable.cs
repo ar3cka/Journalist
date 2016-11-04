@@ -23,6 +23,6 @@ namespace Journalist.EventStore.Journal.Persistence
 
         Task UpdateStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId, StreamVersion version, string etag);
 
-        Task<FetchEventsResult> FetchStreamEvents(string stream, StreamVersion fromVersion, StreamVersion toVersion, int sliceSize);
+        Task<FetchEventsResult> FetchStreamEvents(string stream, EventStreamHeader header, StreamVersion fromVersion, int sliceSize);
     }
 }
