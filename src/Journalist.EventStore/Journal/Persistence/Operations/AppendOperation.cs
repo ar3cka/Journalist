@@ -27,7 +27,6 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             IncrementStreamVersion(events);
             UpdateHead();
             AppendEvents(events);
-            InsertPendingNotification();
         }
 
         public override async Task<EventStreamHeader> ExecuteAsync()

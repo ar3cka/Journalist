@@ -70,27 +70,6 @@ namespace Journalist.EventStore.UnitTests.Journal.Persistence.Operations
 
         [Theory]
         [AppendOperationTestsData]
-        public void Prepare_InsertsPendingNotificationRow(
-            [Frozen] Mock<IBatchOperation> operationMock,
-            [Frozen] string streamName,
-            [Frozen] EventStreamHeader header,
-            JournaledEvent[] events,
-            AppendOperation operation)
-        {
-            var targetVersion = (int)header.Version.Increment(events.Count());
-
-            operation.Prepare(events);
-
-            VerifyInsertOperation(
-                operationMock,
-                streamName,
-                "PNDNTF|" + header.Version,
-                name => name.Equals("Version"),
-                value => value.Equals(targetVersion));
-        }
-
-        [Theory]
-        [AppendOperationTestsData]
         public void Prepare_InsertsEvents(
             [Frozen] Mock<IBatchOperation> operationMock,
             [Frozen] string streamName,
