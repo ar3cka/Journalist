@@ -78,13 +78,6 @@ namespace Journalist.EventStore.Journal.Persistence.Operations
             }
         }
 
-        private void InsertPendingNotification()
-        {
-            var rowKey = EventJournalTableKeys.GetPendingNotificationRowKey(m_header.Version);
-
-            Insert(rowKey, EventJournalTableRowPropertyNames.Version, (int)m_targetVersion);
-        }
-
         private static bool IsConcurrencyException(BatchOperationException exception)
         {
             return exception.HttpStatusCode == HttpStatusCode.Conflict ||         // Inserting twice HEAD record.
