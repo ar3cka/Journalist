@@ -52,17 +52,13 @@ namespace Journalist.EventStore.Streams
                 return;
             }
 
+            var fromVersion = m_endOfStream.Version;
             var mutatedEvents = new List<JournaledEvent>(events.Count);
             mutatedEvents.AddRange(events.Select(journaledEvent => m_mutationPipeline.Mutate(journaledEvent)));
 
-            var fromVersion = m_endOfStream.Version;
+            await m_pendingNotification.AddAsync(StreamName, fromVersion, mutatedEvents.Count);
             m_endOfStream = await m_journal.AppendEventsAsync(StreamName, m_endOfStream, mutatedEvents);
-
-            await m_notificationHub.NotifyAsync(new EventStreamUpdated(
-                StreamName,
-                fromVersion,
-                m_endOfStream.Version));
-
+            await m_notificationHub.NotifyAsync(new EventStreamUpdated(StreamName, fromVersion, m_endOfStream.Version));
             await m_pendingNotification.DeleteAsync(StreamName, fromVersion);
         }
 

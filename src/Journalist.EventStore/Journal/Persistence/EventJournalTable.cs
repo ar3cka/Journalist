@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal.Persistence.Operations;
-using Journalist.EventStore.Journal.Persistence.Queries;
 using Journalist.EventStore.Journal.StreamCursor;
 using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
@@ -31,15 +30,6 @@ namespace Journalist.EventStore.Journal.Persistence
             return new AppendOperation(m_table, streamName, header);
         }
 
-        public PendingNotificationsQuery CreatePendingNotificationsQuery()
-        {
-            return new PendingNotificationsQuery(m_table);
-        }
-
-        public DeletePendingNotificationOperation CreateDeletePendingNotificationOperation(string streamName)
-        {
-            return new DeletePendingNotificationOperation(m_table, streamName);
-        }
 
         public Task<IDictionary<string, object>> ReadStreamHeadPropertiesAsync(string streamName)
         {
