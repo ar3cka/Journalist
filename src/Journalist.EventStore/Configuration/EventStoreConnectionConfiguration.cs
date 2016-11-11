@@ -60,6 +60,7 @@ namespace Journalist.EventStore.Configuration
             string notificationQueueName,
             int notificationQueuePartitionCount,
             string streamConsumerSessionsBlobContainerName,
+            string pendingNotificationsTableName,
             string pendingNotificationsChaserExclusiveAccessLockBlobContainerName,
             string pendingNotificationsChaserExclusiveAccessLockBlobName)
         {
@@ -69,6 +70,7 @@ namespace Journalist.EventStore.Configuration
             Require.NotEmpty(notificationQueueName, "notificationQueueName");
             Require.Positive(notificationQueuePartitionCount, "notificationQueuePartitionCount");
             Require.NotEmpty(streamConsumerSessionsBlobContainerName, "streamConsumerSessionsBlobContainerName");
+            Require.NotEmpty(pendingNotificationsTableName, "pendingNotificationsTableName");
             Require.NotEmpty(pendingNotificationsChaserExclusiveAccessLockBlobContainerName, "pendingNotificationsChaserExclusiveAccessLockBlobContainerName");
             Require.NotEmpty(pendingNotificationsChaserExclusiveAccessLockBlobName, "pendingNotificationsChaserExclusiveAccessLockBlobName");
 
@@ -78,6 +80,7 @@ namespace Journalist.EventStore.Configuration
             NotificationQueueName = notificationQueueName;
             NotificationQueuePartitionCount = notificationQueuePartitionCount;
             StreamConsumerSessionsBlobContainerName = streamConsumerSessionsBlobContainerName;
+            PendingNotificationsTableName = pendingNotificationsTableName;
             PendingNotificationsChaserExclusiveAccessLockBlobName = pendingNotificationsChaserExclusiveAccessLockBlobName;
             PendingNotificationsChaserExclusiveAccessLockBlobContainerName = pendingNotificationsChaserExclusiveAccessLockBlobContainerName;
 
@@ -125,6 +128,12 @@ namespace Journalist.EventStore.Configuration
         }
 
         public string StreamConsumerSessionsBlobContainerName
+        {
+            get;
+            private set;
+        }
+
+        public string PendingNotificationsTableName
         {
             get;
             private set;

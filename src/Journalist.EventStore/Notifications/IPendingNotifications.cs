@@ -9,8 +9,11 @@ namespace Journalist.EventStore.Notifications
     {
         Task<IDictionary<string, List<EventStreamUpdated>>> LoadAsync();
 
+        Task AddAsync(string streamName, StreamVersion streamVersion, int eventCount);
+
         Task DeleteAsync(string streamName, StreamVersion streamVersion);
 
         Task DeleteAsync(string streamName, StreamVersion[] streamVersions);
+
     }
 }

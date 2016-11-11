@@ -81,11 +81,9 @@
     <Compile Include="Journal\Persistence\EventJournalTableKeys.cs" />
     <Compile Include="Journal\Persistence\IEventJournalTable.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperation.cs" />
-    <Compile Include="Journal\Persistence\Operations\DeletePendingNotificationOperation.cs" />
     <Compile Include="Journal\Persistence\Operations\IStreamOperation.cs" />
     <Compile Include="Journal\Persistence\Operations\JournalTableOperation.cs" />
     <Compile Include="Journal\Persistence\Queries\IStreamQuery.cs" />
-    <Compile Include="Journal\Persistence\Queries\PendingNotificationsQuery.cs" />
     <Compile Include="Journal\StreamCursor\CursorState.cs" />
     <Compile Include="Journal\StreamCursor\EndOfStreamCursorState.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursor.cs" />
@@ -171,6 +169,9 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="paket.template" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Notifications\Persistence\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

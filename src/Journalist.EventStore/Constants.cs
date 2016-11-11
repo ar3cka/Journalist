@@ -29,6 +29,7 @@ namespace Journalist.EventStore
             public const string NOTIFICATION_QUEUE_NAME = "event-journal-notifications";
             public const string EVENT_STORE_DEPLOYMENT_TABLE_NAME = "EventStoreDeployment";
 
+            public const string PENDING_NOTIFICATIONS_TABLE_NAME = "PendingNotifications";
             public const string PENDING_NOTIFICATIONS_CHASER_EXCLUSIVE_ACCESS_LOCK_BLOB_CONTAINER_NAME = "pending-notifications-processing";
             public const string PENDING_NOTIFICATIONS_CHASER_EXCLUSIVE_ACCESS_LOCK_BLOB_NAME = "current-lock";
 

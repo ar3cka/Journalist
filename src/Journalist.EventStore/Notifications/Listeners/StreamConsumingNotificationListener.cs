@@ -10,7 +10,7 @@ namespace Journalist.EventStore.Notifications.Listeners
 {
     public abstract class StreamConsumingNotificationListener : INotificationListener
     {
-        private readonly static object s_lock = new object();
+        private static readonly object s_lock = new object();
         private readonly CountdownEvent m_processingCountdown = new CountdownEvent(0);
         private ILogger m_logger;
 
@@ -73,7 +73,7 @@ namespace Journalist.EventStore.Notifications.Listeners
         }
 
         protected abstract Task<EventProcessingResult> TryProcessEventFromConsumerAsync(
-			IEventStreamConsumer consumer, 
+			IEventStreamConsumer consumer,
 			StreamVersion notificationStreamVersion);
 
         private async Task<bool> ReceiveAndProcessEventsAsync(EventStreamUpdated notification, IEventStreamConsumer consumer)

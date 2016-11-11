@@ -77,7 +77,8 @@ namespace Journalist.EventStore.Connection
                 new NotificationsChannel(queues, new NotificationFormatter()),
                 new ReceivedNotificationProcessor());
 
-            var pendingNotifications = new PendingNotifications(journalTable);
+            var pendingNotificationTable = m_factory.CreateTable(m_configuration.StorageConnectionString, m_configuration.PendingNotificationsTableName);
+            var pendingNotifications = new PendingNotifications(pendingNotificationTable);
             var pendingNotificationsChaserTimeout = new PollingTimeout(
                 TimeSpan.FromMinutes(Constants.Settings.PENDING_NOTIFICATIONS_CHASER_INITIAL_TIMEOUT_IN_MINUTES),
                 Constants.Settings.PENDING_NOTIFICATIONS_CHASER_TIMEOUT_MULTIPLIER,

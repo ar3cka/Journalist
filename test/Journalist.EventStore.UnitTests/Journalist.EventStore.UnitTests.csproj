@@ -77,10 +77,7 @@
     <Compile Include="Journal\EventStreamHeaderTests.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperationTests.cs" />
     <Compile Include="Journal\Persistence\Operations\AppendOperationTestsDataAttribute.cs" />
-    <Compile Include="Journal\Persistence\Operations\DeletePendingNotificationOperationTest.cs" />
     <Compile Include="Journal\Persistence\Operations\OperationFixture.cs" />
-    <Compile Include="Journal\Persistence\Queries\PendingNotificationsQueryTestDataAttribute.cs" />
-    <Compile Include="Journal\Persistence\Queries\PendingNotificationsQueryTests.cs" />
     <Compile Include="Journal\StreamCursor\EventStreamCursorTests.cs" />
     <Compile Include="Notifications\Listeners\BatchEventConsumingNotificationListenerTests.cs" />
     <Compile Include="Notifications\Listeners\EventConsumingNotificationListenerTests.cs" />
@@ -122,6 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Events\Mutation\" />
+    <Folder Include="Journal\Persistence\Queries\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\EventStreamUpdatedTemplate.txt" />

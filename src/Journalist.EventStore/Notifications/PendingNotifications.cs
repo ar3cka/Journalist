@@ -1,35 +1,53 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
-using Journalist.EventStore.Journal.Persistence;
-using Journalist.EventStore.Journal.Persistence.Operations;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.Extensions;
+using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Notifications
 {
     public class PendingNotifications : IPendingNotifications
     {
-        private const int MAX_NOTIFICATIONS = 100;
-        private readonly IEventJournalTable m_table;
+        private readonly ICloudTable m_table;
 
-        public PendingNotifications(IEventJournalTable table)
+        public PendingNotifications(ICloudTable table)
         {
             Require.NotNull(table, "table");
 
             m_table = table;
         }
 
+        public Task AddAsync(string streamName, StreamVersion streamVersion, int eventCount)
+        {
+            Require.NotEmpty(streamName, "streamName");
+            Require.Positive(eventCount, "eventCount");
+
+            var operation = m_table.PrepareBatchOperation();
+            var toVersion = streamVersion.Increment(eventCount);
+            operation.InsertOrReplace(
+                partitionKey: GetPartitionKey(streamName),
+                rowKey: GetRowKey(streamName, streamVersion),
+                propertyName: "ToVersion",
+                propertyValue: (int)toVersion);
+
+            return operation.ExecuteAsync();
+        }
+
         public Task DeleteAsync(string streamName, StreamVersion streamVersion)
         {
             Require.NotEmpty(streamName, "streamName");
 
-            var operation = m_table.CreateDeletePendingNotificationOperation(streamName);
-            operation.Prepare(streamVersion);
+            var operation = m_table.PrepareBatchOperation();
+            operation.Delete(
+                partitionKey: GetPartitionKey(streamName),
+                rowKey: GetRowKey(streamName, streamVersion),
+                etag: "*");
 
-            return ExecuteOperationAsync(operation);
+            return operation.ExecuteAsync();
         }
 
         public Task DeleteAsync(string streamName, StreamVersion[] streamVersions)
@@ -37,50 +55,62 @@ namespace Journalist.EventStore.Notifications
             Require.NotEmpty(streamName, "streamName");
             Require.NotNull(streamVersions, "streamVersions");
 
-            var operation = m_table.CreateDeletePendingNotificationOperation(streamName);
-            operation.Prepare(streamVersions);
+            var operation = m_table.PrepareBatchOperation();
 
-            return ExecuteOperationAsync(operation);
+            foreach (var streamVersion in streamVersions)
+            {
+                operation.Delete(
+                    partitionKey: GetPartitionKey(streamName),
+                    rowKey: GetRowKey(streamName, streamVersion),
+                    etag: "*");
+            }
+
+            return operation.ExecuteAsync();
         }
 
         public async Task<IDictionary<string, List<EventStreamUpdated>>> LoadAsync()
         {
-            var query = m_table.CreatePendingNotificationsQuery();
-            query.Prepare();
-
             var result = new Dictionary<string, List<EventStreamUpdated>>();
-            var notifications = await query.ExecuteAsync();
-            foreach (var notification in notifications)
+            var query = m_table.PrepareEntityGetAllQuery();
+            var queryResult = await query.ExecuteAsync();
+            foreach (var row in queryResult)
             {
+                var rowKey = (string)row[KnownProperties.RowKey];
+                var rowKeyParts = rowKey.Split('|');
+                var streamName = rowKeyParts[0];
+                var fromVersion = StreamVersion.Parse(rowKeyParts[1]);
+                var toVersion = StreamVersion.Create((int)row["ToVersion"]);
+
                 List<EventStreamUpdated> streamNotifications;
-                if (result.ContainsKey(notification.StreamName))
+                if (result.ContainsKey(streamName))
                 {
-                    streamNotifications = result[notification.StreamName];
+                    streamNotifications = result[streamName];
                 }
                 else
                 {
                     streamNotifications = new List<EventStreamUpdated>();
-                    result[notification.StreamName] = streamNotifications;
+                    result[streamName] = streamNotifications;
                 }
 
-                streamNotifications.Add(notification);
+                streamNotifications.Add(new EventStreamUpdated(streamName, fromVersion, toVersion));
             }
 
             return result;
         }
 
-        private static async Task<TResult> ExecuteOperationAsync<TResult>(IStreamOperation<TResult> operation)
+        private static string GetPartitionKey(string streamName)
         {
-            try
+            using (var hashAlg = MD5.Create())
             {
-                return await operation.ExecuteAsync();
+                var hash = BitConverter.ToInt16(hashAlg.ComputeHash(Encoding.UTF8.GetBytes(streamName)), 0);
+                var partition = hash % 100;
+                return partition.ToString("D3");
             }
-            catch (Exception exception)
-            {
-                operation.Handle(exception);
+        }
 
-                throw;
-            }
+        private static string GetRowKey(string streamName, StreamVersion streamVersion)
+        {
+            return "{0}|{1}".FormatString(streamName, streamVersion.ToString());
         }
     }
 }
