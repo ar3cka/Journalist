@@ -1,3 +1,6 @@
+### 0.14.0
+* [EventStore][Breaking] Store pending notifications in a separate storage table
+
 ### 0.13.6
 * [EventStore][Improvment] Perfomance improvments
 * [WAZ.Storage][New] Add new overrides in IBatchOperation.
