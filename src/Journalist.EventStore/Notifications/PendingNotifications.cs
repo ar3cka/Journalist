@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,11 +8,14 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.Extensions;
 using Journalist.WindowsAzure.Storage.Tables;
+using Serilog;
 
 namespace Journalist.EventStore.Notifications
 {
     public class PendingNotifications : IPendingNotifications
     {
+        private static readonly ILogger s_logger = Log.ForContext<PendingNotifications>();
+
         private readonly ICloudTable m_table;
 
         public PendingNotifications(ICloudTable table)
@@ -37,17 +41,30 @@ namespace Journalist.EventStore.Notifications
             return operation.ExecuteAsync();
         }
 
-        public Task DeleteAsync(string streamName, StreamVersion streamVersion)
+        public async Task DeleteAsync(string streamName, StreamVersion streamVersion)
         {
             Require.NotEmpty(streamName, "streamName");
 
-            var operation = m_table.PrepareBatchOperation();
-            operation.Delete(
-                partitionKey: GetPartitionKey(streamName),
-                rowKey: GetRowKey(streamName, streamVersion),
-                etag: "*");
+            try
+            {
+                var operation = m_table.PrepareBatchOperation();
 
-            return operation.ExecuteAsync();
+                operation.Delete(
+                    partitionKey: GetPartitionKey(streamName),
+                    rowKey: GetRowKey(streamName, streamVersion),
+                    etag: "*");
+
+                await operation.ExecuteAsync();
+            }
+            catch (BatchOperationException exception)
+            {
+                if (exception.HttpStatusCode != HttpStatusCode.NotFound)
+                {
+                    throw;
+                }
+
+                s_logger.Debug(exception, "Stream {SteamName} version {Version} pending notification record has been deleted.", streamName, streamVersion);
+            }
         }
 
         public Task DeleteAsync(string streamName, StreamVersion[] streamVersions)

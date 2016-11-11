@@ -1,3 +1,6 @@
+### 0.14.1
+* [EventStore][BUGFIX] Handle "Not Found" error on notification deletion
+
 ### 0.14.0
 * [EventStore][Breaking] Store pending notifications in a separate storage table
 
