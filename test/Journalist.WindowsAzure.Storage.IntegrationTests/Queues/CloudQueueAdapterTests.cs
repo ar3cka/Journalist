@@ -126,8 +126,8 @@ namespace Journalist.WindowsAzure.Storage.IntegrationTests.Queues
             Assert.Null(receivedMessages);
         }
 
-        public StorageFactory Factory { get; set; }
+        public StorageFactory Factory { get; }
 
-        public ICloudQueue Queue { get; set; }
+        public ICloudQueue Queue { get; }
     }
 }
