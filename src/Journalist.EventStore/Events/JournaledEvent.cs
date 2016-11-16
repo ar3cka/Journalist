@@ -20,7 +20,7 @@ namespace Journalist.EventStore.Events
             Guid eventId,
             string eventTypeName,
             Option<DateTimeOffset> commitTime,
-            Option<StreamVersion> offset, 
+            Option<StreamVersion> offset,
             Dictionary<string, string> eventHeaders,
             MemoryStream eventPayload)
         {
@@ -189,39 +189,18 @@ namespace Journalist.EventStore.Events
             return obj is JournaledEvent && Equals((JournaledEvent)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return m_eventId.GetHashCode();
-        }
+        public override int GetHashCode() => m_eventId.GetHashCode();
 
-        public IReadOnlyDictionary<string, string> Headers
-        {
-            get { return m_eventHeaders; }
-        }
+        public IReadOnlyDictionary<string, string> Headers => m_eventHeaders;
 
-        public Type EventType
-        {
-            get { return Type.GetType(EventTypeName, true); }
-        }
+        public Type EventType => Type.GetType(EventTypeName, true);
 
-        public Guid EventId
-        {
-            get { return m_eventId; }
-        }
+        public Guid EventId => m_eventId;
 
-        public string EventTypeName
-        {
-            get { return m_eventTypeName; }
-        }
+        public string EventTypeName => m_eventTypeName;
 
-        public Option<DateTimeOffset> CommitTime
-        {
-            get { return m_commitTime; }
-        }
+        public Option<DateTimeOffset> CommitTime => m_commitTime;
 
-        public Option<StreamVersion> Offset
-        {
-            get { return m_offset; }
-        }
+        public Option<StreamVersion> Offset => m_offset;
     }
 }
