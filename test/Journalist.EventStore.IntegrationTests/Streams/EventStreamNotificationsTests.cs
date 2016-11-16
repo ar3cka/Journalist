@@ -41,7 +41,10 @@ namespace Journalist.EventStore.IntegrationTests.Streams
 
             Assert.NotNull(item1);
             Assert.NotNull(item2);
-            Assert.Equal(item1.NotificationId, item2.NotificationId);
+            Assert.Equal(item1.NotificationType, item2.NotificationType);
+            Assert.Equal(item1.StreamName, item2.StreamName);
+            Assert.Equal(item1.ToVersion, item2.ToVersion);
+            Assert.Equal(item1.FromVersion, item2.FromVersion);
         }
 
         public void Dispose()
