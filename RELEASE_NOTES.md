@@ -1,3 +1,6 @@
+### 0.15.0
+* [EventStore] Relax azure storage lib reference constrains
+
 ### 0.14.1
 * [EventStore][BUGFIX] Handle "Not Found" error on notification deletion
 
@@ -5,7 +8,7 @@
 * [EventStore][Breaking] Store pending notifications in a separate storage table
 
 ### 0.13.6
-* [EventStore][Improvment] Perfomance improvments
+* [EventStore][Improvement] Performance improvements
 * [WAZ.Storage][New] Add new overrides in IBatchOperation.
 
 ### 0.13.5
