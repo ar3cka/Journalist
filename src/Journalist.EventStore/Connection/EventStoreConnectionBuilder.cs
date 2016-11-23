@@ -73,7 +73,7 @@ namespace Journalist.EventStore.Connection
             var consumersRegistry = new EventStreamConsumers(deploymentTable);
 
             var notificationHub = new NotificationHub(
-                new PollingJob(new PollingTimeout()),
+                new PollingJob("NotificationHubPollingJob", new PollingTimeout()),
                 new NotificationsChannel(queues, new NotificationFormatter()),
                 new ReceivedNotificationProcessor());
 
@@ -88,7 +88,7 @@ namespace Journalist.EventStore.Connection
             var pendingNotificationsChaser = new PendingNotificationsChaser(
                 pendingNotifications,
                 notificationHub,
-                new PollingJob(pendingNotificationsChaserTimeout),
+                new PollingJob("PendingNotificationsChaserPollingJob", pendingNotificationsChaserTimeout),
                 m_factory.CreateBlobContainer(
                     m_configuration.StorageConnectionString,
                     m_configuration.PendingNotificationsChaserExclusiveAccessLockBlobContainerName).CreateBlockBlob(

@@ -35,7 +35,7 @@ namespace Journalist.EventStore.IntegrationTests.Notifications.Channel
         [Fact]
         public async Task ChannelReceivesAllSendedNotifications()
         {
-            var notifications = m_fixture.CreateMany<EventStreamUpdated>();
+            var notifications = m_fixture.CreateMany<EventStreamUpdated>().ToList();
             foreach (var notification in notifications)
             {
                 await m_channel.SendAsync(notification);
