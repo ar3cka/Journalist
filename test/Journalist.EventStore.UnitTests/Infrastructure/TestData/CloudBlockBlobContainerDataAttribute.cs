@@ -14,6 +14,9 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         {
             Fixture.Register(() => TimeSpan.FromMinutes(2));
 
+            var failedTsc = new TaskCompletionSource<string>();
+            failedTsc.SetException(new LeaseAlreadyAcquiredException());
+
             Fixture.Customize<Mock<ICloudBlockBlob>>(composer => composer
                 .Do(mock => mock
                     .Setup(self => self.IsExistsAsync())
@@ -23,7 +26,7 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
                     .Returns(leaseLocked ? TaskDone.True : TaskDone.False))
                 .Do(mock => mock
                     .Setup(self => self.AcquireLeaseAsync(It.IsAny<TimeSpan?>(), null))
-                    .Returns(leaseLocked ? Task.FromResult<string>(null) : Task.FromResult(Fixture.Create("LeaseId"))))
+                    .Returns(leaseLocked ? failedTsc.Task : Task.FromResult(Fixture.Create("LeaseId"))))
                 .Do(mock => mock
                     .Setup(self => self.Metadata)
                     .ReturnsUsingFixture(Fixture))
