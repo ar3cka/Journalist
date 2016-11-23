@@ -12,6 +12,8 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
     {
         public CloudBlockBlobContainerDataAttribute(bool isExists = true, bool leaseLocked = false)
         {
+            Fixture.Register(() => TimeSpan.FromMinutes(2));
+
             Fixture.Customize<Mock<ICloudBlockBlob>>(composer => composer
                 .Do(mock => mock
                     .Setup(self => self.IsExistsAsync())

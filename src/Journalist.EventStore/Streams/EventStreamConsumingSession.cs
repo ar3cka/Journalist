@@ -17,6 +17,7 @@ namespace Journalist.EventStore.Streams
 
         private ICloudBlockBlob m_blob;
         private string m_acquiredLease;
+        private DateTimeOffset m_leaseAcquisitionTime;
         private DateTimeOffset m_sessionsExpiresOn;
 
         public EventStreamConsumingSession(
@@ -37,13 +38,17 @@ namespace Journalist.EventStore.Streams
 
         public async Task<bool> PromoteToLeaderAsync()
         {
-            string acquiredLease = null;
             if (m_acquiredLease == null)
             {
                 EnsureBlobExists();
+
                 try
                 {
-                    acquiredLease = await m_blob.AcquireLeaseAsync();
+                    var acquiredLeaseId = await m_blob.AcquireLeaseAsync();
+                    await ManageLeaseTimoutAsync(acquiredLeaseId);
+
+                    m_acquiredLease = acquiredLeaseId;
+                    m_leaseAcquisitionTime = DateTimeOffset.UtcNow;
                 }
                 catch (LeaseAlreadyAcquiredException exception)
                 {
@@ -54,12 +59,9 @@ namespace Journalist.EventStore.Streams
                         m_consumerId);
                 }
             }
-
-            if (m_acquiredLease == null && acquiredLease != null)
+            else
             {
-                m_acquiredLease = acquiredLease;
-
-                await ManageLeaseTimoutAsync();
+                await ManageLeaseTimoutAsync(m_acquiredLease);
             }
 
             if (m_acquiredLease == null)
@@ -70,14 +72,14 @@ namespace Journalist.EventStore.Streams
             return m_acquiredLease != null;
         }
 
-        private async Task ManageLeaseTimoutAsync()
+        private async Task ManageLeaseTimoutAsync(string leaseId)
         {
-            if (m_sessionsExpiresOn <= DateTimeOffset.UtcNow)
+            if (IsExpired())
             {
                 var sessionsExpiresOn = DateTimeOffset.UtcNow.Add(m_leaseTimeout);
                 m_sessionsExpiresOn = sessionsExpiresOn.AddMinutes(-1);
                 m_blob.Metadata[Constants.MetadataProperties.SESSION_EXPIRES_ON] = sessionsExpiresOn.ToString("O");
-                await m_blob.SaveMetadataAsync(m_acquiredLease);
+                await m_blob.SaveMetadataAsync(leaseId);
             }
         }
 
@@ -85,9 +87,25 @@ namespace Journalist.EventStore.Streams
         {
             if (m_acquiredLease != null)
             {
-                await m_blob.ReleaseLeaseAsync(m_acquiredLease);
-                m_acquiredLease = null;
-                m_sessionsExpiresOn = DateTimeOffset.MinValue;
+                try
+                {
+                    await m_blob.ReleaseLeaseAsync(m_acquiredLease);
+                }
+                catch (Exception exception)
+                {
+                    s_logger.Error(
+                        exception,
+                        "Acquired at {AcquisitionTime} session's ({StreamName}, {ConsumerId}) lease releasing failed.",
+                        m_leaseAcquisitionTime,
+                        m_streamName,
+                        m_consumerId);
+                }
+                finally
+                {
+                    m_acquiredLease = null;
+                    m_leaseAcquisitionTime = DateTimeOffset.MinValue;
+                    m_sessionsExpiresOn = DateTimeOffset.MinValue;
+                }
             }
         }
 
@@ -101,6 +119,8 @@ namespace Journalist.EventStore.Streams
                 if (expiresOn <= DateTimeOffset.UtcNow)
                 {
                     await m_blob.BreakLeaseAsync();
+
+                    s_logger.Warning("Acquired session's ({StreamName}, {ConsumerId}) lease has been broken.", m_streamName, m_acquiredLease);
                 }
             }
         }
@@ -113,17 +133,10 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public string StreamName
-        {
-            get
-            {
-                return m_streamName;
-            }
-        }
+        private bool IsExpired() => m_sessionsExpiresOn <= DateTimeOffset.UtcNow;
 
-        public EventStreamReaderId ConsumerId
-        {
-            get { return m_consumerId; }
-        }
+        public string StreamName => m_streamName;
+
+        public EventStreamReaderId ConsumerId => m_consumerId;
     }
 }
