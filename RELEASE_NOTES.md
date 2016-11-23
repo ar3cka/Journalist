@@ -1,3 +1,6 @@
+### 0.15.1
+* [EventStore][BUGFIX] Handle exception in PollingJob
+
 ### 0.15.0
 * [EventStore] Relax azure storage lib reference constrains
 
@@ -24,7 +27,7 @@
 * [WAZ.Storage][New] Sync methods for storage table batch operation.
 * [EventStore][BugFix] Fix polling timeout start value initialization
 
-### 0.13.0 
+### 0.13.0
 * [LanguageExtensions][New] YieldList extensions method
 * [WAZ.Storage][New] Ability to specify row count for table segmented query.
 * [EventStore][BugFix] Correct timeout class behavior

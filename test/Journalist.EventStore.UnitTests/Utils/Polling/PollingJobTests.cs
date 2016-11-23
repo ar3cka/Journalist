@@ -44,6 +44,17 @@ namespace Journalist.EventStore.UnitTests.Utils.Polling
             timeout.Verify(self => self.Increase(), Times.AtLeastOnce());
         }
 
+        [Theory, PollingJobData(fail: true)]
+        public async Task StartedJob_WhenFuncThrows_IncreasesTimeout(
+            [Frozen] Mock<IPollingTimeout> timeout,
+            [Frozen] PollingFunction pollingFunc,
+            PollingJob pollingJob)
+        {
+            await RunWaitStopJob(pollingJob, pollingFunc);
+
+            timeout.Verify(self => self.Increase(), Times.AtLeastOnce());
+        }
+
         private static async Task RunWaitStopJob(PollingJob pollingJob, PollingFunction polllingFunc)
         {
             pollingJob.Start(polllingFunc);
