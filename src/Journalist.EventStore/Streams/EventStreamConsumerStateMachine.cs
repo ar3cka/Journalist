@@ -137,7 +137,7 @@ namespace Journalist.EventStore.Streams
 
             public override State MoveToReceivingCompletedState(EventStreamConsumerStateMachine stm, int eventsCount)
             {
-                throw new InvalidOperationException("Consumed is in events received state.");
+                throw new InvalidOperationException("Consumer stream is in events received state.");
             }
 
             public override State MoveToConsumingStarted()
@@ -147,7 +147,7 @@ namespace Journalist.EventStore.Streams
 
             public override State MoveToConsumedState(EventStreamConsumerStateMachine stm)
             {
-                throw new InvalidOperationException("Consumed is in events received state.");
+                throw new InvalidOperationException("Consumer stream is in events received state.");
             }
 
             public override State MoveToClosedState(EventStreamConsumerStateMachine stm)
@@ -177,7 +177,7 @@ namespace Journalist.EventStore.Streams
         {
             public override State MoveToConsumingStarted()
             {
-                throw new InvalidOperationException("Consumed is in consuming state.");
+                throw new InvalidOperationException("Consumer stream is in consuming state.");
             }
 
             public override State MoveToConsumedState(EventStreamConsumerStateMachine stm)
@@ -220,7 +220,7 @@ namespace Journalist.EventStore.Streams
 
             public override State MoveToReceivingCompletedState(EventStreamConsumerStateMachine stm, int eventsCount)
             {
-                throw new InvalidOperationException("Consumed is in consumed state.");
+                throw new InvalidOperationException("Consumer stream is in consumed state.");
             }
 
             public override State MoveToClosedState(EventStreamConsumerStateMachine stm)
@@ -238,17 +238,17 @@ namespace Journalist.EventStore.Streams
         {
             public override State MoveToReceivingCompletedState(EventStreamConsumerStateMachine stm, int eventsCount)
             {
-                throw new InvalidOperationException("Consumed is in closed state.");
+                throw new InvalidOperationException("Consumer stream is in closed state.");
             }
 
             public override State MoveToConsumingStarted()
             {
-                throw new InvalidOperationException("Consumed is in closed state.");
+                throw new InvalidOperationException("Consumer stream is in closed state.");
             }
 
             public override State MoveToClosedState(EventStreamConsumerStateMachine stm)
             {
-                throw new InvalidOperationException("Consumed is in closed state.");
+                throw new InvalidOperationException("Consumer stream is in closed state.");
             }
 
             public override StreamVersion CalculateConsumedStreamVersion(EventStreamConsumerStateMachine stm, bool skipCurrentEvent)
