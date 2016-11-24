@@ -13,7 +13,7 @@ namespace Journalist.EventStore.Utils.Polling
         public const int MAX_TIMEOUT_SEC = 30;
 
         private readonly double m_initialTimeoutSec;
-        private readonly double m_maximumTimoutSec;
+        private readonly double m_maximumTimeoutSec;
         private readonly double m_multiplier;
         private readonly int m_increasingThreshold;
 
@@ -35,7 +35,7 @@ namespace Journalist.EventStore.Utils.Polling
             m_initialTimeoutSec = initialTimeout.Seconds;
             m_multiplier = multiplier;
             m_increasingThreshold = increasingThreshold;
-            m_maximumTimoutSec = maximumTimout.Seconds;
+            m_maximumTimeoutSec = maximumTimout.TotalSeconds;
 
             Reset();
         }
@@ -56,7 +56,7 @@ namespace Journalist.EventStore.Utils.Polling
                     m_initialTimeoutSec,
                     m_multiplier,
                     m_multiplierStep,
-                    m_maximumTimoutSec);
+                    m_maximumTimeoutSec);
 
                 m_multiplierStep++;
             }
