@@ -1,3 +1,6 @@
+### 0.15.2
+* [EventStore][BUGFIX] Fix maximumTimeout initialization in PoolingTimeout class
+
 ### 0.15.1
 * [EventStore][BUGFIX] Handle exception in PollingJob
 
