@@ -1,3 +1,6 @@
+### 0.15.3
+* [LanguageExtensions] Added [Serializable] to Option<T> and NoneOption structs
+
 ### 0.15.2
 * [EventStore][BUGFIX] Fix maximumTimeout initialization in PoolingTimeout class
 
