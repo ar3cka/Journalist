@@ -3,6 +3,7 @@ using System.Globalization;
 
 namespace Journalist.Options
 {
+    [Serializable]
     public struct Option<T> : IEquatable<Option<T>>, IEquatable<Option.NoneOption>
     {
         private static readonly Option<T> None = new Option<T>();
@@ -101,6 +102,7 @@ namespace Journalist.Options
 
     public static class Option
     {
+        [Serializable]
         public struct NoneOption
         {
             public override bool Equals(object obj)
