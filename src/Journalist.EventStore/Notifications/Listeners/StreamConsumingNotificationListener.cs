@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Streams;
+using Journalist.Tasks;
 using Serilog;
 
 namespace Journalist.EventStore.Notifications.Listeners
@@ -44,8 +45,13 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             var retryProcessing = false;
             try
-            {
-                var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
+			{
+				if (!await NeedToProcessAsync(notification))
+				{
+					return;
+				}
+
+				var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
 
                 retryProcessing = await ReceiveAndProcessEventsAsync(notification, consumer);
                 await consumer.CloseAsync();
@@ -71,6 +77,11 @@ namespace Journalist.EventStore.Notifications.Listeners
                 await m_subscription.RetryNotificationProcessingAsync(notification);
             }
         }
+
+	    protected virtual Task<bool> NeedToProcessAsync(EventStreamUpdated notification)
+	    {
+		    return true.YieldTask();
+	    }
 
         protected abstract Task<EventProcessingResult> TryProcessEventFromConsumerAsync(
 			IEventStreamConsumer consumer,
