@@ -27,8 +27,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
                     .UseStorage(
                         storageConnectionString: "UseDevelopmentStorage=true",
                         journalTableName: "TestEventJournal" + Guid.NewGuid().ToString("N"),
-                        notificationQueuePartitionCount: 1,
-                        notificationQueueName: queueName)
+                        notificationQueueName: queueName, notificationQueuePartitionCount: 1)
                     .Notifications.EnableProcessing()
                     .Notifications.Subscribe(BatchEventListener)
                     .Notifications.Subscribe(EventListener))

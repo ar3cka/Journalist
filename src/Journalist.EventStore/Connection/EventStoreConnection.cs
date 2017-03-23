@@ -4,6 +4,7 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
+using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils.RetryPolicies;
 
@@ -26,15 +27,17 @@ namespace Journalist.EventStore.Connection
             IPendingNotifications pendingNotifications,
             IEventStreamConsumers consumers,
             IEventStreamConsumingSessionFactory sessionFactory,
-            IEventMutationPipelineFactory pipelineFactory)
+            IEventMutationPipelineFactory pipelineFactory, 
+			IFailedNotificationsHub failedNotificationsHub)
         {
-            Require.NotNull(connectionState, "connectionState");
-            Require.NotNull(journal, "journal");
-            Require.NotNull(notificationHub, "notificationHub");
-            Require.NotNull(pendingNotifications, "pendingNotifications");
-            Require.NotNull(consumers, "consumers");
-            Require.NotNull(sessionFactory, "sessionFactory");
-            Require.NotNull(pipelineFactory, "pipelineFactory");
+            Require.NotNull(connectionState, nameof(connectionState));
+            Require.NotNull(journal, nameof(journal));
+            Require.NotNull(notificationHub, nameof(notificationHub));
+            Require.NotNull(pendingNotifications, nameof(pendingNotifications));
+            Require.NotNull(consumers, nameof(consumers));
+            Require.NotNull(sessionFactory, nameof(sessionFactory));
+            Require.NotNull(pipelineFactory, nameof(pipelineFactory));
+			Require.NotNull(failedNotificationsHub, nameof(failedNotificationsHub));
 
             m_connectionState = connectionState;
             m_journal = journal;
@@ -43,8 +46,9 @@ namespace Journalist.EventStore.Connection
             m_consumers = consumers;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
+	        FailedNotificationsHub = failedNotificationsHub;
 
-            m_connectionState.ChangeToCreated(this);
+	        m_connectionState.ChangeToCreated(this);
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
@@ -146,7 +150,9 @@ namespace Journalist.EventStore.Connection
                 .WithName(consumerName));
         }
 
-        public void Close()
+		public IFailedNotificationsHub FailedNotificationsHub { get; }
+
+		public void Close()
         {
             m_connectionState.ChangeToClosing();
             m_connectionState.ChangeToClosed();

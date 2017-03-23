@@ -72,10 +72,17 @@ namespace Journalist.EventStore.Connection
 
             var consumersRegistry = new EventStreamConsumers(deploymentTable);
 
-            var notificationHub = new NotificationHub(
+			var notificationFormatter = new NotificationFormatter();
+
+			var failedNotificationsChannel = new FailedNotificationsHub(
+				m_factory.CreateTable(m_configuration.StorageConnectionString, m_configuration.FailedNotificationsTableName),
+				notificationFormatter);
+
+	        var notificationHub = new NotificationHub(
                 new PollingJob("NotificationHubPollingJob", new PollingTimeout()),
-                new NotificationsChannel(queues, new NotificationFormatter()),
-                new ReceivedNotificationProcessor());
+                new NotificationsChannel(queues, notificationFormatter),
+                new ReceivedNotificationProcessor(),
+				failedNotificationsChannel);
 
             var pendingNotificationTable = m_factory.CreateTable(m_configuration.StorageConnectionString, m_configuration.PendingNotificationsTableName);
             var pendingNotifications = new PendingNotifications(pendingNotificationTable);
@@ -135,7 +142,8 @@ namespace Journalist.EventStore.Connection
                 pendingNotifications,
                 consumersRegistry,
                 sessionFactory,
-                pipelineFactory);
+                pipelineFactory,
+				failedNotificationsChannel);
         }
     }
 }

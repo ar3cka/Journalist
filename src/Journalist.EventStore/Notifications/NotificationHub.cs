@@ -21,21 +21,25 @@ namespace Journalist.EventStore.Notifications
         private readonly IPollingJob m_pollingJob;
         private readonly INotificationsChannel m_channel;
         private readonly IReceivedNotificationProcessor m_notificationProcessor;
+	    private readonly IFailedNotificationsHub m_failedNotificationsHub;
 
-        private int m_maxProcessingCount;
+	    private int m_maxProcessingCount;
 
         public NotificationHub(
             IPollingJob pollingJob,
             INotificationsChannel channel,
-            IReceivedNotificationProcessor notificationProcessor)
+            IReceivedNotificationProcessor notificationProcessor,
+			IFailedNotificationsHub failedNotificationsHub)
         {
-            Require.NotNull(pollingJob, "pollingJob");
-            Require.NotNull(channel, "channel");
-            Require.NotNull(notificationProcessor, "notificationProcessor");
+            Require.NotNull(pollingJob, nameof(pollingJob));
+            Require.NotNull(channel, nameof(channel));
+            Require.NotNull(notificationProcessor, nameof(notificationProcessor));
+			Require.NotNull(failedNotificationsHub, nameof(failedNotificationsHub));
 
             m_pollingJob = pollingJob;
             m_channel = channel;
             m_notificationProcessor = notificationProcessor;
+	        m_failedNotificationsHub = failedNotificationsHub;
         }
 
         public Task NotifyAsync(INotification notification)
@@ -49,7 +53,8 @@ namespace Journalist.EventStore.Notifications
         {
             Require.NotNull(listener, "listener");
 
-            m_subscriptions.Add(listener.GetType(), new NotificationListenerSubscription(m_channel, listener));
+			m_failedNotificationsHub.AddRetryListener(listener);
+            m_subscriptions.Add(listener.GetType(), new NotificationListenerSubscription(m_channel, listener, m_failedNotificationsHub));
         }
 
         public void Unsubscribe(INotificationListener listener)
