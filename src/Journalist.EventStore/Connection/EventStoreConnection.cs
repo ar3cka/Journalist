@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
-using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils.RetryPolicies;
 
@@ -116,31 +117,15 @@ namespace Journalist.EventStore.Connection
 
             var configuration = new EventStreamConsumerConfiguration();
             configure(configuration);
-            configuration.AsserConfigurationCompleted();
+            configuration.AssertConfigurationCompleted();
 
             m_connectionState.EnsureConnectionIsActive();
 
             var readerId = await m_consumers.RegisterAsync(configuration.ConsumerName);
-            var session = m_sessionFactory.CreateSession(readerId, configuration.StreamName);
-
-            Func<StreamVersion, Task> commitReaderVersion = version => m_journal.CommitStreamReaderPositionAsync(
-                streamName: configuration.StreamName,
-                readerId: readerId,
-                version: version);
-
-            return new EventStreamConsumer(
-                session: session,
-                readerFactory: new PersistentEventStreamReaderFactory(
-                    readerId,
-                    m_journal,
-                    m_connectionState,
-                    m_pipelineFactory.CreateIncomingPipeline(),
-                    configuration),
-                autoCommitProcessedStreamVersion: configuration.UseAutoCommitProcessedStreamPositionBehavior,
-                commitConsumedVersion: commitReaderVersion);
+            return CreateStreamConsumer(readerId, configuration);
         }
 
-        public Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName)
+	    public Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(consumerName, "consumerName");
@@ -148,7 +133,21 @@ namespace Journalist.EventStore.Connection
             return CreateStreamConsumerAsync(config => config
                 .ReadStream(streamName)
                 .WithName(consumerName));
-        }
+		}
+
+		public async Task<IEnumerable<IEventStreamConsumer>> EnumerateConsumersAsync(string streamName)
+		{
+			Require.NotEmpty(streamName, nameof(streamName));
+
+			var consumerIds = await m_consumers.EnumerateAsync();
+
+			return consumerIds.Select(consumerId =>
+			{
+				var configuration = new EventStreamConsumerConfiguration();
+				configuration.ReadStream(streamName);
+				return CreateStreamConsumer(consumerId, configuration);
+			});
+		}
 
 		public IFailedNotificationsHub FailedNotificationsHub { get; }
 
@@ -157,5 +156,26 @@ namespace Journalist.EventStore.Connection
             m_connectionState.ChangeToClosing();
             m_connectionState.ChangeToClosed();
         }
-    }
+
+		private IEventStreamConsumer CreateStreamConsumer(EventStreamReaderId readerId, EventStreamConsumerConfiguration configuration)
+		{
+			var session = m_sessionFactory.CreateSession(readerId, configuration.StreamName);
+
+			Func<StreamVersion, Task> commitReaderVersion = version => m_journal.CommitStreamReaderPositionAsync(
+				streamName: configuration.StreamName,
+				readerId: readerId,
+				version: version);
+
+			return new EventStreamConsumer(
+				session: session,
+				readerFactory: new PersistentEventStreamReaderFactory(
+					readerId,
+					m_journal,
+					m_connectionState,
+					m_pipelineFactory.CreateIncomingPipeline(),
+					configuration),
+				autoCommitProcessedStreamVersion: configuration.UseAutoCommitProcessedStreamPositionBehavior,
+				commitConsumedVersion: commitReaderVersion);
+		}
+	}
 }

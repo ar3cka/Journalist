@@ -69,9 +69,16 @@ namespace Journalist.EventStore.Streams
                 await m_commitConsumedVersion(version);
                 m_stateMachine.ConsumedStreamVersionCommited(version, skipCurrent);
             }
-        }
+		}
 
-        public async Task CloseAsync()
+		public Task CommitStreamVersionAsync(StreamVersion streamVersion)
+		{
+			Require.NotNull(streamVersion, "streamVersion");
+
+			return m_commitConsumedVersion(streamVersion);
+		}
+
+		public async Task CloseAsync()
         {
             if (m_stateMachine == null)
             {
@@ -116,9 +123,8 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public string StreamName
-        {
-            get { return m_reader.StreamName; }
-        }
+        public string StreamName => m_reader.StreamName;
+
+	    public StreamVersion CurrentConsumerVersion => m_stateMachine.CommitedStreamVersion;
     }
 }

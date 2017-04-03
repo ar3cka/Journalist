@@ -39,7 +39,7 @@ namespace Journalist.EventStore.Connection
             return this;
         }
 
-        public void AsserConfigurationCompleted()
+        public void AssertConfigurationCompleted()
         {
             Ensure.True(m_streamName.IsNotNullOrEmpty(), "Stream name was not specified.");
             Ensure.True(m_consumerName.IsNotNullOrEmpty(), "Consumer name was not specified.");
