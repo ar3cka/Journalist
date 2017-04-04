@@ -8,6 +8,6 @@ namespace Journalist.EventStore.Streams
     {
         Task<EventStreamReaderId> RegisterAsync(string consumerName);
 
-	    Task<IEnumerable<EventStreamReaderId>> EnumerateAsync();
+        Task<IEnumerable<EventStreamReaderId>> EnumerateAsync();
     }
 }

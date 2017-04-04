@@ -21,9 +21,9 @@ namespace Journalist.EventStore.Connection
 
         Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName);
 
-	    Task<IEnumerable<IEventStreamConsumer>> EnumerateConsumersAsync(string streamName);
+        Task<IEnumerable<IEventStreamConsumer>> EnumerateConsumersAsync(string streamName);
 
-		IFailedNotificationsHub FailedNotificationsHub { get; }
+        IFailedNotificationsStore FailedNotificationsStore { get; }
 
         void Close();
     }

@@ -10,7 +10,7 @@ namespace Journalist.EventStore.Streams
 
         Task CommitProcessedStreamVersionAsync(bool skipCurrent);
 
-	    Task CommitStreamVersionAsync(StreamVersion streamVersion);
+        Task CommitStreamVersionAsync(StreamVersion streamVersion);
 
         Task CloseAsync();
 
@@ -18,6 +18,6 @@ namespace Journalist.EventStore.Streams
 
         string StreamName { get; }
 
-		StreamVersion CurrentConsumerVersion { get; }
+        StreamVersion CurrentConsumerVersion { get; }
     }
 }

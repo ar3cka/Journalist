@@ -92,8 +92,8 @@
     <Compile Include="Journal\StreamCursor\FetchingCursorState.cs" />
     <Compile Include="Journal\StreamCursor\InitialCursorState.cs" />
     <Compile Include="Journal\EventStreamReaderId.cs" />
-    <Compile Include="Notifications\FailedNotificationsHub.cs" />
-    <Compile Include="Notifications\IFailedNotificationsHub.cs" />
+    <Compile Include="Notifications\FailedNotificationsStore.cs" />
+    <Compile Include="Notifications\IFailedNotificationsStore.cs" />
     <Compile Include="Notifications\Channels\INotificationsChannel.cs" />
     <Compile Include="Notifications\Channels\IReceivedNotification.cs" />
     <Compile Include="Notifications\Channels\NotificationsChannel.cs" />

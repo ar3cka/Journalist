@@ -179,20 +179,20 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
                     It.Is<TimeSpan>(v => TimeSpan.FromSeconds(deferredNotification.DeliveryCount * 2) == v)));
         }
 
-		[Theory, NotificationListenerSubscriptionData]
-	    public async Task DeferNotification_WhenRetryCountIsExceeded_PutsNotificationToFailed(
-		    [Frozen] Mock<IFailedNotificationsHub> failedNotificationsChannelMock,
-			[Frozen] Mock<INotification> receivedNotification,
-			IEventStoreConnection connection,
-		    NotificationListenerSubscription subscription)
-	    {
-		    receivedNotification.SetupGet(self => self.DeliveryCount).Returns(10);
+        [Theory, NotificationListenerSubscriptionData]
+        public async Task DeferNotification_WhenRetryCountIsExceeded_PutsNotificationToFailed(
+            [Frozen] Mock<IFailedNotificationsStore> failedNotificationsChannelMock,
+            [Frozen] Mock<INotification> receivedNotification,
+            IEventStoreConnection connection,
+            NotificationListenerSubscription subscription)
+        {
+            receivedNotification.SetupGet(self => self.DeliveryCount).Returns(10);
 
-			subscription.Start(connection);
+            subscription.Start(connection);
 
-		    await subscription.RetryNotificationProcessingAsync(receivedNotification.Object);
+            await subscription.RetryNotificationProcessingAsync(receivedNotification.Object);
 
-		    failedNotificationsChannelMock.Verify(self => self.PutToFailedAsync(receivedNotification.Object));
-	    }
+            failedNotificationsChannelMock.Verify(self => self.PutToFailedAsync(receivedNotification.Object));
+        }
     }
 }

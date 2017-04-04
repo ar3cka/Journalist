@@ -45,13 +45,13 @@ namespace Journalist.EventStore.Notifications.Listeners
 
             var retryProcessing = false;
             try
-			{
-				if (!await NeedToProcessAsync(notification))
-				{
-					return;
-				}
+            {
+                if (!await NeedToProcessAsync(notification))
+                {
+                    return;
+                }
 
-				var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
+                var consumer = await m_subscription.CreateSubscriptionConsumerAsync(notification.StreamName);
 
                 retryProcessing = await ReceiveAndProcessEventsAsync(notification, consumer);
                 await consumer.CloseAsync();
@@ -78,36 +78,36 @@ namespace Journalist.EventStore.Notifications.Listeners
             }
         }
 
-	    protected virtual Task<bool> NeedToProcessAsync(EventStreamUpdated notification)
-	    {
-		    return true.YieldTask();
-	    }
+        protected virtual Task<bool> NeedToProcessAsync(EventStreamUpdated notification)
+        {
+            return true.YieldTask();
+        }
 
         protected abstract Task<EventProcessingResult> TryProcessEventFromConsumerAsync(
-			IEventStreamConsumer consumer,
-			StreamVersion notificationStreamVersion);
+            IEventStreamConsumer consumer,
+            StreamVersion notificationStreamVersion);
 
         private async Task<bool> ReceiveAndProcessEventsAsync(EventStreamUpdated notification, IEventStreamConsumer consumer)
         {
             var retryProcessing = true;
-	        var commitProcessing = false;
+            var commitProcessing = false;
             var receivingResult = await consumer.ReceiveEventsAsync();
 
             if (receivingResult == ReceivingResultCode.EventsReceived)
             {
-	            var processingResult = await TryProcessEventFromConsumerAsync(consumer, notification.ToVersion);
-	            retryProcessing = !processingResult.IsSuccessful;
-	            commitProcessing = processingResult.ShouldCommitProcessing;
+                var processingResult = await TryProcessEventFromConsumerAsync(consumer, notification.ToVersion);
+                retryProcessing = !processingResult.IsSuccessful;
+                commitProcessing = processingResult.ShouldCommitProcessing;
             }
             else if (receivingResult == ReceivingResultCode.EmptyStream)
             {
                 retryProcessing = false;
             }
 
-			if (commitProcessing)
-			{
-				await consumer.CommitProcessedStreamVersionAsync();
-			}
+            if (commitProcessing)
+            {
+                await consumer.CommitProcessedStreamVersionAsync();
+            }
             if (retryProcessing)
             {
                 ListenerLogger.Warning(

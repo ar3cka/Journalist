@@ -6,9 +6,9 @@ namespace Journalist.EventStore.Notifications.Types
 {
     public class EventStreamUpdated : AbstractNotification
     {
-	    private EventStreamUpdated()
-	    {
-	    }
+        private EventStreamUpdated()
+        {
+        }
 
         public EventStreamUpdated(string streamName, StreamVersion fromVersion, StreamVersion toVersion)
         {
@@ -19,16 +19,16 @@ namespace Journalist.EventStore.Notifications.Types
             ToVersion = toVersion;
         }
 
-	    public static EventStreamUpdated RestoreFrom(MemoryStream memoryStream)
-	    {
-		    var notification = new EventStreamUpdated();
-		    using (var streamReader = new StreamReader(memoryStream))
-			{
-				notification.RestoreFrom(streamReader);
-			}
+        public static EventStreamUpdated RestoreFrom(MemoryStream memoryStream)
+        {
+            var notification = new EventStreamUpdated();
+            using (var streamReader = new StreamReader(memoryStream))
+            {
+                notification.RestoreFrom(streamReader);
+            }
 
-			return notification;
-	    }
+            return notification;
+        }
 
         protected override void SavePropertiesTo(Dictionary<string, string> properties)
         {

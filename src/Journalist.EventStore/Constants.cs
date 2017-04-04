@@ -28,7 +28,7 @@ namespace Journalist.EventStore
             public const string EVENT_CONSUMER_SESSIONS_BLOB_CONTAINER_NAME = "event-stream-consumer-session";
             public const string NOTIFICATION_QUEUE_NAME = "event-journal-notifications";
             public const string EVENT_STORE_DEPLOYMENT_TABLE_NAME = "EventStoreDeployment";
-	        public const string FAILED_NOTIFICATIONS_TABLE_NAME = "FailedEventNotifications";
+            public const string FAILED_NOTIFICATIONS_TABLE_NAME = "FailedEventNotifications";
 
             public const string PENDING_NOTIFICATIONS_TABLE_NAME = "PendingNotifications";
             public const string PENDING_NOTIFICATIONS_CHASER_EXCLUSIVE_ACCESS_LOCK_BLOB_CONTAINER_NAME = "pending-notifications-processing";
