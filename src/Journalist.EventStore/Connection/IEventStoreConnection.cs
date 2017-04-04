@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Streams;
 
 namespace Journalist.EventStore.Connection
@@ -18,6 +20,10 @@ namespace Journalist.EventStore.Connection
         Task<IEventStreamConsumer> CreateStreamConsumerAsync(Action<IEventStreamConsumerConfiguration> configure);
 
         Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName);
+
+        Task<IEnumerable<IEventStreamConsumer>> EnumerateConsumersAsync(string streamName);
+
+        IFailedNotificationsStore FailedNotificationsStore { get; }
 
         void Close();
     }

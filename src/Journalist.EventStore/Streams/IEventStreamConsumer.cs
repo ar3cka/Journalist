@@ -10,10 +10,14 @@ namespace Journalist.EventStore.Streams
 
         Task CommitProcessedStreamVersionAsync(bool skipCurrent);
 
+        Task CommitStreamVersionAsync(StreamVersion streamVersion);
+
         Task CloseAsync();
 
         IEnumerable<JournaledEvent> EnumerateEvents();
 
         string StreamName { get; }
+
+        StreamVersion CurrentConsumerVersion { get; }
     }
 }

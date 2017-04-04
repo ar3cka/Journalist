@@ -21,21 +21,25 @@ namespace Journalist.EventStore.Notifications
         private readonly IPollingJob m_pollingJob;
         private readonly INotificationsChannel m_channel;
         private readonly IReceivedNotificationProcessor m_notificationProcessor;
+        private readonly IFailedNotificationsStore m_failedNotificationsStore;
 
         private int m_maxProcessingCount;
 
         public NotificationHub(
             IPollingJob pollingJob,
             INotificationsChannel channel,
-            IReceivedNotificationProcessor notificationProcessor)
+            IReceivedNotificationProcessor notificationProcessor,
+            IFailedNotificationsStore failedNotificationsStore)
         {
-            Require.NotNull(pollingJob, "pollingJob");
-            Require.NotNull(channel, "channel");
-            Require.NotNull(notificationProcessor, "notificationProcessor");
+            Require.NotNull(pollingJob, nameof(pollingJob));
+            Require.NotNull(channel, nameof(channel));
+            Require.NotNull(notificationProcessor, nameof(notificationProcessor));
+            Require.NotNull(failedNotificationsStore, nameof(failedNotificationsStore));
 
             m_pollingJob = pollingJob;
             m_channel = channel;
             m_notificationProcessor = notificationProcessor;
+            m_failedNotificationsStore = failedNotificationsStore;
         }
 
         public Task NotifyAsync(INotification notification)
@@ -49,7 +53,8 @@ namespace Journalist.EventStore.Notifications
         {
             Require.NotNull(listener, "listener");
 
-            m_subscriptions.Add(listener.GetType(), new NotificationListenerSubscription(m_channel, listener));
+            m_failedNotificationsStore.AddRetryListener(listener);
+            m_subscriptions.Add(listener.GetType(), new NotificationListenerSubscription(m_channel, listener, m_failedNotificationsStore));
         }
 
         public void Unsubscribe(INotificationListener listener)
@@ -80,7 +85,7 @@ namespace Journalist.EventStore.Notifications
 
                     if (notifications.IsEmpty())
                     {
-                        s_logger.Debug("No notifications for processing.");
+                        s_logger.Verbose("No notifications for processing.");
 
                         return false;
                     }

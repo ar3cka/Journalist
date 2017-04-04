@@ -1,10 +1,15 @@
 using System.Collections.Generic;
+using System.IO;
 using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Notifications.Types
 {
     public class EventStreamUpdated : AbstractNotification
     {
+        private EventStreamUpdated()
+        {
+        }
+
         public EventStreamUpdated(string streamName, StreamVersion fromVersion, StreamVersion toVersion)
         {
             Require.NotEmpty(streamName, "streamName");
@@ -12,6 +17,17 @@ namespace Journalist.EventStore.Notifications.Types
             StreamName = streamName;
             FromVersion = fromVersion;
             ToVersion = toVersion;
+        }
+
+        public static EventStreamUpdated RestoreFrom(MemoryStream memoryStream)
+        {
+            var notification = new EventStreamUpdated();
+            using (var streamReader = new StreamReader(memoryStream))
+            {
+                notification.RestoreFrom(streamReader);
+            }
+
+            return notification;
         }
 
         protected override void SavePropertiesTo(Dictionary<string, string> properties)

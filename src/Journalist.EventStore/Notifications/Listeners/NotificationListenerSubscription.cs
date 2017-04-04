@@ -17,18 +17,22 @@ namespace Journalist.EventStore.Notifications.Listeners
 
         private readonly INotificationsChannel m_notificationsChannel;
         private readonly INotificationListener m_listener;
+        private readonly IFailedNotificationsStore m_failedNotificationsStore;
         private readonly CountdownEvent m_processingCountdown;
         private IEventStoreConnection m_connection;
 
         public NotificationListenerSubscription(
             INotificationsChannel notificationsChannel,
-            INotificationListener listener)
+            INotificationListener listener,
+            IFailedNotificationsStore failedNotificationsStore)
         {
-            Require.NotNull(notificationsChannel, "notificationsChannel");
-            Require.NotNull(listener, "listener");
+            Require.NotNull(notificationsChannel, nameof(notificationsChannel));
+            Require.NotNull(listener, nameof(listener));
+            Require.NotNull(failedNotificationsStore, nameof(failedNotificationsStore));
 
             m_notificationsChannel = notificationsChannel;
             m_listener = listener;
+            m_failedNotificationsStore = failedNotificationsStore;
             m_processingCountdown = new CountdownEvent(0);
         }
 
@@ -120,6 +124,8 @@ namespace Journalist.EventStore.Notifications.Listeners
                     notification.NotificationType,
                     notification.DeliveryCount.ToInvariantString(),
                     Constants.Settings.MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT.ToInvariantString());
+
+                await m_failedNotificationsStore.PutToFailedAsync(notification);
             }
         }
 

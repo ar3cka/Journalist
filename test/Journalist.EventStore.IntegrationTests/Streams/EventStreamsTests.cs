@@ -17,7 +17,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         {
             Connection = EventStoreConnectionBuilder
                 .Create(config => config
-                    .UseStorage("UseDevelopmentStorage=true", "TestEventJournal")
+                    .UseStorage("UseDevelopmentStorage=true", journalTableName: "TestEventJournal")
                     .Mutate.IncomingEventsWith(new MessageMutator(INCOMING_HEADER_NAME))
                     .Mutate.OutgoingEventsWith(new MessageMutator(OUTGOING_HEADER_NAME)))
                 .Build();

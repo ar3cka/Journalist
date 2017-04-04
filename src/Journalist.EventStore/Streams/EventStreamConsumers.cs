@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Journalist.EventStore.Journal;
@@ -53,6 +54,31 @@ namespace Journalist.EventStore.Streams
             m_cache.TryAdd(consumerName, consumerId);
 
             return consumerId;
+        }
+
+        public async Task<IEnumerable<EventStreamReaderId>> EnumerateAsync()
+        {
+            var query = m_consumerMetadataTable.PrepareEntitySegmentedRangeQueryByPartition(
+                Constants.StorageEntities.MetadataTable.EVENT_STREAM_CONSUMERS_IDS_PK);
+
+            var result = await query.ExecuteAsync();
+            if (result == null)
+            {
+                return Enumerable.Empty<EventStreamReaderId>();
+            }
+
+            var eventStreamReaderIds = new List<EventStreamReaderId>();
+            do
+            {
+                eventStreamReaderIds.AddRange(
+                    result
+                        .Where(row => row.ContainsKey(Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_NAME))
+                        .Select(row => EventStreamReaderId.Parse((string)row[KnownProperties.RowKey])));
+                result = await query.ExecuteAsync(query.ContinuationToken);
+            }
+            while (query.HasMore);
+
+            return eventStreamReaderIds;
         }
 
         private async Task<EventStreamReaderId> QueryConsumerId(string consumerName)

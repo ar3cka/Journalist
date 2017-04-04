@@ -12,7 +12,7 @@ namespace Journalist.EventStore.IntegrationTests.Streams
         public EventStreamReaderTests()
         {
             Connection = EventStoreConnectionBuilder
-                .Create(config => config.UseStorage("UseDevelopmentStorage=true", "TestEventJournal"))
+                .Create(config => config.UseStorage("UseDevelopmentStorage=true", journalTableName: "TestEventJournal"))
                 .Build();
 
             StreamName = "stream-" + Guid.NewGuid().ToString("N");
