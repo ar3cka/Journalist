@@ -55,6 +55,19 @@ namespace Journalist.EventStore.Streams
             return consumerId;
         }
 
+	    public async Task<string> GetNameAsync(EventStreamReaderId eventStreamReaderId)
+	    {
+			 Require.NotNull(eventStreamReaderId, nameof(eventStreamReaderId));
+
+		    var query = m_consumerMetadataTable.PrepareEntityPointQuery(
+			    Constants.StorageEntities.MetadataTable.EVENT_STREAM_CONSUMERS_IDS_PK,
+			    eventStreamReaderId.ToString());
+
+		    var result = await query.ExecuteAsync();
+
+		    return result[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_NAME].ToString();
+	    }
+
         private async Task<EventStreamReaderId> QueryConsumerId(string consumerName)
         {
             var query = m_consumerMetadataTable.PrepareEntityPointQuery(

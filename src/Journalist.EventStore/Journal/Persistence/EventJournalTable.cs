@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Events;
@@ -30,7 +31,6 @@ namespace Journalist.EventStore.Journal.Persistence
             return new AppendOperation(m_table, streamName, header);
         }
 
-
         public Task<IDictionary<string, object>> ReadStreamHeadPropertiesAsync(string streamName)
         {
             return ReadReferenceRowHeadAsync(streamName, "HEAD");
@@ -40,8 +40,19 @@ namespace Journalist.EventStore.Journal.Persistence
         {
             return ReadReferenceRowHeadAsync(streamName, "RDR|" + readerId);
         }
+		
+		public async Task<IEnumerable<IDictionary<string, object>>> ReadAllStreamReadersPropertiesAsync(string streamName)
+		{
+			Require.NotEmpty(streamName, nameof(streamName));
 
-        public async Task InserStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId, StreamVersion version)
+			var query = m_table.PrepareEntityRangeQueryByRows(streamName, "RDR", "RDS", Properties.ReferenceRowHead);
+
+			var headProperties = await query.ExecuteAsync();
+
+			return headProperties ?? Enumerable.Empty<IDictionary<string, object>>();
+		}
+
+		public async Task InsertStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId, StreamVersion version)
         {
             var operation = m_table.PrepareBatchOperation();
 
