@@ -19,6 +19,8 @@ namespace Journalist.EventStore.Connection
 
         Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName);
 
+		IConsumersService ConsumersService { get; }
+
         void Close();
     }
 }

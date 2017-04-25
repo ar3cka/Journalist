@@ -14,7 +14,9 @@ namespace Journalist.EventStore.Journal.Persistence
 
         Task<IDictionary<string, object>> ReadStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId);
 
-        Task InserStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId, StreamVersion version);
+	    Task<IEnumerable<IDictionary<string, object>>> ReadAllStreamReadersPropertiesAsync(string streamName);
+
+        Task InsertStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId, StreamVersion version);
 
         Task UpdateStreamReaderPropertiesAsync(string streamName, EventStreamReaderId readerId, StreamVersion version, string etag);
 
