@@ -1,3 +1,6 @@
+### 0.16.0
+* [EventStore] Add interface for getting stream consumer description
+
 ### 0.15.3
 * [LanguageExtensions] Added [Serializable] to Option<T> and NoneOption structs
 
