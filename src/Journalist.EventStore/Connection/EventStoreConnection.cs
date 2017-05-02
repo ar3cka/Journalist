@@ -20,21 +20,23 @@ namespace Journalist.EventStore.Connection
         private readonly IEventStoreConnectionState m_connectionState;
 
         public EventStoreConnection(
-            IEventStoreConnectionState connectionState,
-            IEventJournal journal,
-            INotificationHub notificationHub,
-            IPendingNotifications pendingNotifications,
-            IEventStreamConsumers consumers,
-            IEventStreamConsumingSessionFactory sessionFactory,
-            IEventMutationPipelineFactory pipelineFactory)
+			IEventStoreConnectionState connectionState, 
+			IEventJournal journal,
+			INotificationHub notificationHub, 
+			IPendingNotifications pendingNotifications, 
+			IEventStreamConsumers consumers,
+			IEventStreamConsumingSessionFactory sessionFactory, 
+			IEventMutationPipelineFactory pipelineFactory,
+			IConsumersService consumersService)
         {
-            Require.NotNull(connectionState, "connectionState");
-            Require.NotNull(journal, "journal");
-            Require.NotNull(notificationHub, "notificationHub");
-            Require.NotNull(pendingNotifications, "pendingNotifications");
-            Require.NotNull(consumers, "consumers");
-            Require.NotNull(sessionFactory, "sessionFactory");
-            Require.NotNull(pipelineFactory, "pipelineFactory");
+            Require.NotNull(connectionState, nameof(connectionState));
+            Require.NotNull(journal, nameof(journal));
+            Require.NotNull(notificationHub, nameof(notificationHub));
+            Require.NotNull(pendingNotifications, nameof(pendingNotifications));
+            Require.NotNull(consumers, nameof(consumers));
+            Require.NotNull(sessionFactory, nameof(sessionFactory));
+            Require.NotNull(pipelineFactory, nameof(pipelineFactory));
+			Require.NotNull(consumersService, nameof(consumersService));
 
             m_connectionState = connectionState;
             m_journal = journal;
@@ -43,6 +45,7 @@ namespace Journalist.EventStore.Connection
             m_consumers = consumers;
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
+	        ConsumersService = consumersService;
 
             m_connectionState.ChangeToCreated(this);
         }
@@ -151,5 +154,7 @@ namespace Journalist.EventStore.Connection
             m_connectionState.ChangeToClosing();
             m_connectionState.ChangeToClosed();
         }
+
+	    public IConsumersService ConsumersService { get; }
     }
 }
