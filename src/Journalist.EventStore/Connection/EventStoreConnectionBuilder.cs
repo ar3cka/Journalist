@@ -70,7 +70,10 @@ namespace Journalist.EventStore.Connection
                     m_configuration.NotificationQueueName + "-" + index.ToString("D3")))
                 .ToArray();
 
-            var consumersRegistry = new EventStreamConsumers(deploymentTable);
+			var eventJournal = new EventJournal(journalTable);
+
+			var consumersRegistry = new EventStreamConsumers(deploymentTable);
+			var consumersService = new ConsumersService(consumersRegistry, eventJournal);
 
             var notificationHub = new NotificationHub(
                 new PollingJob("NotificationHubPollingJob", new PollingTimeout()),
@@ -128,14 +131,15 @@ namespace Journalist.EventStore.Connection
                 }
             };
 
-            return new EventStoreConnection(
+	        return new EventStoreConnection(
                 connectivityState,
-                new EventJournal(journalTable),
+                eventJournal,
                 notificationHub,
                 pendingNotifications,
                 consumersRegistry,
                 sessionFactory,
-                pipelineFactory);
+                pipelineFactory,
+				consumersService);
         }
     }
 }

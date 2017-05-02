@@ -49,7 +49,6 @@ namespace Journalist.EventStore.Streams
                     await m_reader.ReadEventsAsync();
                     m_stateMachine.ReceivingCompleted(m_reader.Events.Count);
                     return ReceivingResultCode.EventsReceived;
-
                 }
 
                 m_stateMachine.ReceivingCompleted(0);

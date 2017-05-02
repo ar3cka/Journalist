@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Streams;
 
 namespace Journalist.EventStore.Journal
 {
@@ -17,6 +18,8 @@ namespace Journalist.EventStore.Journal
         Task<EventStreamHeader> ReadStreamHeaderAsync(string streamName);
 
         Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, EventStreamReaderId readerId);
+
+	    Task<IEnumerable<StreamReaderDescription>> GetStreamReadersDescriptionsAsync(string streamName); 
 
         Task CommitStreamReaderPositionAsync(string streamName, EventStreamReaderId readerId, StreamVersion version);
     }
