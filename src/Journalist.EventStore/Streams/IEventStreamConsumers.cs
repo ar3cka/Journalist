@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Journalist.EventStore.Journal;
+using Journalist.Options;
 
 namespace Journalist.EventStore.Streams
 {
@@ -7,6 +8,6 @@ namespace Journalist.EventStore.Streams
     {
         Task<EventStreamReaderId> RegisterAsync(string consumerName);
 
-	    Task<string> GetNameAsync(EventStreamReaderId eventStreamReaderId);
+	    Task<Option<string>> TryGetNameAsync(EventStreamReaderId eventStreamReaderId);
     }
 }
