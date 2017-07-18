@@ -1,3 +1,6 @@
+### 0.16.1
+* [EventStore][BUGFIX] Enumerate only consumers existing in deployment table
+
 ### 0.16.0
 * [EventStore] Add interface for getting stream consumer description
 
