@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Journalist.EventStore.Journal;
+using Journalist.Options;
 using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Streams
@@ -55,18 +56,20 @@ namespace Journalist.EventStore.Streams
             return consumerId;
         }
 
-	    public async Task<string> GetNameAsync(EventStreamReaderId eventStreamReaderId)
-	    {
-			 Require.NotNull(eventStreamReaderId, nameof(eventStreamReaderId));
+        public async Task<Option<string>> TryGetNameAsync(EventStreamReaderId eventStreamReaderId)
+        {
+            Require.NotNull(eventStreamReaderId, nameof(eventStreamReaderId));
 
-		    var query = m_consumerMetadataTable.PrepareEntityPointQuery(
-			    Constants.StorageEntities.MetadataTable.EVENT_STREAM_CONSUMERS_IDS_PK,
-			    eventStreamReaderId.ToString());
+            var query = m_consumerMetadataTable.PrepareEntityPointQuery(
+                Constants.StorageEntities.MetadataTable.EVENT_STREAM_CONSUMERS_IDS_PK,
+                eventStreamReaderId.ToString());
 
-		    var result = await query.ExecuteAsync();
+            var result = await query.ExecuteAsync();
 
-		    return result[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_NAME].ToString();
-	    }
+            return result
+                .MayBe()
+                .Select(row => row[Constants.StorageEntities.MetadataTableProperties.EVENT_STREAM_CONSUMER_NAME].ToString());
+        }
 
         private async Task<EventStreamReaderId> QueryConsumerId(string consumerName)
         {
