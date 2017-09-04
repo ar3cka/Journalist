@@ -1,3 +1,7 @@
+### 0.17.0
+* [EventStore][Breaking] Make package for Journalist.WindowsAzure.Storage.Abstractions library
+* [WAZ.Storage][New] Relax version constraint for WindowsAzure.Storage library
+
 ### 0.16.1
 * [EventStore][BUGFIX] Enumerate only consumers existing in deployment table
 

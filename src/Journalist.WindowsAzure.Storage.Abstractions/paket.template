@@ -1,4 +1,2 @@
-type project
+﻿type project
 projectUrl https://github.com/ar3cka/Journalist
-
-include-referenced-projects: true

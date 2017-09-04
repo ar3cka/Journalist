@@ -1,2 +1,5 @@
-﻿type project
+type project
 projectUrl https://github.com/ar3cka/Journalist
+
+files
+    !**/Journalist.WindowsAzure.Storage.Abstractions.*
