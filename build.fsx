@@ -58,7 +58,6 @@ Target "CreatePackages" (fun _ ->
         { p with
             OutputPath = nugetDir
             Version = release.NugetVersion
-            IncludeReferencedProjects = true
             ReleaseNotes = release.Notes |> toLines })
 )
 
