@@ -3,7 +3,7 @@ source https://nuget.org/api/v2
 
 nuget FAKE
 nuget Microsoft.Data.OData
-nuget WindowsAzure.Storage < 9.0.0
+nuget WindowsAzure.Storage < 8.0.0
 nuget xunit
 nuget xunit.runner.console
 nuget AutoFixture.AutoMoq
