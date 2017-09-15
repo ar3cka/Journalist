@@ -13,6 +13,8 @@ namespace Journalist.WindowsAzure.Storage
 
         ICloudQueue CreateQueue(Uri queueUri, string sasToken, string queueName);
 
+        ICloudQueue CreateQueue(Uri queue);
+
         ICloudBlobContainer CreateBlobContainer(string connectionString, string containerName);
     }
 }

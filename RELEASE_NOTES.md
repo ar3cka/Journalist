@@ -1,3 +1,6 @@
+### 0.19.0
+* [WAZ.Storage][New] Add the overloaded IStorageFactory.CreateQueue method with uri parameter
+
 ### 0.18.0
 * [WAZ.Storage][Breaking] Recompile library with 7.2.1 version of WindowsAzure.Storage
 
