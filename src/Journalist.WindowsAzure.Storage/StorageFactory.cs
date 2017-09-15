@@ -37,6 +37,13 @@ namespace Journalist.WindowsAzure.Storage
             return new CloudQueueAdapter(CreateQueueFactory(queueUri, sasToken, queueName));
         }
 
+        public ICloudQueue CreateQueue(Uri queue)
+        {
+            Require.NotNull(queue, "queue");
+
+            return new CloudQueueAdapter(() => new CloudQueue(queue));
+        }
+
         public ICloudBlobContainer CreateBlobContainer(string connectionString, string containerName)
         {
             Require.NotEmpty(connectionString, "connectionString");
