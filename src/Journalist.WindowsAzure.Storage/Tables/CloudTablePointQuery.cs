@@ -17,8 +17,9 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string[] properties,
             FetchAsync fetchAsync,
             FetchSync fetchSync,
+            TableRequestOptions requestOptions,
             ITableEntityConverter tableEntityConverter)
-            : base(1, properties, fetchAsync, fetchSync, tableEntityConverter)
+            : base(1, properties, fetchAsync, fetchSync, requestOptions, tableEntityConverter)
         {
             Require.NotEmpty(partitionKey, "partitionKey");
             Require.NotNull(rowKey, "rowKey");

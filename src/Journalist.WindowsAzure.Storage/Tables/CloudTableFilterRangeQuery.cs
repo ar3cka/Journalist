@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.Collections;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
@@ -14,8 +15,9 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string[] properties,
             FetchAsync fetchAsync,
             FetchSync fetchSync,
+            TableRequestOptions requestOptions,
             ITableEntityConverter tableEntityConverter)
-            : base(take, properties, fetchAsync, fetchSync, tableEntityConverter)
+            : base(take, properties, fetchAsync, fetchSync, requestOptions, tableEntityConverter)
         {
             m_filter = filter;
         }

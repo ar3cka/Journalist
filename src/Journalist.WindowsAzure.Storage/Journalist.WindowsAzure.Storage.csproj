@@ -59,6 +59,7 @@
     <Compile Include="Tables\ITableEntityConverter.cs" />
     <Compile Include="Tables\TableBatchOperationAdapter.cs" />
     <Compile Include="Tables\TableEntityConverters\TableEntityConverter.cs" />
+    <Compile Include="Tables\TableRequestOptionsAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

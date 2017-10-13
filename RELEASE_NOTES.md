@@ -1,3 +1,6 @@
+### 0.20.0
+* [WAZ.Storage][New] Add API for query secondary table storage
+
 ### 0.19.0
 * [WAZ.Storage][New] Add the overloaded IStorageFactory.CreateQueue method with uri parameter
 

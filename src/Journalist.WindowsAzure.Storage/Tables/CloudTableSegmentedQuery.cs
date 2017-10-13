@@ -10,8 +10,8 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
 {
-    public delegate Task<TableQuerySegment<DynamicTableEntity>> FetchAsync(TableQuery<DynamicTableEntity> query, TableContinuationToken token);
-    public delegate TableQuerySegment<DynamicTableEntity> FetchSync(TableQuery<DynamicTableEntity> query, TableContinuationToken token);
+    public delegate Task<TableQuerySegment<DynamicTableEntity>> FetchAsync(TableQuery<DynamicTableEntity> query, TableContinuationToken token, TableRequestOptions requestOptions);
+    public delegate TableQuerySegment<DynamicTableEntity> FetchSync(TableQuery<DynamicTableEntity> query, TableContinuationToken token, TableRequestOptions requestOptions);
 
     public abstract class CloudTableSegmentedQuery
     {
@@ -21,6 +21,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
         private readonly string[] m_properties;
         private readonly FetchAsync m_fetchEntitiesAsync;
         private readonly FetchSync m_fetchEntities;
+        private readonly TableRequestOptions m_requestOptions;
         private readonly ITableEntityConverter m_tableEntityConverter;
 
         private TableContinuationToken m_continuationToken;
@@ -31,7 +32,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string[] properties,
             FetchAsync fetchEntitiesAsync,
             FetchSync fetchEntities,
-
+            TableRequestOptions requestOptions,
             ITableEntityConverter tableEntityConverter)
         {
             Require.True(!take.HasValue || take > 0, "take", "Value should contains positive value");
@@ -44,6 +45,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             m_properties = properties;
             m_fetchEntitiesAsync = fetchEntitiesAsync;
             m_fetchEntities = fetchEntities;
+            m_requestOptions = requestOptions;
             m_tableEntityConverter = tableEntityConverter;
             m_continuationToken = null;
         }
@@ -56,7 +58,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             var result = AllocateResult();
             SetContinuationToken(continuationToken);
 
-            var queryResult = await m_fetchEntitiesAsync(query, m_continuationToken);
+            var queryResult = await m_fetchEntitiesAsync(query, m_continuationToken, m_requestOptions);
             result.AddRange(queryResult.Results.Select(m_tableEntityConverter.CreatePropertiesFromDynamicTableEntity));
 
             UpdateContinuationToken(queryResult);
@@ -72,7 +74,7 @@ namespace Journalist.WindowsAzure.Storage.Tables
             var result = AllocateResult();
             SetContinuationToken(continuationToken);
 
-            var queryResult = m_fetchEntities(query, m_continuationToken);
+            var queryResult = m_fetchEntities(query, m_continuationToken, m_requestOptions);
             result.AddRange(queryResult.Results.Select(m_tableEntityConverter.CreatePropertiesFromDynamicTableEntity));
 
             UpdateContinuationToken(queryResult);
