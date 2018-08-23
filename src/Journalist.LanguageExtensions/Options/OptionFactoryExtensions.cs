@@ -18,7 +18,7 @@ namespace Journalist.Options
 
         public static Option<T> MayBe<T>(this T value)
         {
-            if (typeof (T).IsClass || typeof (T).IsInterface)
+            if (typeof (T).IsClass || typeof (T).IsInterface || typeof (T).IsValueType)
             {
                 return value == null ? Option.None() : Option.Some(value);
             }
