@@ -137,7 +137,7 @@ namespace Journalist.Options
 
         public static Option<T> Some<T>(T value)
         {
-            if (typeof(T).IsClass || typeof(T).IsInterface)
+            if (typeof(T).IsClass || typeof(T).IsInterface || typeof(T).IsValueType)
             {
                 Require.True(value != null, "value", "Can not create Option.Some for 'null' value of referenced type.");
             }
