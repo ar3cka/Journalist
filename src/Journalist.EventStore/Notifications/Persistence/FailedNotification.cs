@@ -7,7 +7,7 @@ namespace Journalist.EventStore.Notifications.Persistence
         public FailedNotification(string id, IReadOnlyDictionary<string, string> properties)
         {
             Require.NotEmpty(id, nameof(id));
-            Require.NotEmpty(properties, nameof(properties));
+            Require.NotNull(properties, nameof(properties));
 
             Id = id;
             Properties = properties;
