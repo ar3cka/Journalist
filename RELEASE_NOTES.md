@@ -1,3 +1,6 @@
+### 0.21.0
+* [EventStore][BUGFIX] NotificationListenerSubscription loses notifications after MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT
+
 ### 0.20.0
 * [WAZ.Storage][New] Add API for query secondary table storage
 
