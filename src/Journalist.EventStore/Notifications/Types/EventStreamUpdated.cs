@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Notifications.Persistence;
 
 namespace Journalist.EventStore.Notifications.Types
 {
@@ -7,7 +8,7 @@ namespace Journalist.EventStore.Notifications.Types
     {
         public EventStreamUpdated(string streamName, StreamVersion fromVersion, StreamVersion toVersion)
         {
-            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(streamName, nameof(streamName));
 
             StreamName = streamName;
             FromVersion = fromVersion;
@@ -26,6 +27,19 @@ namespace Journalist.EventStore.Notifications.Types
             StreamName = properties[NotificationPropertyKeys.Common.STREAM];
             FromVersion = StreamVersion.Parse(properties[NotificationPropertyKeys.EventStreamUpdated.FROM_VERSION]);
             ToVersion = StreamVersion.Parse(properties[NotificationPropertyKeys.EventStreamUpdated.TO_VERSION]);
+        }
+
+        public override IFailedNotification CreateFailedNotification()
+        {
+            return new FailedNotification(
+                StreamName,
+                new Dictionary<string, string>
+                {
+                    {
+                        NotificationPropertyKeys.EventStreamUpdated.TO_VERSION,
+                        ((int)ToVersion).ToString()
+                    }
+                });
         }
 
         public string StreamName { get; private set; }

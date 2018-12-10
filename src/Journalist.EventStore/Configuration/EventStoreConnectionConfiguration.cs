@@ -59,26 +59,29 @@ namespace Journalist.EventStore.Configuration
             string eventStoreDeploymentTableName,
             string notificationQueueName,
             int notificationQueuePartitionCount,
+            string failedNotificationsTableName,
             string streamConsumerSessionsBlobContainerName,
             string pendingNotificationsTableName,
             string pendingNotificationsChaserExclusiveAccessLockBlobContainerName,
             string pendingNotificationsChaserExclusiveAccessLockBlobName)
         {
-            Require.NotEmpty(storageConnectionString, "storageConnectionString");
-            Require.NotEmpty(journalTableName, "journalTableName");
-            Require.NotEmpty(eventStoreDeploymentTableName, "eventStoreDeploymentTableName");
-            Require.NotEmpty(notificationQueueName, "notificationQueueName");
-            Require.Positive(notificationQueuePartitionCount, "notificationQueuePartitionCount");
-            Require.NotEmpty(streamConsumerSessionsBlobContainerName, "streamConsumerSessionsBlobContainerName");
-            Require.NotEmpty(pendingNotificationsTableName, "pendingNotificationsTableName");
-            Require.NotEmpty(pendingNotificationsChaserExclusiveAccessLockBlobContainerName, "pendingNotificationsChaserExclusiveAccessLockBlobContainerName");
-            Require.NotEmpty(pendingNotificationsChaserExclusiveAccessLockBlobName, "pendingNotificationsChaserExclusiveAccessLockBlobName");
+            Require.NotEmpty(storageConnectionString, nameof(storageConnectionString));
+            Require.NotEmpty(journalTableName, nameof(journalTableName));
+            Require.NotEmpty(eventStoreDeploymentTableName, nameof(eventStoreDeploymentTableName));
+            Require.NotEmpty(notificationQueueName, nameof(notificationQueueName));
+            Require.Positive(notificationQueuePartitionCount, nameof(notificationQueuePartitionCount));
+            Require.NotEmpty(failedNotificationsTableName, nameof(failedNotificationsTableName));
+            Require.NotEmpty(streamConsumerSessionsBlobContainerName, nameof(streamConsumerSessionsBlobContainerName));
+            Require.NotEmpty(pendingNotificationsTableName, nameof(pendingNotificationsTableName));
+            Require.NotEmpty(pendingNotificationsChaserExclusiveAccessLockBlobContainerName, nameof(pendingNotificationsChaserExclusiveAccessLockBlobContainerName));
+            Require.NotEmpty(pendingNotificationsChaserExclusiveAccessLockBlobName, nameof(pendingNotificationsChaserExclusiveAccessLockBlobName));
 
             StorageConnectionString = storageConnectionString;
             JournalTableName = journalTableName;
             EventStoreDeploymentTableName = eventStoreDeploymentTableName;
             NotificationQueueName = notificationQueueName;
             NotificationQueuePartitionCount = notificationQueuePartitionCount;
+            FailedNotificationsTableName = failedNotificationsTableName;
             StreamConsumerSessionsBlobContainerName = streamConsumerSessionsBlobContainerName;
             PendingNotificationsTableName = pendingNotificationsTableName;
             PendingNotificationsChaserExclusiveAccessLockBlobName = pendingNotificationsChaserExclusiveAccessLockBlobName;
@@ -87,15 +90,9 @@ namespace Journalist.EventStore.Configuration
             return this;
         }
 
-        public IEventMutationPipelineConfiguration Mutate
-        {
-            get { return m_mutationPipelineConfiguration; }
-        }
+        public IEventMutationPipelineConfiguration Mutate => m_mutationPipelineConfiguration;
 
-        public INotificationProcessingConfiguration Notifications
-        {
-            get { return m_notificationProcessingConfiguration; }
-        }
+        public INotificationProcessingConfiguration Notifications => m_notificationProcessingConfiguration;
 
         public string StorageConnectionString
         {
@@ -120,8 +117,14 @@ namespace Journalist.EventStore.Configuration
             get;
             private set;
         }
-
+       
         public int NotificationQueuePartitionCount
+        {
+            get;
+            private set;
+        }
+
+        public string FailedNotificationsTableName
         {
             get;
             private set;
@@ -151,24 +154,12 @@ namespace Journalist.EventStore.Configuration
             private set;
         }
 
-        public bool BackgroundProcessingEnabled
-        {
-            get { return m_notificationProcessingConfiguration.BackgroundProcessingEnabled; }
-        }
+        public bool BackgroundProcessingEnabled => m_notificationProcessingConfiguration.BackgroundProcessingEnabled;
 
-        public IReadOnlyCollection<IEventMutator> IncomingMessageMutators
-        {
-            get { return m_incomingMessageMutators; }
-        }
+        public IReadOnlyCollection<IEventMutator> IncomingMessageMutators => m_incomingMessageMutators;
 
-        public IReadOnlyCollection<IEventMutator> OutgoingMessageMutators
-        {
-            get { return m_outgoingMessageMutators; }
-        }
+        public IReadOnlyCollection<IEventMutator> OutgoingMessageMutators => m_outgoingMessageMutators;
 
-        public IReadOnlyCollection<INotificationListener> NotificationListeners
-        {
-            get { return m_notificationListeners; }
-        }
+        public IReadOnlyCollection<INotificationListener> NotificationListeners => m_notificationListeners;
     }
 }

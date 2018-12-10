@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Persistence;
+using Journalist.EventStore.Notifications.Processing;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.WindowsAzure.Storage;
 using Ploeh.AutoFixture;
@@ -26,7 +28,13 @@ namespace Journalist.EventStore.IntegrationTests.Notifications.Channel
                 .Select(index => storage.CreateQueue("UseDevelopmentStorage=true", "notifications-channel-tests-" + index.ToString("D1")))
                 .ToArray();
 
-            m_channel = new NotificationsChannel(queues, new NotificationFormatter());
+            var failedNotificationsTable = storage.CreateTable("UseDevelopmentStorage=true", "FailedNotificationsTest");
+
+            m_channel = new NotificationsChannel(
+                queues,
+                new NotificationFormatter(),
+                new NotificationDeliveryTimeoutCalculator(),
+                new FailedNotifications(failedNotificationsTable));
 
             m_fixture = new Fixture().Customize(new AutoConfiguredMoqCustomization());
             m_fixture.RepeatCount = 16 * 2;

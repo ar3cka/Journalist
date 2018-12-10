@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Journalist.Collections;
 using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Persistence;
+using Journalist.EventStore.Notifications.Processing;
 using Journalist.WindowsAzure.Storage.Queues;
 using Serilog;
 
@@ -18,19 +20,29 @@ namespace Journalist.EventStore.Notifications.Channels
 
         private readonly ICloudQueue[] m_queues;
         private readonly INotificationFormatter m_formatter;
+        private readonly INotificationDeliveryTimeoutCalculator m_notificationDeliveryTimeoutCalculator;
+        private readonly IFailedNotifications m_failedNotifications;
 
         private readonly int m_queueCount;
         private int m_incomingQueueIndex;
         private int m_outgoingQueueIndex;
 
-        public NotificationsChannel(ICloudQueue[] queues, INotificationFormatter formatter)
+        public NotificationsChannel(
+            ICloudQueue[] queues,
+            INotificationFormatter formatter,
+            INotificationDeliveryTimeoutCalculator notificationDeliveryTimeoutCalculator,
+            IFailedNotifications failedNotifications)
         {
-            Require.NotNull(queues, "queue");
-            Require.NotNull(formatter, "formatter");
+            Require.NotNull(queues, nameof(queues));
+            Require.NotNull(formatter, nameof(formatter));
+            Require.NotNull(notificationDeliveryTimeoutCalculator, nameof(notificationDeliveryTimeoutCalculator));
+            Require.NotNull(failedNotifications, nameof(failedNotifications));
 
             m_queues = queues;
             m_formatter = formatter;
+            m_notificationDeliveryTimeoutCalculator = notificationDeliveryTimeoutCalculator;
             m_queueCount = queues.Length;
+            m_failedNotifications = failedNotifications;
 
             var random = new Random();
             m_incomingQueueIndex = random.Next(0, m_queueCount);
@@ -39,14 +51,14 @@ namespace Journalist.EventStore.Notifications.Channels
 
         public Task SendAsync(INotification notification)
         {
-            Require.NotNull(notification, "notification");
+            Require.NotNull(notification, nameof(notification));
 
             return SendInternalAsync(notification, null);
         }
 
         public Task SendAsync(INotification notification, TimeSpan visibilityTimeout)
         {
-            Require.NotNull(notification, "notification");
+            Require.NotNull(notification, nameof(notification));
 
             return SendInternalAsync(notification, visibilityTimeout);
         }
@@ -69,6 +81,13 @@ namespace Journalist.EventStore.Notifications.Channels
             while (readedQueue < m_queueCount);
 
             return EmptyArray.Get<IReceivedNotification>();
+        }
+
+        public async Task SendToFailedNotificationsAsync(INotification notification)
+        {
+            Require.NotNull(notification, nameof(notification));
+
+            await m_failedNotifications.AddAsync(notification.CreateFailedNotification());
         }
 
         private ICloudQueue ChooseIncomingQueue()
@@ -122,7 +141,9 @@ namespace Journalist.EventStore.Notifications.Channels
                         result.Add(new ReceivedNotification(
                             queue,
                             message,
-                            m_formatter.FromBytes(memory)));
+                            m_formatter.FromBytes(memory),
+                            m_notificationDeliveryTimeoutCalculator,
+                            m_failedNotifications));
                     }
                 }
                 catch (Exception exception)

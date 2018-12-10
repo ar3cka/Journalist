@@ -4,6 +4,7 @@ using Journalist.EventStore.Events;
 using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
+using Journalist.EventStore.Notifications.Persistence;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils.RetryPolicies;
 
@@ -18,6 +19,7 @@ namespace Journalist.EventStore.Connection
         private readonly INotificationHub m_notificationHub;
         private readonly IPendingNotifications m_pendingNotifications;
         private readonly IEventStoreConnectionState m_connectionState;
+        private readonly IFailedNotifications m_failedNotifications;
 
         public EventStoreConnection(
 			IEventStoreConnectionState connectionState, 
@@ -27,7 +29,8 @@ namespace Journalist.EventStore.Connection
 			IEventStreamConsumers consumers,
 			IEventStreamConsumingSessionFactory sessionFactory, 
 			IEventMutationPipelineFactory pipelineFactory,
-			IConsumersService consumersService)
+			IConsumersService consumersService,
+			IFailedNotifications failedNotifications)
         {
             Require.NotNull(connectionState, nameof(connectionState));
             Require.NotNull(journal, nameof(journal));
@@ -37,6 +40,7 @@ namespace Journalist.EventStore.Connection
             Require.NotNull(sessionFactory, nameof(sessionFactory));
             Require.NotNull(pipelineFactory, nameof(pipelineFactory));
 			Require.NotNull(consumersService, nameof(consumersService));
+            Require.NotNull(failedNotifications, nameof(failedNotifications));
 
             m_connectionState = connectionState;
             m_journal = journal;
@@ -46,13 +50,14 @@ namespace Journalist.EventStore.Connection
             m_sessionFactory = sessionFactory;
             m_pipelineFactory = pipelineFactory;
 	        ConsumersService = consumersService;
+            m_failedNotifications = failedNotifications;
 
             m_connectionState.ChangeToCreated(this);
         }
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName)
         {
-            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(streamName, nameof(streamName));
 
             m_connectionState.EnsureConnectionIsActive();
 
@@ -67,7 +72,7 @@ namespace Journalist.EventStore.Connection
 
         public async Task<IEventStreamReader> CreateStreamReaderAsync(string streamName, StreamVersion streamVersion)
         {
-            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(streamName, nameof(streamName));
 
             m_connectionState.EnsureConnectionIsActive();
 
@@ -82,7 +87,7 @@ namespace Journalist.EventStore.Connection
 
         public async Task<IEventStreamWriter> CreateStreamWriterAsync(string streamName)
         {
-            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(streamName, nameof(streamName));
 
             m_connectionState.EnsureConnectionIsActive();
 
@@ -95,12 +100,13 @@ namespace Journalist.EventStore.Connection
                 journal: m_journal,
                 mutationPipeline: m_pipelineFactory.CreateOutgoingPipeline(),
                 notificationHub: m_notificationHub,
-                pendingNotification: m_pendingNotifications);
+                pendingNotification: m_pendingNotifications,
+                failedNotifications: m_failedNotifications);
         }
 
         public async Task<IEventStreamProducer> CreateStreamProducerAsync(string streamName)
         {
-            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(streamName, nameof(streamName));
 
             m_connectionState.EnsureConnectionIsActive();
 
@@ -111,7 +117,7 @@ namespace Journalist.EventStore.Connection
 
         public async Task<IEventStreamConsumer> CreateStreamConsumerAsync(Action<IEventStreamConsumerConfiguration> configure)
         {
-            Require.NotNull(configure, "configure");
+            Require.NotNull(configure, nameof(configure));
 
             var configuration = new EventStreamConsumerConfiguration();
             configure(configuration);
@@ -141,8 +147,8 @@ namespace Journalist.EventStore.Connection
 
         public Task<IEventStreamConsumer> CreateStreamConsumerAsync(string streamName, string consumerName)
         {
-            Require.NotEmpty(streamName, "streamName");
-            Require.NotEmpty(consumerName, "consumerName");
+            Require.NotEmpty(streamName, nameof(streamName));
+            Require.NotEmpty(consumerName, nameof(consumerName));
 
             return CreateStreamConsumerAsync(config => config
                 .ReadStream(streamName)
