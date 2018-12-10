@@ -16,7 +16,7 @@ namespace Journalist.EventStore.Notifications.Processing
 
             var exponentialAttempts = deliveryCount - Constants.Settings.MAX_NOTIFICATION_PROCESSING_LINEAR_RETRY_ATTEMPT_COUNT;
 
-            if (exponentialAttempts >= 7) // no matter to calculate the delay + overflow every 32 attempts
+            if (exponentialAttempts >= Constants.Settings.MAX_NOTIFICATION_PROCESSING_EXPONENTIAL_RETRY_ATTEMPT_COUNT) // no matter to calculate the delay + overflow every 32 attempts
             {
                 return TimeSpan.FromMinutes(MAX_TIMEOUT_IN_MINUTES);
             }
