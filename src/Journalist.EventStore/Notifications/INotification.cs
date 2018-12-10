@@ -22,5 +22,7 @@ namespace Journalist.EventStore.Notifications
         string NotificationType { get; }
 
         int DeliveryCount { get; }
+
+        IFailedNotification CreateFailedNotification();
     }
 }

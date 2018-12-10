@@ -175,8 +175,32 @@ namespace Journalist.EventStore.UnitTests.Notifications.Listeners
 
             channelMock
                 .Verify(self => self.SendAsync(
-                    deferredNotification,
-                    It.Is<TimeSpan>(v => TimeSpan.FromSeconds(deferredNotification.DeliveryCount * 2) == v)));
+                        deferredNotification,
+                        It.IsAny<TimeSpan>()),
+                    Times.Once());
+        }
+
+        [Theory, NotificationListenerSubscriptionData]
+        public async Task DefferNotificationAsync_WhenAllAttemptsFailed_SendNotificationToFailedAsync(
+            [Frozen] Mock<INotificationsChannel> channelMock,
+            [Frozen] Mock<INotification> receivedNotificationMock,
+            INotification deferredNotification,
+            IEventStoreConnection connection,
+            INotificationListener listener,
+            NotificationListenerSubscription subscription)
+        {
+            receivedNotificationMock
+                .Setup(self => self.DeliveryCount)
+                .Returns(100);
+
+            subscription.Start(connection);
+
+            await subscription.RetryNotificationProcessingAsync(receivedNotificationMock.Object);
+
+            channelMock
+                .Verify(self => self.SendToFailedNotificationsAsync(
+                    deferredNotification),
+                    Times.Once());
         }
     }
 }

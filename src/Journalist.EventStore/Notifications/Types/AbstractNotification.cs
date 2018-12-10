@@ -90,7 +90,6 @@ namespace Journalist.EventStore.Notifications.Types
                 string key;
                 string value;
                 NotificationPropertyParser.Parse(line, out key, out value);
-
                 properties.Add(key, value);
             }
 
@@ -156,24 +155,14 @@ namespace Journalist.EventStore.Notifications.Types
             }
         }
 
-        public bool IsAddressed
-        {
-            get { return m_recipient != null; }
-        }
+        public bool IsAddressed => m_recipient != null;
 
-        public NotificationId NotificationId
-        {
-            get { return m_notificationId; }
-        }
+        public NotificationId NotificationId => m_notificationId;
 
-        public string NotificationType
-        {
-            get { return m_notificationType; }
-        }
+        public string NotificationType => m_notificationType;
 
-        public int DeliveryCount
-        {
-            get { return m_deliveryCount; }
-        }
+        public int DeliveryCount => m_deliveryCount;
+
+        public abstract IFailedNotification CreateFailedNotification();
     }
 }

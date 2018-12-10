@@ -45,15 +45,14 @@ namespace Journalist.EventStore.Notifications
         {
             Require.NotEmpty(streamName, "streamName");
 
+            var operation = m_table.PrepareBatchOperation();
+            operation.Delete(
+                partitionKey: GetPartitionKey(streamName),
+                rowKey: GetRowKey(streamName, streamVersion),
+                etag: "*");
+
             try
             {
-                var operation = m_table.PrepareBatchOperation();
-
-                operation.Delete(
-                    partitionKey: GetPartitionKey(streamName),
-                    rowKey: GetRowKey(streamName, streamVersion),
-                    etag: "*");
-
                 await operation.ExecuteAsync();
             }
             catch (BatchOperationException exception)

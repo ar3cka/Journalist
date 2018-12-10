@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Journalist.EventStore.Connection;
@@ -18,23 +17,27 @@ namespace Journalist.EventStore.Notifications.Listeners
         private readonly INotificationsChannel m_notificationsChannel;
         private readonly INotificationListener m_listener;
         private readonly CountdownEvent m_processingCountdown;
+        private readonly INotificationDeliveryTimeoutCalculator m_notificationDeliveryTimeoutCalculator;
         private IEventStoreConnection m_connection;
 
         public NotificationListenerSubscription(
             INotificationsChannel notificationsChannel,
-            INotificationListener listener)
+            INotificationListener listener,
+            INotificationDeliveryTimeoutCalculator notificationDeliveryTimeoutCalculator)
         {
-            Require.NotNull(notificationsChannel, "notificationsChannel");
-            Require.NotNull(listener, "listener");
+            Require.NotNull(notificationsChannel, nameof(notificationsChannel));
+            Require.NotNull(listener, nameof(listener));
+            Require.NotNull(notificationDeliveryTimeoutCalculator, nameof(notificationDeliveryTimeoutCalculator));
 
             m_notificationsChannel = notificationsChannel;
             m_listener = listener;
+            m_notificationDeliveryTimeoutCalculator = notificationDeliveryTimeoutCalculator;
             m_processingCountdown = new CountdownEvent(0);
         }
 
         public async Task HandleNotificationAsync(INotification notification)
         {
-            Require.NotNull(notification, "notification");
+            Require.NotNull(notification, nameof(notification));
 
             if (notification.IsAddressed)
             {
@@ -51,7 +54,7 @@ namespace Journalist.EventStore.Notifications.Listeners
 
         public void Start(IEventStoreConnection connection)
         {
-            Require.NotNull(connection, "connection");
+            Require.NotNull(connection, nameof(connection));
 
             m_connection = connection;
             m_listener.OnSubscriptionStarted(this);
@@ -71,7 +74,7 @@ namespace Journalist.EventStore.Notifications.Listeners
 
         public Task<IEventStreamConsumer> CreateSubscriptionConsumerAsync(string streamName)
         {
-            Require.NotEmpty(streamName, "streamName");
+            Require.NotEmpty(streamName, nameof(streamName));
 
             Ensure.False(m_processingCountdown.IsSet, "Subscription is not activated.");
 
@@ -83,13 +86,12 @@ namespace Journalist.EventStore.Notifications.Listeners
 
         public async Task RetryNotificationProcessingAsync(INotification notification)
         {
-            Require.NotNull(notification, "notification");
+            Require.NotNull(notification, nameof(notification));
 
             if (notification.DeliveryCount < Constants.Settings.MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT)
             {
                 var retryNotification = notification.SendTo(m_listener);
-                var deliverTimeout = TimeSpan.FromSeconds(
-                    notification.DeliveryCount * Constants.Settings.NOTIFICATION_RETRY_DELIVERY_TIMEOUT_MULTIPLYER_SEC);
+                var deliverTimeout = m_notificationDeliveryTimeoutCalculator.CalculateDeliveryTimeout(notification.DeliveryCount);
 
                 if (s_logger.IsEnabled(LogEventLevel.Debug))
                 {
@@ -120,6 +122,8 @@ namespace Journalist.EventStore.Notifications.Listeners
                     notification.NotificationType,
                     notification.DeliveryCount.ToInvariantString(),
                     Constants.Settings.MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT.ToInvariantString());
+
+                await m_notificationsChannel.SendToFailedNotificationsAsync(notification);
             }
         }
 

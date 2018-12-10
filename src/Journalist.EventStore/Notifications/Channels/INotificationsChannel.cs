@@ -10,5 +10,7 @@ namespace Journalist.EventStore.Notifications.Channels
         Task SendAsync(INotification notification, TimeSpan visibilityTimeout);
 
         Task<IReceivedNotification[]> ReceiveNotificationsAsync();
+
+        Task SendToFailedNotificationsAsync(INotification notification);
     }
 }

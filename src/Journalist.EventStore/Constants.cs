@@ -8,7 +8,9 @@ namespace Journalist.EventStore
             public const int EVENT_SLICE_SIZE = 100;
 
             public const int MAX_NOTIFICATION_PROCESSING_COUNT = 100;
-            public const int MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT= 10;
+            public const int MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT= MAX_NOTIFICATION_PROCESSING_LINEAR_RETRY_ATTEMPT_COUNT + MAX_NOTIFICATION_PROCESSING_EXPONENTIAL_RETRY_ATTEMPT_COUNT;
+            public const int MAX_NOTIFICATION_PROCESSING_LINEAR_RETRY_ATTEMPT_COUNT = 10;
+            public const int MAX_NOTIFICATION_PROCESSING_EXPONENTIAL_RETRY_ATTEMPT_COUNT = 20;
             public const int NOTIFICATION_MESSAGE_LOCK_TIMEOUT_MINUTES = 15;
             public const int NOTIFICATION_RETRY_DELIVERY_TIMEOUT_MULTIPLYER_SEC = 2;
             public const int NOTIFICATION_QUEUE_PARTITION_COUNT = 32;
@@ -27,6 +29,7 @@ namespace Journalist.EventStore
             public const string EVENT_JOURNAL_TABLE_NAME = "EventJournal";
             public const string EVENT_CONSUMER_SESSIONS_BLOB_CONTAINER_NAME = "event-stream-consumer-session";
             public const string NOTIFICATION_QUEUE_NAME = "event-journal-notifications";
+            public const string FAILED_NOTIFICATIONS_TABLE_NAME = "FailedNotifications";
             public const string EVENT_STORE_DEPLOYMENT_TABLE_NAME = "EventStoreDeployment";
 
             public const string PENDING_NOTIFICATIONS_TABLE_NAME = "PendingNotifications";
