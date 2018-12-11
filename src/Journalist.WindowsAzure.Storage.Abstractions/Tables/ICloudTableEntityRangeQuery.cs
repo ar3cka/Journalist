@@ -5,6 +5,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
 {
     public interface ICloudTableEntityRangeQuery
     {
-        Task<IList<IDictionary<string, object>>> ExecuteAsync();
+        Task<List<Dictionary<string, object>>> ExecuteAsync();
+
+        List<Dictionary<string, object>> Execute();
     }
 }

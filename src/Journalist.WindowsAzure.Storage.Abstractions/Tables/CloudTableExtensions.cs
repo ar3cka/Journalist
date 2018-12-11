@@ -5,6 +5,25 @@ namespace Journalist.WindowsAzure.Storage.Tables
 {
     public static class CloudTableExtensions
     {
+        public static ICloudTableEntityQuery PrepareEntityPointQuery(
+            this ICloudTable table,
+            string partitionKey,
+            string rowKey)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityPointQuery(partitionKey, rowKey, EmptyArray.Get<string>());
+        }
+
+        public static ICloudTableEntityQuery PrepareEntityPointQuery(
+            this ICloudTable table,
+            string partitionKey)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityPointQuery(partitionKey, EmptyArray.Get<string>());
+        }
+
         public static ICloudTableEntityRangeQuery PrepareEntityRangeQueryByPartition(
             this ICloudTable table,
             string partitionKey,
@@ -37,8 +56,10 @@ namespace Journalist.WindowsAzure.Storage.Tables
             Require.NotNull(toRowKey, "toRowKey");
 
             return table.PrepareEntityFilterRangeQuery(
-                "(PartitionKey eq '{0}') and (RowKey ge '{1}' and RowKey le '{2}')".FormatString(partitionKey,
-                    fromRowKey, toRowKey),
+                "(PartitionKey eq '{0}') and (RowKey ge '{1}' and RowKey le '{2}')".FormatString(
+                    partitionKey,
+                    fromRowKey,
+                    toRowKey),
                 properties);
         }
 
@@ -48,7 +69,53 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string fromRowKey,
             string toRowKey)
         {
-            return table.PrepareEntityRangeQueryByRows(partitionKey, fromRowKey, toRowKey, EmptyArray.Get<string>());
+            return table.PrepareEntityRangeQueryByRows(
+                partitionKey,
+                fromRowKey,
+                toRowKey,
+                EmptyArray.Get<string>());
+        }
+
+        public static ICloudTableEntityRangeQuery PrepareEntityFilterRangeQuery(this ICloudTable table, string filter)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityFilterRangeQuery(filter, EmptyArray.Get<string>());
+        }
+
+        public static ICloudTableEntitySegmentedRangeQuery PrepareEntityFilterSegmentedRangeQuery(this ICloudTable table, string filter)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityFilterSegmentedRangeQuery(filter, EmptyArray.Get<string>());
+        }
+
+        public static ICloudTableEntitySegmentedRangeQuery PrepareEntityFilterSegmentedRangeQuery(this ICloudTable table, string filter, int count)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityFilterSegmentedRangeQuery(filter, count, EmptyArray.Get<string>());
+        }
+
+        public static ICloudTableEntityRangeQuery PrepareEntityGetAllQuery(this ICloudTable table)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityGetAllQuery(EmptyArray.Get<string>());
+        }
+
+        public static ICloudTableEntitySegmentedRangeQuery PrepareEntityGetAllSegmentedQuery(this ICloudTable table)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityGetAllSegmentedQuery(EmptyArray.Get<string>());
+        }
+
+        public static ICloudTableEntitySegmentedRangeQuery PrepareEntityGetAllSegmentedQuery(this ICloudTable table, int count)
+        {
+            Require.NotNull(table, "table");
+
+            return table.PrepareEntityGetAllSegmentedQuery(count, EmptyArray.Get<string>());
         }
 
         public static ICloudTableEntitySegmentedRangeQuery PrepareEntitySegmentedRangeQueryByPartition(

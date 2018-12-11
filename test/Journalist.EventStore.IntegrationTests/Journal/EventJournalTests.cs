@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.IntegrationTests.Infrastructure.TestData;
 using Journalist.EventStore.Journal;
+using Journalist.EventStore.Journal.Persistence;
+using Journalist.Options;
 using Journalist.WindowsAzure.Storage;
 using Ploeh.AutoFixture;
 using Xunit;
@@ -20,97 +23,134 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         {
             Fixture = PrepareFixture();
             Journal = PrepareEventJournal();
-            StreamName = Fixture.Create("TestStream-");
         }
 
-        [Fact]
-        public async Task AppendEventsAsync_WriteEventsToEndOfStream()
+        [Theory]
+        [AutoMoqData]
+        public async Task AppendEventsAsync_WriteEventsToEndOfStream(string streamName)
         {
             // arrange
-            var position = EventStreamPosition.Start;
+            var position = EventStreamHeader.Unknown;
 
             // act
-            position = await AppendEventsAsync(batchNumber: 3);
+            position = await AppendEventsAsync(streamName, batchNumber: 3);
 
             // assert
             Assert.Equal(StreamVersion.Create(30), position.Version);
         }
 
-        [Fact]
-        public async Task AppendEventsAsync_WhenAppendingToStartPositionTwice_Throw()
+        [Theory]
+        [AutoMoqData]
+        public async Task AppendEventsAsync_WhenAppendingToStartPositionTwice_Throw(string streamName)
         {
             // act
-            await AppendEventsAsync(position: EventStreamPosition.Start);
+            await AppendEventsAsync(streamName, header: EventStreamHeader.Unknown);
 
             await Assert.ThrowsAsync<EventStreamConcurrencyException>(
-                async () => await AppendEventsAsync(position: EventStreamPosition.Start));
+                async () => await AppendEventsAsync(streamName, header: EventStreamHeader.Unknown));
         }
 
-        [Fact]
-        public async Task AppendEventsAsync_WhenAppendingToSamePositionTwice_Throw()
+        [Theory]
+        [AutoMoqData]
+        public async Task AppendEventsAsync_WhenAppendingToSamePositionTwice_Throw(string streamName)
         {
             // arrange
-            var position = await AppendEventsAsync();
+            var position = await AppendEventsAsync(streamName);
 
             // act
-            await AppendEventsAsync(position: position);
+            await AppendEventsAsync(streamName, header: position);
 
-           await Assert.ThrowsAsync<EventStreamConcurrencyException>(async () => await AppendEventsAsync(position: position));
+           await Assert.ThrowsAsync<EventStreamConcurrencyException>(async () => await AppendEventsAsync(streamName, header: position));
         }
 
-        [Fact]
-        public async Task OpenEventStreamAsync_ReadPreviousCommitedEvents()
+        [Theory]
+        [AutoMoqData]
+        public async Task OpenEventStreamAsync_ReadPreviousCommitedEvents(string streamName)
         {
             // arrange
-            await AppendEventsAsync(50, 4);
+            await AppendEventsAsync(streamName, 50, 4);
 
             // act
-            var events = await ReadEventsAsync();
+            var events = await ReadEventsAsync(streamName);
 
             // assert
             Assert.Equal(200, events.Count);
         }
 
-        [Fact]
-        public async Task OpenEventStreamAsync_ReadFirstPartialPreviousCommitedEvents()
+        [Theory]
+        [AutoMoqData]
+        public async Task OpenEventStreamWithLargeSliceSizeAsync_ReadPreviousCommitedEvents(string streamName)
         {
             // arrange
-            await AppendEventsAsync(50, 4);
+            await AppendEventsAsync(streamName, 50, 4);
 
             // act
-            var events = await ReadEventsAsync();
-            var eventsPart = await ReadEventsPartialAsync(StreamVersion.Start, StreamVersion.Create(100), 10);
+            var events = await ReadEventsAsync(streamName, 1000);
 
             // assert
-            Assert.Equal(events.Take(100).ToArray(), eventsPart);
+            Assert.Equal(200, events.Count);
         }
 
-        private async Task<EventStreamPosition> AppendEventsAsync(
-            EventStreamPosition position,
+        [Theory]
+        [AutoMoqData]
+        public async Task OpenEventStreamFromAsync_ReadPreviousCommitedEvents(string streamName)
+        {
+            // arrange
+            var fromVersion = StreamVersion.Create(101);
+            await AppendEventsAsync(streamName, 50, 4);
+
+            // act
+            var events = await ReadEventsFromAsync(streamName, fromVersion);
+
+            // assert
+            Assert.Equal(100, events.Count);
+            Assert.True(events[0].Offset.IsTrue(e => e == fromVersion));
+            Assert.True(events[99].Offset.IsTrue(e => e == StreamVersion.Create(200)));
+        }
+
+        [Theory]
+        [AutoMoqData]
+        public async Task OpenEventStreamAsync_ReturnsCommitedEvent(string streamName)
+        {
+            // arrange
+            await AppendEventsAsync(streamName);
+
+            // act
+            var events = await ReadEventsAsync(streamName);
+
+            // assert
+            Assert.True(events.All(e => e.CommitTime.IsSome));
+            Assert.True(events.All(e => e.Offset.IsSome));
+        }
+
+        private async Task<EventStreamHeader> AppendEventsAsync(
+            string streamName,
+            EventStreamHeader header,
             int batchSize = EVENTS_COUNT,
             int batchNumber = BATCH_NUMBER)
         {
             var batches = PrepareBatch(batchSize, batchNumber);
 
-            var currentPosition = position;
+            var currentPosition = header;
             while (batches.Any())
             {
-                currentPosition = await Journal.AppendEventsAsync(StreamName, currentPosition, batches.Dequeue());
+                currentPosition = await Journal.AppendEventsAsync(streamName, currentPosition, batches.Dequeue());
             }
 
             return currentPosition;
         }
 
-        private async Task<EventStreamPosition> AppendEventsAsync(
+        private async Task<EventStreamHeader> AppendEventsAsync(
+            string streamName,
             int batchSize = EVENTS_COUNT,
             int batchNumber = BATCH_NUMBER)
         {
             var batches = PrepareBatch(batchSize, batchNumber);
 
-            var currentPosition = await Journal.ReadEndOfStreamPositionAsync(StreamName);
+            var currentPosition = await Journal.ReadStreamHeaderAsync(streamName);
             while (batches.Any())
             {
-                currentPosition = await Journal.AppendEventsAsync(StreamName, currentPosition, batches.Dequeue());
+                currentPosition = await Journal.AppendEventsAsync(streamName, currentPosition, batches.Dequeue());
             }
 
             return currentPosition;
@@ -127,9 +167,9 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             return batches;
         }
 
-        private async Task<List<JournaledEvent>> ReadEventsAsync()
+        private async Task<List<JournaledEvent>> ReadEventsAsync(string streamName, int sliceSize = 100)
         {
-            var stream = await Journal.OpenEventStreamCursorAsync(StreamName);
+            var stream = await Journal.OpenEventStreamCursorAsync(streamName, sliceSize);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)
@@ -141,10 +181,9 @@ namespace Journalist.EventStore.IntegrationTests.Journal
             return result;
         }
 
-        private async Task<List<JournaledEvent>> ReadEventsPartialAsync(StreamVersion fromVersion,
-            StreamVersion toVersion, int sliceSize = 1000)
+        private async Task<List<JournaledEvent>> ReadEventsFromAsync(string streamName, StreamVersion fromVersion)
         {
-            var stream = await Journal.OpenEventStreamCursorAsync(StreamName, fromVersion, toVersion, sliceSize);
+            var stream = await Journal.OpenEventStreamCursorAsync(streamName, fromVersion);
 
             var result = new List<JournaledEvent>();
             while (!stream.EndOfStream)
@@ -159,7 +198,8 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         private static EventJournal PrepareEventJournal()
         {
             var factory = new StorageFactory();
-            var journal = new EventJournal(factory.CreateTable("UseDevelopmentStorage=true", "TestEventJournal"));
+            var journal = new EventJournal(
+                new EventJournalTable(factory.CreateTable("UseDevelopmentStorage=true", "TestEventJournal")));
 
             return journal;
         }
@@ -178,8 +218,6 @@ namespace Journalist.EventStore.IntegrationTests.Journal
         {
             stream.Write("TestMessage");
         }
-
-        public string StreamName { get; set; }
 
         public Fixture Fixture { get; set; }
 

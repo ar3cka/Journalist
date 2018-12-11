@@ -7,176 +7,117 @@ namespace Journalist.EventStore.Streams
 {
     public class EventStreamConsumer : IEventStreamConsumer
     {
-        private readonly string m_consumerName;
-        private readonly IEventStreamReader m_reader;
         private readonly IEventStreamConsumingSession m_session;
+        private readonly IEventStreamReaderFactory m_readerFactory;
+        private readonly bool m_autoCommitProcessedStreamVersion;
         private readonly Func<StreamVersion, Task> m_commitConsumedVersion;
-
-        private bool m_hasUnprocessedEvents;
-        private bool m_consuming;
-        private bool m_receiving;
-        private int m_eventSliceOffset;
-        private int m_commitedEventCount;
-        private StreamVersion m_commitedStreamVersion;
-        private bool m_closed;
+        private IEventStreamConsumerStateMachine m_stateMachine;
+        private IEventStreamReader m_reader;
 
         public EventStreamConsumer(
-            string consumerName,
-            IEventStreamReader streamReader,
             IEventStreamConsumingSession session,
-            StreamVersion commitedStreamVersion,
+            IEventStreamReaderFactory readerFactory,
+            bool autoCommitProcessedStreamVersion,
             Func<StreamVersion, Task> commitConsumedVersion)
         {
-            Require.NotEmpty(consumerName, "consumerName");
-            Require.NotNull(streamReader, "streamReader");
             Require.NotNull(session, "session");
+            Require.NotNull(readerFactory, "readerFactory");
             Require.NotNull(commitConsumedVersion, "commitConsumedVersion");
 
-            m_consumerName = consumerName;
-            m_reader = streamReader;
             m_session = session;
+            m_readerFactory = readerFactory;
+            m_autoCommitProcessedStreamVersion = autoCommitProcessedStreamVersion;
             m_commitConsumedVersion = commitConsumedVersion;
-            m_commitedStreamVersion = commitedStreamVersion;
         }
 
-        public async Task<bool> ReceiveEventsAsync()
+        public async Task<ReceivingResultCode> ReceiveEventsAsync()
         {
-            AssertConsumerWasNotClosed();
-            AssertConsumerIsNotInConsumingState();
-
-            if (!(await m_session.PromoteToLeaderAsync()))
+            if (await m_session.PromoteToLeaderAsync())
             {
-                return false;
+                await EnsureStreamReaderInitializedAsync();
+
+                m_stateMachine.ReceivingStarted();
+
+                if (m_stateMachine.CommitRequired(m_autoCommitProcessedStreamVersion))
+                {
+                    var version = m_stateMachine.CalculateConsumedStreamVersion(false);
+                    await m_commitConsumedVersion(version);
+                }
+
+                if (m_reader.HasEvents)
+                {
+                    await m_reader.ReadEventsAsync();
+                    m_stateMachine.ReceivingCompleted(m_reader.Events.Count);
+                    return ReceivingResultCode.EventsReceived;
+                }
+
+                m_stateMachine.ReceivingCompleted(0);
+                await m_session.FreeAsync();
+
+                return ReceivingResultCode.EmptyStream;
             }
 
-            if (m_receiving && m_commitedStreamVersion != m_reader.CurrentStreamVersion)
-            {
-                await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
-                m_commitedStreamVersion = m_reader.CurrentStreamVersion;
-                m_eventSliceOffset = 0;
-            }
-
-            if (m_reader.IsCompleted)
-            {
-                await m_reader.ContinueAsync();
-                m_receiving = false;
-            }
-
-            if (m_reader.HasEvents)
-            {
-                await m_reader.ReadEventsAsync();
-
-                m_hasUnprocessedEvents = true;
-                m_receiving = true;
-
-                return true;
-            }
-
-            await m_session.FreeAsync();
-            m_receiving = false;
-
-            return false;
+            return ReceivingResultCode.PromotionFailed;
         }
 
         public async Task CommitProcessedStreamVersionAsync(bool skipCurrent)
         {
-            AssertConsumerWasNotClosed();
-
-            if (m_consuming)
+            var version = m_stateMachine.CalculateConsumedStreamVersion(skipCurrent);
+            if (m_stateMachine.CommitedStreamVersion < version)
             {
-                var eventOffset = skipCurrent ? m_eventSliceOffset : m_eventSliceOffset + 1;
-                if (eventOffset <= m_commitedEventCount)
-                {
-                    // current event has been commited.
-                    return;
-                }
-
-                var version = m_commitedStreamVersion.Increment(eventOffset - m_commitedEventCount);
-
-                if (m_commitedStreamVersion < version)
-                {
-                    await m_commitConsumedVersion(version);
-
-                    m_commitedStreamVersion = version;
-                    m_commitedEventCount++;
-                }
-            }
-            else
-            {
-                await m_commitConsumedVersion(m_reader.CurrentStreamVersion);
-                m_commitedStreamVersion = m_reader.CurrentStreamVersion;
-                m_eventSliceOffset = 0;
+                await m_commitConsumedVersion(version);
+                m_stateMachine.ConsumedStreamVersionCommited(version, skipCurrent);
             }
         }
 
         public async Task CloseAsync()
         {
-            AssertConsumerWasNotClosed();
-
-            if (m_receiving)
+            if (m_stateMachine == null)
             {
-                if (m_hasUnprocessedEvents)
-                {
-                    if (m_consuming)
-                    {
-                        await CommitProcessedStreamVersionAsync(true);
-                    }
-                }
-                else
-                {
-                    await CommitProcessedStreamVersionAsync(false);
-                }
+                return;
+            }
 
-                m_receiving = false;
+            m_stateMachine.ConsumerClosed();
+
+            if (m_stateMachine.CommitRequired(m_autoCommitProcessedStreamVersion))
+            {
+                await CommitProcessedStreamVersionAsync(true);
             }
 
             await m_session.FreeAsync();
-
-            m_closed = true;
         }
 
         public IEnumerable<JournaledEvent> EnumerateEvents()
         {
-            AssertConsumerWasNotClosed();
-            AssertConsumerIsNotInConsumingState();
+            Ensure.True(m_reader != null, "Reading was not started.");
 
-            if (m_hasUnprocessedEvents)
+            m_stateMachine.ConsumingStarted();
+
+            for (var index = 0; index < m_reader.Events.Count; index++)
             {
-                m_consuming = true;
+                m_stateMachine.EventProcessingStarted();
 
-                for (m_eventSliceOffset = 0; m_eventSliceOffset < m_reader.Events.Count; m_eventSliceOffset++)
-                {
-                    yield return m_reader.Events[m_eventSliceOffset];
-                }
-
-                m_consuming = false;
-                m_hasUnprocessedEvents = false;
-
-                yield break;
+                yield return m_reader.Events[index];
             }
 
-            throw new InvalidOperationException("Consumer stream is empty.");
+            m_stateMachine.ConsumingCompleted();
         }
 
-        private void AssertConsumerIsNotInConsumingState()
+        private async Task EnsureStreamReaderInitializedAsync()
         {
-            if (m_consuming)
+            if (m_reader == null)
             {
-                throw new InvalidOperationException("Consumer stream is already opened.");
+                m_reader = await m_readerFactory.CreateAsync();
+
+                m_stateMachine = m_reader.HasEvents
+                    ? new EventStreamConsumerStateMachine(m_reader.ReaderStreamVersion.Decrement())
+                    : new EventStreamConsumerStateMachine(m_reader.ReaderStreamVersion);
             }
         }
 
-        private void AssertConsumerWasNotClosed()
+        public string StreamName
         {
-            if (m_closed)
-            {
-                throw new InvalidOperationException("Consumer was closed.");
-            }
-        }
-
-        public string Name
-        {
-            get { return m_consumerName; }
+            get { return m_reader.StreamName; }
         }
     }
 }

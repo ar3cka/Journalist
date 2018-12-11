@@ -5,6 +5,8 @@ namespace Journalist.WindowsAzure.Storage.Tables
 {
     public interface ICloudTableEntityQuery
     {
-        Task<IDictionary<string, object>> ExecuteAsync();
+        Task<Dictionary<string, object>> ExecuteAsync();
+
+        Dictionary<string, object> Execute();
     }
 }

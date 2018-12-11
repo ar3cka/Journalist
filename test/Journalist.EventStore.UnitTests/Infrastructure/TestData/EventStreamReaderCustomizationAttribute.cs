@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
+using Journalist.EventStore.Streams;
 using Journalist.EventStore.UnitTests.Infrastructure.Customizations;
-using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
+using Ploeh.AutoFixture;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 {
@@ -10,14 +12,19 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         public EventStreamReaderCustomizationAttribute(
             bool hasEvents = true,
             bool completed = false,
-            bool leaderPromotion = true)
+            bool leaderPromotion = true,
+            bool disableAutoCommit = false)
         {
             Fixture.Customize(new EventStreamReaderCustomization(completed, hasEvents));
             Fixture.Customize(new EventStreamConsumingSessionCustomization(leaderPromotion));
+            Fixture.Customize(new CommitStreamVersionFMockCustomization());
 
-            Fixture.Customize<Func<StreamVersion, Task>>(composer => composer
-                .FromFactory((CommitStreamVersionFMock mock) => mock.Invoke));
-
+            Fixture.Customize<EventStreamConsumer>(composer => composer.FromFactory(
+                () => new EventStreamConsumer(
+                    Fixture.Create<IEventStreamConsumingSession>(),
+                    Fixture.Create<IEventStreamReaderFactory>(),
+                    !disableAutoCommit,
+                    Fixture.Create<Func<StreamVersion, Task>>())));
         }
     }
 }

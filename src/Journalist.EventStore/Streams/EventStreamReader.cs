@@ -2,39 +2,40 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.Collections;
+using Journalist.EventStore.Connection;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Events.Mutation;
 using Journalist.EventStore.Journal;
 using Journalist.Extensions;
 
 namespace Journalist.EventStore.Streams
 {
-    public class EventStreamReader : IEventStreamReader
+    public class EventStreamReader : EventStreamInteractionEntity, IEventStreamReader
     {
-        private readonly string m_streamName;
-        private readonly Func<StreamVersion, Task<IEventStreamCursor>> m_openCursor;
-
-        private IEventStreamCursor m_streamCursor;
+        private readonly IEventMutationPipeline m_mutationPipeline;
+        private readonly IEventStreamCursor m_streamCursor;
         private List<JournaledEvent> m_readedEvents;
 
         public EventStreamReader(
             string streamName,
+            IEventStoreConnectionState connectionState,
             IEventStreamCursor streamCursor,
-            Func<StreamVersion, Task<IEventStreamCursor>> openCursor)
+            IEventMutationPipeline mutationPipeline) : base(streamName, connectionState)
         {
-            Require.NotEmpty(streamName, "streamName");
             Require.NotNull(streamCursor, "streamCursor");
-            Require.NotNull(openCursor, "openCursor");
+            Require.NotNull(mutationPipeline, "mutationPipeline");
 
-            m_streamName = streamName;
             m_streamCursor = streamCursor;
-            m_openCursor = openCursor;
+            m_mutationPipeline = mutationPipeline;
         }
 
         public async Task ReadEventsAsync()
         {
+            ConnectionState.EnsureConnectionIsActive();
+
             if (m_streamCursor.EndOfStream)
             {
-                throw new InvalidOperationException("Stream \"{0}\" is empty.".FormatString(m_streamName));
+                throw new InvalidOperationException("Stream \"{0}\" is empty.".FormatString(StreamName));
             }
 
             await m_streamCursor.FetchSlice();
@@ -42,21 +43,11 @@ namespace Journalist.EventStore.Streams
             m_readedEvents = new List<JournaledEvent>(m_streamCursor.Slice.Count);
             foreach (var journaledEvent in m_streamCursor.Slice)
             {
-                m_readedEvents.Add(journaledEvent);
+                m_readedEvents.Add(m_mutationPipeline.Mutate(journaledEvent));
             }
         }
 
-        public async Task ContinueAsync()
-        {
-            if (IsCompleted)
-            {
-                m_streamCursor = await m_openCursor(CurrentStreamVersion.Increment());
-                m_readedEvents = null;
-                return;
-            }
-
-            throw new InvalidOperationException("Reader is not in competed state.");
-        }
+        public StreamVersion ReaderStreamVersion => m_streamCursor.CursorStreamVersion;
 
         public IReadOnlyList<JournaledEvent> Events
         {
@@ -71,34 +62,8 @@ namespace Journalist.EventStore.Streams
             }
         }
 
-        public StreamVersion CurrentStreamVersion
-        {
-            get { return m_streamCursor.CurrentVersion; }
-        }
+        public override EventStreamHeader StreamHeader => m_streamCursor.StreamHeader;
 
-        public bool HasEvents
-        {
-            get { return !m_streamCursor.EndOfStream; }
-        }
-
-        public string StreamName
-        {
-            get { return m_streamName; }
-        }
-
-        public bool IsCompleted
-        {
-            get { return m_streamCursor.EndOfStream; }
-        }
-
-        public bool IsInitial
-        {
-            get { return !m_streamCursor.Fetching && !m_streamCursor.EndOfStream; }
-        }
-
-        public bool IsReading
-        {
-            get { return m_streamCursor.Fetching; }
-        }
+        public bool HasEvents => !m_streamCursor.EndOfStream;
     }
 }

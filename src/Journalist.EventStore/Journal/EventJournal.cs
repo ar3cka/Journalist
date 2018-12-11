@@ -1,57 +1,39 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Journalist.Collections;
 using Journalist.EventStore.Events;
+using Journalist.EventStore.Journal.Persistence;
+using Journalist.EventStore.Journal.Persistence.Operations;
 using Journalist.EventStore.Journal.StreamCursor;
-using Journalist.Extensions;
+using Journalist.EventStore.Streams;
 using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Journal
 {
     public class EventJournal : IEventJournal
     {
-        private readonly ICloudTable m_table;
+        private readonly IEventJournalTable m_table;
 
-        public EventJournal(ICloudTable table)
+        public EventJournal(IEventJournalTable table)
         {
             Require.NotNull(table, "table");
 
             m_table = table;
         }
 
-        public async Task<EventStreamPosition> AppendEventsAsync(
+        public Task<EventStreamHeader> AppendEventsAsync(
             string streamName,
-            EventStreamPosition position,
+            EventStreamHeader header,
             IReadOnlyCollection<JournaledEvent> events)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.NotEmpty(events, "events");
 
-            var batch = m_table.PrepareBatchOperation();
+            var operation = m_table.CreateAppendOperation(streamName, header);
+            operation.Prepare(events);
 
-            var targetVersion = position.Version.Increment(events.Count);
-            WriteHeadProperty(streamName, position, (int) targetVersion, batch);
-            WriteEvents(streamName, position.Version, events, batch);
-
-            try
-            {
-                var batchResult = await batch.ExecuteAsync();
-                var headResult = batchResult[0];
-
-                return new EventStreamPosition(headResult.ETag, targetVersion);
-            }
-            catch (BatchOperationException exception)
-            {
-                if (exception.OperationBatchNumber == 0 && IsConcurrencyException(exception))
-                {
-                    throw new EventStreamConcurrencyException(
-                        "Event stream '{0}' was concurrently updated.".FormatString(streamName),
-                        exception);
-                }
-
-                throw;
-            }
+            return ExecuteOperationAsync(operation);
         }
 
         public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, int sliceSize)
@@ -59,16 +41,16 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
 
-            var position = await ReadEndOfStreamPositionAsync(streamName);
-            if (EventStreamPosition.IsNewStream(position))
+            var header = await ReadStreamHeaderAsync(streamName);
+            if (EventStreamHeader.IsNewStream(header))
             {
-                return EventStreamCursor.Empty;
+                return EventStreamCursor.UninitializedStream;
             }
 
-            return new EventStreamCursor(
-                position,
+            return EventStreamCursor.CreateActiveCursor(
+                header,
                 StreamVersion.Start,
-                from => FetchEvents(streamName, from, position.Version, sliceSize));
+                from => m_table.FetchStreamEvents(streamName, header, from, sliceSize));
         }
 
         public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, StreamVersion fromVersion, int sliceSize)
@@ -76,186 +58,134 @@ namespace Journalist.EventStore.Journal
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
 
-            var position = await ReadEndOfStreamPositionAsync(streamName);
-            return new EventStreamCursor(
-                position,
+            var header = await ReadStreamHeaderAsync(streamName);
+            if (header.Version == StreamVersion.Unknown)
+            {
+                return EventStreamCursor.UninitializedStream;
+            }
+
+            if (header.Version < fromVersion)
+            {
+                return EventStreamCursor.CreateEmptyCursor(header, fromVersion);
+            }
+
+            return EventStreamCursor.CreateActiveCursor(
+                header,
                 fromVersion,
-                from => FetchEvents(streamName, from, position.Version, sliceSize));
+                from => m_table.FetchStreamEvents(streamName, header, from, sliceSize));
         }
 
-        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(
-            string streamName,
-            StreamVersion fromVersion,
-            StreamVersion toVersion,
-            int sliceSize)
+        public async Task<IEventStreamCursor> OpenEventStreamCursorAsync(string streamName, EventStreamReaderId readerId, int sliceSize)
         {
             Require.NotEmpty(streamName, "streamName");
             Require.Positive(sliceSize, "sliceSize");
 
-            var headProperties = await ReadHeadAsync(streamName);
-            if (headProperties == null)
+            var fromVersion = await ReadStreamReaderPositionAsync(streamName, readerId);
+            var header = await ReadStreamHeaderAsync(streamName);
+
+            if (header == EventStreamHeader.Unknown)
             {
-                return EventStreamCursor.Empty;
+                return EventStreamCursor.UninitializedStream;
             }
 
-            return new EventStreamCursor(
-                new EventStreamPosition(string.Empty, toVersion),
-                fromVersion,
-                from => FetchEvents(streamName, from, toVersion, sliceSize));
+            if (header.Version <= fromVersion)
+            {
+                return EventStreamCursor.CreateEmptyCursor(header, fromVersion);
+            }
+
+            return EventStreamCursor.CreateActiveCursor(
+                header,
+                fromVersion.Increment(),
+                from => m_table.FetchStreamEvents(streamName, header, from, sliceSize));
         }
 
-        public async Task<EventStreamPosition> ReadEndOfStreamPositionAsync(string streamName)
+        public async Task<EventStreamHeader> ReadStreamHeaderAsync(string streamName)
         {
             Require.NotEmpty(streamName, "streamName");
 
-            var headProperties = await ReadHeadAsync(streamName);
+            var headProperties = await m_table.ReadStreamHeadPropertiesAsync(streamName);
             if (headProperties == null)
             {
-                return EventStreamPosition.Start;
+                return EventStreamHeader.Unknown;
             }
 
             var timestamp = (string)headProperties[EventJournalTableRowPropertyNames.ETag];
             var version = StreamVersion.Create((int)headProperties[EventJournalTableRowPropertyNames.Version]);
 
-            return new EventStreamPosition(timestamp, version);
+            return new EventStreamHeader(timestamp, version);
         }
 
-        public async Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, string readerName)
+        public async Task<StreamVersion> ReadStreamReaderPositionAsync(string streamName, EventStreamReaderId readerId)
         {
             Require.NotEmpty(streamName, "streamName");
-            Require.NotEmpty(readerName, "readerName");
+            Require.NotNull(readerId, "readerId");
 
-            var referenceRow = await ReadReferenceRowHeadAsync(
-                streamName,
-                "RDR_" + readerName);
-
-            if (referenceRow == null)
+            var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
+            if (properties == null)
             {
                 return StreamVersion.Unknown;
             }
 
-            return StreamVersion.Create((int)referenceRow[EventJournalTableRowPropertyNames.Version]);
-        }
+            return StreamVersion.Create((int)properties[EventJournalTableRowPropertyNames.Version]);
+		}
 
-        public async Task CommitStreamReaderPositionAsync(
+		public async Task<IEnumerable<StreamReaderDescription>> GetStreamReadersDescriptionsAsync(string streamName)
+		{
+			Require.NotEmpty(streamName, nameof(streamName));
+
+			var streamReadersProperties = await m_table.ReadAllStreamReadersPropertiesAsync(streamName);
+
+			var descriptions = streamReadersProperties.Select(streamReaderProperties => new StreamReaderDescription(
+				streamName,
+				EventStreamReaderId.Parse(streamReaderProperties[KnownProperties.RowKey].ToString().Split('|').Last()),
+				StreamVersion.Create((int)streamReaderProperties[EventJournalTableRowPropertyNames.Version])));
+
+			return descriptions;
+		}
+
+		public async Task CommitStreamReaderPositionAsync(
             string streamName,
-            string readerName,
+            EventStreamReaderId readerId,
             StreamVersion readerVersion)
         {
             Require.NotEmpty(streamName, "streamName");
-            Require.NotEmpty(readerName, "readerName");
+            Require.NotNull(readerId, "readerId");
 
-            var referenceRow = await ReadReferenceRowHeadAsync(
-                streamName,
-                "RDR_" + readerName);
-
-            var operation = m_table.PrepareBatchOperation();
-            if (referenceRow == null)
+            var properties = await m_table.ReadStreamReaderPropertiesAsync(streamName, readerId);
+            if (properties == null)
             {
-                operation.Insert(
+                await m_table.InsertStreamReaderPropertiesAsync(
                     streamName,
-                    "RDR_" + readerName,
-                    new Dictionary<string, object>
-                    {
-                        { EventJournalTableRowPropertyNames.Version, (int)readerVersion }
-                    });
+                    readerId,
+                    readerVersion);
             }
             else
             {
-                operation.Merge(
-                    streamName,
-                    "RDR_" + readerName,
-                    (string)referenceRow[KnownProperties.ETag],
-                    new Dictionary<string, object>
-                    {
-                        { EventJournalTableRowPropertyNames.Version, (int)readerVersion }
-                    });
-            }
+                var readerVersionValue = (int)readerVersion;
+                var savedVersionValue = (int)properties[EventJournalTableRowPropertyNames.Version];
+                var etag = (string)properties[KnownProperties.ETag];
+                Ensure.True(savedVersionValue <= readerVersionValue,
+                    "Saved reader stream version is greater then passed value.");
 
-            await operation.ExecuteAsync();
-        }
-
-        private Task<IDictionary<string, object>> ReadHeadAsync(string streamName)
-        {
-            return ReadReferenceRowHeadAsync(streamName, "HEAD");
-        }
-
-        private async Task<IDictionary<string, object>> ReadReferenceRowHeadAsync(string streamName, string referenceType)
-        {
-            var query = m_table.PrepareEntityPointQuery(
-                streamName,
-                referenceType,
-                EventJournalTableRowPropertyNames.Version.YieldArray());
-
-            var headProperties = await query.ExecuteAsync();
-
-            return headProperties;
-        }
-
-        private static void WriteHeadProperty(string stream, EventStreamPosition position, int targetVersion, IBatchOperation batch)
-        {
-            var headProperties = new Dictionary<string, object>
-            {
-                {EventJournalTableRowPropertyNames.Version, targetVersion}
-            };
-
-            if (EventStreamPosition.IsNewStream(position))
-            {
-                batch.Insert(stream, "HEAD", headProperties);
-            }
-            else
-            {
-                batch.Merge(stream, "HEAD", position.ETag, headProperties);
+                if (readerVersionValue != savedVersionValue)
+                {
+                    await m_table.UpdateStreamReaderPropertiesAsync(streamName, readerId, readerVersion, etag);
+                }
             }
         }
 
-        private async Task<SortedList<StreamVersion, JournaledEvent>> FetchEvents(
-            string stream,
-            StreamVersion fromVersion,
-            StreamVersion toVersion,
-            int sliceSize)
+        private static async Task<TResult> ExecuteOperationAsync<TResult>(IStreamOperation<TResult> operation)
         {
-            var nextSliceVersion = fromVersion.Increment(sliceSize);
-            if (nextSliceVersion >= toVersion)
+            try
             {
-                nextSliceVersion = toVersion;
+                return await operation.ExecuteAsync();
             }
-
-            var query = m_table.PrepareEntityFilterRangeQuery(
-                "(PartitionKey eq '{0}') and (RowKey ge '{1}' and RowKey le '{2}')".FormatString(
-                    stream,
-                    fromVersion.ToString(),
-                    nextSliceVersion.ToString()), JournaledEventPropertyNames.All);
-
-            var queryResult = await query.ExecuteAsync();
-
-            var result = new SortedList<StreamVersion, JournaledEvent>(sliceSize);
-            foreach (var properties in queryResult)
+            catch (Exception exception)
             {
-                result.Add(StreamVersion.Parse((string)properties[KnownProperties.RowKey]), JournaledEvent.Create(properties));
+                operation.Handle(exception);
+
+                throw;
             }
-
-            return result;
-        }
-
-        private static void WriteEvents(string stream, StreamVersion version, IEnumerable<JournaledEvent> events, IBatchOperation batch)
-        {
-            var currentVersion = version;
-            foreach (var journaledEvent in events)
-            {
-                currentVersion = currentVersion.Increment(1);
-
-                // InsertOrReplace is faster then Insert operation, because storage engine
-                // can skip etag checking.
-                batch.InsertOrReplace(stream, currentVersion.ToString(), journaledEvent.ToDictionary());
-            }
-        }
-
-        private static bool IsConcurrencyException(BatchOperationException exception)
-        {
-            return exception.HttpStatusCode == HttpStatusCode.Conflict // Inserting twice HEAD record.
-                   || exception.HttpStatusCode == HttpStatusCode.PreconditionFailed;
-                // Stream concurrent update occured. Head ETag header was changed.
         }
     }
 }

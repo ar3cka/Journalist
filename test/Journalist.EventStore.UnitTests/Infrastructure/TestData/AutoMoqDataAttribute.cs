@@ -10,9 +10,9 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
         public AutoMoqDataAttribute()
             : base(new Fixture()
                 .Customize(new AutoConfiguredMoqCustomization())
-                .Customize(new JournaledEventCustomization()))
+                .Customize(new JournaledEventCustomization())
+                .Customize(new IOStreamCustomization()))
         {
-
         }
     }
 }

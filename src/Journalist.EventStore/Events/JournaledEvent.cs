@@ -1,20 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Journalist.Extensions;
+using Journalist.Options;
+using Journalist.WindowsAzure.Storage.Tables;
 
 namespace Journalist.EventStore.Events
 {
     public sealed class JournaledEvent : IEquatable<JournaledEvent>
     {
-        private readonly Stream m_eventPayload;
+        private readonly MemoryStream m_eventPayload;
+        private readonly Dictionary<string, string> m_eventHeaders;
         private readonly string m_eventTypeName;
         private readonly Guid m_eventId;
+        private readonly Option<DateTimeOffset> m_commitTime;
+        private readonly Option<StreamVersion> m_offset;
 
-        private JournaledEvent(Guid eventId, string eventTypeName, Stream eventPayload)
+        private JournaledEvent(
+            Guid eventId,
+            string eventTypeName,
+            Option<DateTimeOffset> commitTime,
+            Option<StreamVersion> offset,
+            Dictionary<string, string> eventHeaders,
+            MemoryStream eventPayload)
         {
             m_eventId = eventId;
             m_eventTypeName = eventTypeName;
             m_eventPayload = eventPayload;
+            m_eventHeaders = eventHeaders;
+            m_commitTime = commitTime;
+            m_offset = offset;
         }
 
         public static JournaledEvent Create(
@@ -27,17 +42,29 @@ namespace Journalist.EventStore.Events
             Require.NotNull(serialize, "serialize");
 
             var eventType = eventObject.GetType();
-            MemoryStream payload;
+
+            MemoryStream payloadBytes;
             using (var stream = new MemoryStream())
             {
                 var writer = new StreamWriter(stream);
                 serialize(eventObject, eventType, writer);
                 writer.Flush();
 
-                payload = new MemoryStream(stream.GetBuffer(), 0, (int)stream.Length, false);
+                payloadBytes = new MemoryStream(
+                    buffer: stream.GetBuffer(),
+                    index: 0,
+                    count: (int)stream.Length,
+                    writable: false,
+                    publiclyVisible: true);
             }
 
-            return new JournaledEvent(eventId, eventType.AssemblyQualifiedName, payload);
+            return new JournaledEvent(
+                eventId,
+                eventType.AssemblyQualifiedName,
+                Option.None(),
+                Option.None(),
+                new Dictionary<string, string>(),
+                payloadBytes);
         }
 
         public static JournaledEvent Create(object eventObject, Action<object, Type, StreamWriter> serialize)
@@ -49,18 +76,85 @@ namespace Journalist.EventStore.Events
         {
             Require.NotNull(properties, "properties");
 
+            var payload  = new MemoryStream();
+            ((Stream)properties[JournaledEventPropertyNames.EventPayload]).CopyTo(payload);
+
+            var headers = new Dictionary<string, string>();
+            if (properties.ContainsKey(JournaledEventPropertyNames.EventHeaders))
+            {
+                var propertyValue = properties[JournaledEventPropertyNames.EventHeaders];
+
+                // for backward compatibility reading from string
+                if (propertyValue is string)
+                {
+                    var stringValue = (string)properties[JournaledEventPropertyNames.EventHeaders];
+                    if (stringValue.IsNotNullOrEmpty())
+                    {
+                        headers = JournaledEventHeadersSerializer.Deserialize((string)properties[JournaledEventPropertyNames.EventHeaders]);
+                    }
+                }
+                else
+                {
+                    headers = JournaledEventHeadersSerializer.Deserialize((Stream)properties[JournaledEventPropertyNames.EventHeaders]);
+                }
+            }
+
+            Option<DateTimeOffset> commitTime = Option.None();
+            object commitTimeValue;
+            if (properties.TryGetValue(KnownProperties.Timestamp, out commitTimeValue))
+            {
+                commitTime = Option.Some((DateTimeOffset)commitTimeValue);
+            }
+
+            Option<StreamVersion> offset = Option.None();
+            object offsetValue;
+            if (properties.TryGetValue(KnownProperties.RowKey, out offsetValue))
+            {
+                offset = Option.Some(StreamVersion.Parse((string)offsetValue));
+            }
+
             return new JournaledEvent(
                 (Guid)properties[JournaledEventPropertyNames.EventId],
                 (string)properties[JournaledEventPropertyNames.EventType],
-                (Stream)properties[JournaledEventPropertyNames.EventPayload]);
+                commitTime,
+                offset,
+                headers,
+                payload);
+        }
+
+        public void SetHeader(string headerName, string headerValue)
+        {
+            Require.NotEmpty(headerName, "headerName");
+
+            if (headerValue.IsNullOrEmpty() && m_eventHeaders.ContainsKey(headerName))
+            {
+                m_eventHeaders.Remove(headerName);
+
+                return;
+            }
+
+            m_eventHeaders[headerName] = headerValue;
+        }
+
+        public MemoryStream GetEventPayload()
+        {
+            return new MemoryStream(
+                buffer: m_eventPayload.GetBuffer(),
+                index: 0,
+                count: (int)m_eventPayload.Length,
+                writable: false,
+                publiclyVisible: false);
         }
 
         public Dictionary<string, object> ToDictionary()
         {
-            var result = new Dictionary<string, object>();
-            result[JournaledEventPropertyNames.EventId] = m_eventId;
-            result[JournaledEventPropertyNames.EventType] = m_eventTypeName;
-            result[JournaledEventPropertyNames.EventPayload] = m_eventPayload;
+            var result = new Dictionary<string, object>(JournaledEventPropertyNames.All.Length)
+            {
+                [JournaledEventPropertyNames.EventId] = m_eventId,
+                [JournaledEventPropertyNames.EventType] = m_eventTypeName,
+                [JournaledEventPropertyNames.EventPayload] = GetEventPayload(),
+                [JournaledEventPropertyNames.EventHeaders] = JournaledEventHeadersSerializer.Serialize(m_eventHeaders)
+            };
 
             return result;
         }
@@ -95,29 +189,18 @@ namespace Journalist.EventStore.Events
             return obj is JournaledEvent && Equals((JournaledEvent)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return m_eventId.GetHashCode();
-        }
+        public override int GetHashCode() => m_eventId.GetHashCode();
 
-        public Type EventType
-        {
-            get { return Type.GetType(EventTypeName, true); }
-        }
+        public IReadOnlyDictionary<string, string> Headers => m_eventHeaders;
 
-        public Guid EventId
-        {
-            get { return m_eventId; }
-        }
+        public Type EventType => Type.GetType(EventTypeName, true);
 
-        public string EventTypeName
-        {
-            get { return m_eventTypeName; }
-        }
+        public Guid EventId => m_eventId;
 
-        public Stream EventPayload
-        {
-            get { return m_eventPayload; }
-        }
+        public string EventTypeName => m_eventTypeName;
+
+        public Option<DateTimeOffset> CommitTime => m_commitTime;
+
+        public Option<StreamVersion> Offset => m_offset;
     }
 }

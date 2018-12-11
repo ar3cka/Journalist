@@ -1,5 +1,6 @@
 using Journalist.EventStore.UnitTests.Infrastructure.Stubs;
 using Journalist.EventStore.Utils;
+using Journalist.EventStore.Utils.RetryPolicies;
 
 namespace Journalist.EventStore.UnitTests.Infrastructure.TestData
 {

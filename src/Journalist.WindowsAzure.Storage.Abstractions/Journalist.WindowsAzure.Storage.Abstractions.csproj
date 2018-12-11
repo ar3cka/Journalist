@@ -54,12 +54,14 @@
     <Compile Include="Queues\ICloudQueue.cs" />
     <Compile Include="Queues\ICloudQueueMessage.cs" />
     <Compile Include="Tables\BatchOperationException.cs" />
+    <Compile Include="Tables\BatchOperationExtensions.cs" />
     <Compile Include="Tables\CloudTableExtensions.cs" />
     <Compile Include="Tables\IBatchOperation.cs" />
     <Compile Include="Tables\ICloudTable.cs" />
     <Compile Include="Tables\ICloudTableEntityQuery.cs" />
     <Compile Include="Tables\ICloudTableEntityRangeQuery.cs" />
     <Compile Include="Tables\ICloudTableEntitySegmentedRangeQuery.cs" />
+    <Compile Include="Tables\ITableRequestOptions.cs" />
     <Compile Include="Tables\KnownProperties.cs" />
     <Compile Include="Tables\OperationResult.cs" />
   </ItemGroup>
@@ -69,7 +71,9 @@
       <Name>Journalist.LanguageExtensions</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="paket.template" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,3 +1,4 @@
+using Journalist.EventStore.Events;
 using Journalist.EventStore.Streams;
 using Journalist.Tasks;
 using Moq;
@@ -20,20 +21,23 @@ namespace Journalist.EventStore.UnitTests.Infrastructure.Customizations
 
             fixture.Customize<Mock<IEventStreamReader>>(composer => composer
                 .Do(mock => mock
+                    .Setup(self => self.StreamName)
+                    .ReturnsUsingFixture(fixture))
+                .Do(mock => mock
                     .Setup(self => self.HasEvents)
                     .Returns(HasEvents))
-                .Do(mock => mock
-                    .Setup(self => self.IsCompleted)
-                    .Returns(Completed))
                 .Do(mock => mock
                     .Setup(self => self.ReadEventsAsync())
                     .Returns(TaskDone.Done))
                 .Do(mock => mock
-                    .Setup(self => self.ContinueAsync())
-                    .Returns(TaskDone.Done))
+                    .Setup(self => self.StreamVersion)
+                    .ReturnsUsingFixture(fixture))
                 .Do(mock => mock
                     .Setup(self => self.Events)
-                    .ReturnsUsingFixture(fixture)));
+                    .ReturnsUsingFixture(fixture))
+                .Do(mock => mock
+                    .Setup(self => self.ReaderStreamVersion)
+                    .Returns(() => fixture.Create<StreamVersion>().Increment())));
         }
 
         public bool Completed { get; private set; }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Journal;
 using Journalist.EventStore.Utils;
+using Journalist.EventStore.Utils.RetryPolicies;
 
 namespace Journalist.EventStore.Streams
 {

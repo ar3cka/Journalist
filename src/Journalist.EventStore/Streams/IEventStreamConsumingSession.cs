@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Journal;
 
 namespace Journalist.EventStore.Streams
 {
@@ -8,6 +9,6 @@ namespace Journalist.EventStore.Streams
 
         Task FreeAsync();
 
-        string StreamName { get; }
+        EventStreamReaderId ConsumerId { get; }
     }
 }

@@ -13,9 +13,19 @@ namespace Journalist.WindowsAzure.Storage.Queues
         {
         }
 
-        public Task AddMessageAsync(byte[] bytes)
+        public Task AddMessageAsync(byte[] content)
         {
-            return CloudEntity.AddMessageAsync(new CloudQueueMessage(bytes));
+            return CloudEntity.AddMessageAsync(new CloudQueueMessage(content));
+        }
+
+        public Task AddMessageAsync(byte[] content, TimeSpan visibilityTimeout)
+        {
+            return CloudEntity.AddMessageAsync(
+                message: new CloudQueueMessage(content),
+                timeToLive: null,
+                initialVisibilityDelay: visibilityTimeout,
+                options: null,
+                operationContext: null);
         }
 
         public async Task<ICloudQueueMessage> GetMessageAsync()
@@ -36,7 +46,10 @@ namespace Journalist.WindowsAzure.Storage.Queues
 
         public async Task<ICloudQueueMessage> GetMessageAsync(TimeSpan visibilityTimeout)
         {
-            var message = await CloudEntity.GetMessageAsync(visibilityTimeout, null, null);
+            var message = await CloudEntity.GetMessageAsync(
+                visibilityTimeout,
+                null,
+                null);
 
             if (message == null)
             {
@@ -50,11 +63,16 @@ namespace Journalist.WindowsAzure.Storage.Queues
                 message.AsBytes);
         }
 
-        public async Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync()
+        public Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync()
         {
-            var messages = await CloudEntity.GetMessagesAsync(CloudQueueMessage.MaxNumberOfMessagesToPeek);
+            return GetMessagesAsync(CloudQueueMessage.MaxNumberOfMessagesToPeek);
+        }
 
-            var result = new List<ICloudQueueMessage>(CloudQueueMessage.MaxNumberOfMessagesToPeek);
+        public async Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync(int messageCount)
+        {
+            var messages = await CloudEntity.GetMessagesAsync(messageCount);
+
+            var result = new List<ICloudQueueMessage>(messageCount);
             result.AddRange(
                 messages.Select(message =>
                     new CloudQueueMessageAdapter(
@@ -66,9 +84,18 @@ namespace Journalist.WindowsAzure.Storage.Queues
             return result;
         }
 
-        public async Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync(TimeSpan visibilityTimeout)
+        public Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync(TimeSpan visibilityTimeout)
         {
-            var messages = await CloudEntity.GetMessagesAsync(CloudQueueMessage.MaxNumberOfMessagesToPeek, visibilityTimeout, null, null);
+            return GetMessagesAsync(CloudQueueMessage.MaxNumberOfMessagesToPeek, visibilityTimeout);
+        }
+
+        public async Task<IReadOnlyList<ICloudQueueMessage>> GetMessagesAsync(int messageCount, TimeSpan visibilityTimeout)
+        {
+            var messages = await CloudEntity.GetMessagesAsync(
+                messageCount,
+                visibilityTimeout,
+                null,
+                null);
 
             var result = new List<ICloudQueueMessage>(CloudQueueMessage.MaxNumberOfMessagesToPeek);
             result.AddRange(

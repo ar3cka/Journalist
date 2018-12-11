@@ -95,5 +95,12 @@ namespace Journalist.Options
                 },
                 VoidValue);
         }
+
+        public static bool IsTrue<T>(this Option<T> source, Func<T, bool> filter)
+        {
+            Require.NotNull(filter, nameof(filter));
+
+            return source.Select(filter).GetOrDefault(false);
+        }
     }
 }

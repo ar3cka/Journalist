@@ -4,24 +4,14 @@ using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Streams
 {
-    public interface IEventStreamReader
+    public interface IEventStreamReader : IEventStreamInteractionEntity
     {
         Task ReadEventsAsync();
 
-        Task ContinueAsync();
+        StreamVersion ReaderStreamVersion { get; }
 
         IReadOnlyList<JournaledEvent> Events { get; }
 
         bool HasEvents { get; }
-
-        string StreamName { get; }
-
-        bool IsInitial { get; }
-
-        bool IsReading { get; }
-
-        bool IsCompleted { get; }
-
-        StreamVersion CurrentStreamVersion { get; }
     }
 }

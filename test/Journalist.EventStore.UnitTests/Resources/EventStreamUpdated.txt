@@ -1,0 +1,5 @@
+NotificationType: Journalist.EventStore.Notifications.Types.EventStreamUpdated
+NotificationId: {0}
+Stream: {1}
+FromVersion: {2}
+ToVersion: {3}

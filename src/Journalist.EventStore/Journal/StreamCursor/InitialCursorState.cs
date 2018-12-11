@@ -1,33 +1,34 @@
 using System.Threading.Tasks;
+using Journalist.EventStore.Events;
 
 namespace Journalist.EventStore.Journal.StreamCursor
 {
     public sealed class InitialCursorState : CursorState
     {
-        private readonly EventStreamPosition m_position;
         private readonly StreamVersion m_version;
         private readonly FetchEvents m_fetch;
 
-        public InitialCursorState(EventStreamPosition position, StreamVersion fromVersion, FetchEvents fetch)
+        public InitialCursorState(EventStreamHeader streamHeader, StreamVersion fromVersion, FetchEvents fetch)
+            : base(streamHeader)
         {
             Require.NotNull(fetch, "fetch");
 
-            m_position = position;
             m_version = fromVersion;
             m_fetch = fetch;
         }
 
         public override async Task<EventStreamSlice> FetchSlice()
         {
-            var slice = new EventStreamSlice(m_position, await m_fetch(m_version));
+            var fetchResult = await m_fetch(m_version);
+            var slice = new EventStreamSlice(fetchResult.Events);
 
-            if (slice.EndOfStream)
+            if (fetchResult.IsFetchingCompleted)
             {
-                NextState = new EndOfStreamCursorState();
+                NextState = new EndOfStreamCursorState(StreamHeader);
             }
             else
             {
-                NextState = new FetchingCursorState(m_position, slice.SlicePosition, m_fetch);
+                NextState = new FetchingCursorState(StreamHeader, slice.ToStreamVersion.Increment(), m_fetch);
             }
 
             return slice;

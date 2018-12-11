@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Journalist.Collections;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Journalist.WindowsAzure.Storage.Tables
@@ -13,24 +13,41 @@ namespace Journalist.WindowsAzure.Storage.Tables
             string filter,
             int? take,
             string[] properties,
-            Func<TableQuery<DynamicTableEntity>, TableContinuationToken, Task<TableQuerySegment<DynamicTableEntity>>>
-                fetchEntities,
+            FetchAsync fetchAsync,
+            FetchSync fetchSync,
+            TableRequestOptions requestOptions,
             ITableEntityConverter tableEntityConverter)
-            : base(take, properties, fetchEntities, tableEntityConverter)
+            : base(take, properties, fetchAsync, fetchSync, requestOptions, tableEntityConverter)
         {
-            Require.NotEmpty(filter, "filter");
-
             m_filter = filter;
         }
 
-        public bool HasMore
+        public Task<List<Dictionary<string, object>>> ExecuteAsync()
         {
-            get { return ReadNextSegment; }
+            return FetchEntitiesAsync(m_filter, EmptyArray.Get<byte>());
         }
 
-        public async Task<IList<IDictionary<string, object>>> ExecuteAsync()
+        public Task<List<Dictionary<string, object>>> ExecuteAsync(byte[] continuationToken)
         {
-            return await FetchEntities(m_filter);
+            Require.NotNull(continuationToken, "continuationToken");
+
+            return FetchEntitiesAsync(m_filter, continuationToken);
         }
+
+        public List<Dictionary<string, object>> Execute()
+        {
+            return FetchEntities(m_filter, EmptyArray.Get<byte>());
+        }
+
+        public List<Dictionary<string, object>> Execute(byte[] continuationToken)
+        {
+            Require.NotNull(continuationToken, "continuationToken");
+
+            return FetchEntities(m_filter, continuationToken);
+        }
+
+        public bool HasMore => ReadNextSegment;
+
+        public byte[] ContinuationToken => GetContinuationTokenBytes();
     }
 }
