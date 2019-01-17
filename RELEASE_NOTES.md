@@ -1,3 +1,6 @@
+### 0.22.0
+* [EventStore][BUGFIX] NotificationsChannel swallows exceptions in sendinternal when azure fails what leads to pendingNotification deletion 
+
 ### 0.21.0
 * [EventStore][BUGFIX] NotificationListenerSubscription loses notifications after MAX_NOTIFICATION_PROCESSING_ATTEMPT_COUNT
 
