@@ -49,18 +49,18 @@ namespace Journalist.EventStore.Notifications.Channels
             m_outgoingQueueIndex = random.Next(0, m_queueCount);
         }
 
-        public Task SendAsync(INotification notification)
+        public async Task SendAsync(INotification notification)
         {
             Require.NotNull(notification, nameof(notification));
 
-            return SendInternalAsync(notification, null);
+            await SendInternalAsync(notification, null);
         }
 
-        public Task SendAsync(INotification notification, TimeSpan visibilityTimeout)
+        public async Task SendAsync(INotification notification, TimeSpan visibilityTimeout)
         {
             Require.NotNull(notification, nameof(notification));
 
-            return SendInternalAsync(notification, visibilityTimeout);
+            await SendInternalAsync(notification, visibilityTimeout);
         }
 
         public async Task<IReceivedNotification[]> ReceiveNotificationsAsync()

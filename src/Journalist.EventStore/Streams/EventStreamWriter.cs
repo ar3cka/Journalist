@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,11 +9,14 @@ using Journalist.EventStore.Journal;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Persistence;
 using Journalist.EventStore.Notifications.Types;
+using Serilog;
 
 namespace Journalist.EventStore.Streams
 {
     public class EventStreamWriter : EventStreamInteractionEntity, IEventStreamWriter
     {
+        private static readonly ILogger s_logger = Log.ForContext<EventStreamWriter>();
+
         private readonly IEventJournal m_journal;
         private readonly IEventMutationPipeline m_mutationPipeline;
         private readonly INotificationHub m_notificationHub;
@@ -62,9 +66,22 @@ namespace Journalist.EventStore.Streams
 
             await m_pendingNotification.AddAsync(StreamName, fromVersion, mutatedEvents.Count);
             m_endOfStream = await m_journal.AppendEventsAsync(StreamName, m_endOfStream, mutatedEvents);
-            await m_notificationHub.NotifyAsync(new EventStreamUpdated(StreamName, fromVersion, m_endOfStream.Version));
-            await m_failedNotifications.DeleteAsync(StreamName);
-            await m_pendingNotification.DeleteAsync(StreamName, fromVersion);
+
+            try
+            {
+                await m_notificationHub.NotifyAsync(new EventStreamUpdated(StreamName, fromVersion, m_endOfStream.Version));
+                await m_failedNotifications.DeleteAsync(StreamName);
+                await m_pendingNotification.DeleteAsync(StreamName, fromVersion);
+            }
+            catch (Exception exception)
+            {
+                s_logger.Warning(
+                    exception,
+                    "Problem after successful events appending. {StreamName}. {FromVersion}. {ToVersion}.",
+                    StreamName,
+                    fromVersion,
+                    m_endOfStream.Version);
+            }
         }
 
         public async Task MoveToEndOfStreamAsync()

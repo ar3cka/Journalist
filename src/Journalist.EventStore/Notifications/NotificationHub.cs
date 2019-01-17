@@ -41,11 +41,11 @@ namespace Journalist.EventStore.Notifications
             m_notificationDeliveryTimeoutCalculator = notificationDeliveryTimeoutCalculator;
         }
 
-        public Task NotifyAsync(INotification notification)
+        public async Task NotifyAsync(INotification notification)
         {
             Require.NotNull(notification, nameof(notification));
 
-            return m_channel.SendAsync(notification);
+            await m_channel.SendAsync(notification);
         }
 
         public void Subscribe(INotificationListener listener)
