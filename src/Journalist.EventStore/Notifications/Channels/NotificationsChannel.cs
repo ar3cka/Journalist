@@ -181,6 +181,8 @@ namespace Journalist.EventStore.Notifications.Channels
                     exception,
                     "Notification sending failed. Notification: {@Notification}.",
                     notification);
+
+                throw;
             }
         }
     }
