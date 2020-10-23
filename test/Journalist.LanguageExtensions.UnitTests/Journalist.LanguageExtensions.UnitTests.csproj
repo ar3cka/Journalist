@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Collections\CollectionExtensionsTests.cs" />
     <Compile Include="Collections\EmptyArrayTests.cs" />
+    <Compile Include="Options\OptionFactoryExtensionsTests.cs" />
     <Compile Include="EnsureTests.cs" />
     <Compile Include="IO\EmptyMemoryStreamTests.cs" />
     <Compile Include="Options\OptionTests.cs" />
