@@ -81,9 +81,6 @@ namespace Journalist.EventStore.Notifications.Processing
             m_handlers = handlers.ToArray();
         }
 
-        public int ProcessingCount
-        {
-            get { return m_processingCount; }
-        }
+        public int ProcessingCount => m_processingCount;
     }
 }

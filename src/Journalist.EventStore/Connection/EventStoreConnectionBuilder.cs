@@ -7,6 +7,7 @@ using Journalist.EventStore.Journal.Persistence;
 using Journalist.EventStore.Notifications;
 using Journalist.EventStore.Notifications.Channels;
 using Journalist.EventStore.Notifications.Formatters;
+using Journalist.EventStore.Notifications.Persistence;
 using Journalist.EventStore.Notifications.Processing;
 using Journalist.EventStore.Streams;
 using Journalist.EventStore.Utils.Polling;
@@ -75,10 +76,17 @@ namespace Journalist.EventStore.Connection
 			var consumersRegistry = new EventStreamConsumers(deploymentTable);
 			var consumersService = new ConsumersService(consumersRegistry, eventJournal);
 
+            var failedNotificationsTable = m_factory.CreateTable(
+                m_configuration.StorageConnectionString,
+                m_configuration.FailedNotificationsTableName);
+
+            var failedNotifications = new FailedNotifications(failedNotificationsTable);
+            var notificationDeliveryTimeoutCalculator = new NotificationDeliveryTimeoutCalculator();
             var notificationHub = new NotificationHub(
                 new PollingJob("NotificationHubPollingJob", new PollingTimeout()),
-                new NotificationsChannel(queues, new NotificationFormatter()),
-                new ReceivedNotificationProcessor());
+                new NotificationsChannel(queues, new NotificationFormatter(), notificationDeliveryTimeoutCalculator, failedNotifications),
+                new ReceivedNotificationProcessor(),
+                notificationDeliveryTimeoutCalculator);
 
             var pendingNotificationTable = m_factory.CreateTable(m_configuration.StorageConnectionString, m_configuration.PendingNotificationsTableName);
             var pendingNotifications = new PendingNotifications(pendingNotificationTable);
@@ -95,7 +103,8 @@ namespace Journalist.EventStore.Connection
                 m_factory.CreateBlobContainer(
                     m_configuration.StorageConnectionString,
                     m_configuration.PendingNotificationsChaserExclusiveAccessLockBlobContainerName).CreateBlockBlob(
-                        m_configuration.PendingNotificationsChaserExclusiveAccessLockBlobName));
+                        m_configuration.PendingNotificationsChaserExclusiveAccessLockBlobName),
+                failedNotifications);
 
             connectivityState.ConnectionCreated += (sender, args) =>
             {
@@ -139,7 +148,8 @@ namespace Journalist.EventStore.Connection
                 consumersRegistry,
                 sessionFactory,
                 pipelineFactory,
-				consumersService);
+				consumersService,
+	            failedNotifications);
         }
     }
 }

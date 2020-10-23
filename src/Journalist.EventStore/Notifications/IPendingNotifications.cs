@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Journalist.EventStore.Events;
 using Journalist.EventStore.Notifications.Types;
@@ -14,6 +14,5 @@ namespace Journalist.EventStore.Notifications
         Task DeleteAsync(string streamName, StreamVersion streamVersion);
 
         Task DeleteAsync(string streamName, StreamVersion[] streamVersions);
-
     }
 }

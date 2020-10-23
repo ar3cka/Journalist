@@ -21,47 +21,50 @@ namespace Journalist.EventStore.Notifications
         private readonly IPollingJob m_pollingJob;
         private readonly INotificationsChannel m_channel;
         private readonly IReceivedNotificationProcessor m_notificationProcessor;
+        private readonly INotificationDeliveryTimeoutCalculator m_notificationDeliveryTimeoutCalculator;
 
         private int m_maxProcessingCount;
 
         public NotificationHub(
             IPollingJob pollingJob,
             INotificationsChannel channel,
-            IReceivedNotificationProcessor notificationProcessor)
+            IReceivedNotificationProcessor notificationProcessor,
+            INotificationDeliveryTimeoutCalculator notificationDeliveryTimeoutCalculator)
         {
-            Require.NotNull(pollingJob, "pollingJob");
-            Require.NotNull(channel, "channel");
-            Require.NotNull(notificationProcessor, "notificationProcessor");
+            Require.NotNull(pollingJob, nameof(pollingJob));
+            Require.NotNull(channel, nameof(channel));
+            Require.NotNull(notificationProcessor, nameof(notificationProcessor));
 
             m_pollingJob = pollingJob;
             m_channel = channel;
             m_notificationProcessor = notificationProcessor;
+            m_notificationDeliveryTimeoutCalculator = notificationDeliveryTimeoutCalculator;
         }
 
-        public Task NotifyAsync(INotification notification)
+        public async Task NotifyAsync(INotification notification)
         {
-            Require.NotNull(notification, "notification");
+            Require.NotNull(notification, nameof(notification));
 
-            return m_channel.SendAsync(notification);
+            await m_channel.SendAsync(notification);
         }
 
         public void Subscribe(INotificationListener listener)
         {
-            Require.NotNull(listener, "listener");
+            Require.NotNull(listener, nameof(listener));
 
-            m_subscriptions.Add(listener.GetType(), new NotificationListenerSubscription(m_channel, listener));
+            m_subscriptions.Add(listener.GetType(), new NotificationListenerSubscription(m_channel, listener, m_notificationDeliveryTimeoutCalculator));
         }
 
         public void Unsubscribe(INotificationListener listener)
         {
-            Require.NotNull(listener, "listener");
+            Require.NotNull(listener, nameof(listener));
 
             m_subscriptions.Remove(listener.GetType());
         }
 
         public void StartNotificationProcessing(IEventStoreConnection connection)
         {
-            Require.NotNull(connection, "connection");
+            Require.NotNull(connection, nameof(connection));
 
             if (m_subscriptions.Any())
             {

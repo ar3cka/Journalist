@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Journalist.EventStore.Notifications.Persistence;
 using Journalist.EventStore.Notifications.Types;
 using Journalist.EventStore.Utils.Cloud.Azure.Storage.Blobs;
 using Journalist.EventStore.Utils.Polling;
@@ -19,22 +20,26 @@ namespace Journalist.EventStore.Notifications
         private readonly INotificationHub m_notificationHub;
         private readonly IPollingJob m_pollingJob;
         private readonly ICloudBlockBlob m_chaserExclusiveAccessBlobLock;
+        private readonly IFailedNotifications m_failedNotifications;
 
         public PendingNotificationsChaser(
             IPendingNotifications pendingNotifications,
             INotificationHub notificationHub,
             IPollingJob pollingJob,
-            ICloudBlockBlob chaserExclusiveAccessBlobLock)
+            ICloudBlockBlob chaserExclusiveAccessBlobLock,
+            IFailedNotifications failedNotifications)
         {
-            Require.NotNull(pendingNotifications, "pendingNotifications");
-            Require.NotNull(notificationHub, "notificationHub");
-            Require.NotNull(pollingJob, "pollingJob");
-            Require.NotNull(chaserExclusiveAccessBlobLock, "chaserExclusiveAccessBlobLock");
+            Require.NotNull(pendingNotifications, nameof(pendingNotifications));
+            Require.NotNull(notificationHub, nameof(notificationHub));
+            Require.NotNull(pollingJob, nameof(pollingJob));
+            Require.NotNull(chaserExclusiveAccessBlobLock, nameof(chaserExclusiveAccessBlobLock));
+            Require.NotNull(failedNotifications, nameof(failedNotifications));
 
             m_pendingNotifications = pendingNotifications;
             m_notificationHub = notificationHub;
             m_pollingJob = pollingJob;
             m_chaserExclusiveAccessBlobLock = chaserExclusiveAccessBlobLock;
+            m_failedNotifications = failedNotifications;
         }
 
         public void Start()
@@ -94,8 +99,9 @@ namespace Journalist.EventStore.Notifications
 
         private async Task ProcessStreamNotificationAsync(string streamName, List<EventStreamUpdated> notifications)
         {
-            await m_notificationHub.NotifyAsync(notifications.First());
+            await m_notificationHub.NotifyAsync(notifications.First()); // mb max version and not first?
             await m_pendingNotifications.DeleteAsync(streamName, notifications.SelectToArray(n => n.FromVersion));
+            await m_failedNotifications.DeleteAsync(streamName); // version is ignored in listeners so there is no matter to increase complexity
         }
 
         private async Task ReleaseLeaseAsync(Lease lease)
